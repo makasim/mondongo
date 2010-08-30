@@ -149,6 +149,23 @@ class MondongoRepositoryTest extends MondongoTestCase
     $this->mondongo->getRepository('Article')->find(array('index_by' => 'no'));
   }
 
+  public function testCount()
+  {
+    $repository = $this->mondongo->getRepository('Article');
+
+    $articles = array();
+    for ($i = 1; $i <= 8; $i++)
+    {
+      $articles[] = $article = new Article();
+      $article->set('title', 'Article '.$i);
+      $article->set('is_active', (bool) ($i % 2));
+    }
+    $repository->save($articles);
+
+    $this->assertSame(8, $repository->count());
+    $this->assertSame(4, $repository->count(array('is_active' => true)));
+  }
+
   public function testRemove()
   {
     $articles = array();

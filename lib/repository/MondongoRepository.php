@@ -316,6 +316,18 @@ class MondongoRepository
   }
 
   /**
+   * Count documents.
+   *
+   * @param array $query The query.
+   *
+   * @return int The number of documents.
+   */
+  public function count($query = array())
+  {
+    return $this->getMongoCollection()->find($query)->count();
+  }
+
+  /**
    * Remove documents.
    *
    * Options:
