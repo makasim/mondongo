@@ -573,7 +573,12 @@ abstract class MondongoDocumentBaseSpeed implements ArrayAccess
   {
     foreach ($array as $name => $value)
     {
-      if (isset($this->data['fields']) && array_key_exists($name, $this->data['fields']))
+      // fields && references
+      if (
+        isset($this->data['fields']) && array_key_exists($name, $this->data['fields'])
+        ||
+        isset($this->data['references']) && array_key_exists($name, $this->data['references'])
+      )
       {
         $this->set($name, $value);
 

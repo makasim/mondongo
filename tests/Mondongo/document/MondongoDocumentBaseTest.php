@@ -290,6 +290,40 @@ class MondongoDocumentBaseTest extends MondongoTestCase
     $this->assertEquals($article->get('comments')->get(1)->get('email'), 'bar@foo.com');
   }
 
+  public function testFromArrayReferenceOne()
+  {
+    $author = new Author();
+    $author['name'] = 'Pablo';
+    $this->mondongo->save('Author', $author);
+
+    $article = new Article();
+    $article->fromArray(array(
+      'author' => $author,
+    ));
+
+    $this->assertSame($author, $article['author']);
+    $this->assertSame($author->getId(), $article['author_id']);
+  }
+
+  public function testFromArrayReferenceMany()
+  {
+    $categories = array();
+    for ($i = 1; $i <= 6; $i++)
+    {
+      $categories[$i] = $category = new Category();
+      $category['name'] = 'Category '.$i;
+    }
+    $this->mondongo->save('Category', $categories);
+
+    $article = new Article();
+    $article->fromArray(array(
+      'categories' => $cats = new MondongoGroup(array($categories[2], $categories[4])),
+    ));
+
+    $this->assertSame($cats, $article['categories']);
+    $this->assertSame(array($categories[2]->getId(), $categories[4]->getId()), $article['category_ids']);
+  }
+
   /**
    * @expectedException InvalidArgumentException
    */
