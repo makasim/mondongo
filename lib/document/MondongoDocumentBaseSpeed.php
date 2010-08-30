@@ -585,29 +585,39 @@ abstract class MondongoDocumentBaseSpeed implements ArrayAccess
         continue;
       }
 
+      // embeds
       if (isset($this->data['embeds']) && array_key_exists($name, $this->data['embeds']))
       {
-        $embed = $this->get($name);
-
-        // one
-        if ($embed instanceof MondongoDocumentEmbed)
+        // as array
+        if (is_array($value))
         {
-          $embed->fromArray($value);
+          $embed = $this->get($name);
+
+          // one
+          if ($embed instanceof MondongoDocumentEmbed)
+          {
+            $embed->fromArray($value);
+          }
+          // many
+          else
+          {
+            $embedDefinition = $this->getDefinition()->getEmbed($name);
+            $class           = $embedDefinition['class'];
+
+            $elements = array();
+            foreach ($value as $datum)
+            {
+              $elements[] = $element = new $class();
+              $element->fromArray($datum);
+            }
+
+            $embed->setElements($elements);
+          }
         }
-        // many
+        // as object
         else
         {
-          $embedDefinition = $this->getDefinition()->getEmbed($name);
-          $class           = $embedDefinition['class'];
-
-          $elements = array();
-          foreach ($value as $datum)
-          {
-            $elements[] = $element = new $class();
-            $element->fromArray($datum);
-          }
-
-          $embed->setElements($elements);
+          $this->set($name, $value);
         }
 
         continue;

@@ -324,6 +324,29 @@ class MondongoDocumentBaseTest extends MondongoTestCase
     $this->assertSame(array($categories[2]->getId(), $categories[4]->getId()), $article['category_ids']);
   }
 
+  public function testFromArrayEmbedsObjects()
+  {
+    $source = new Source();
+    $source['title'] = 'Source';
+
+    $commets = array();
+    for ($i = 1; $i <= 4; $i++)
+    {
+      $comments[$i] = $comment = new Comment();
+      $comment['name'] = 'Author '.$i;
+    }
+    $commentsGroup = $commentsGroup = new MondongoGroup($comments);
+
+    $article = new Article();
+    $article->fromArray(array(
+      'source'   => $source,
+      'comments' => $commentsGroup,
+    ));
+
+    $this->assertSame($source, $article['source']);
+    $this->assertSame($commentsGroup, $article['comments']);
+  }
+
   /**
    * @expectedException InvalidArgumentException
    */
