@@ -73,6 +73,43 @@ class MondongoDocumentBaseTest extends MondongoTestCase
     $this->assertFalse($comment->isModified());
   }
 
+  public function testSetDataEmbedsOne()
+  {
+    $article = new Article();
+    $article->setData(array(
+      'source' => array(
+        'title' => 2,
+        'url'   => 'http://mondongo.es',
+      ),
+    ));
+
+    $this->assertSame('2', $article['source']['title']);
+    $this->assertSame('http://mondongo.es', $article['source']['url']);
+  }
+
+  public function testSetDataEmbedsMany()
+  {
+    $article = new Article();
+    $article->setData(array(
+      'comments' => array(
+        array(
+          'name'    => 2,
+          'content' => 'Comment 0',
+        ),
+        array(
+          'name'    => 'Pablo',
+          'content' => 3,
+        ),
+      ),
+    ));
+
+    $this->assertEquals(2, count($article['comments']));
+    $this->assertSame('2', $article['comments'][0]['name']);
+    $this->assertSame('Comment 0', $article['comments'][0]['content']);
+    $this->assertSame('Pablo', $article['comments'][1]['name']);
+    $this->assertSame('3', $article['comments'][1]['content']);
+  }
+
   public function testSetGetFields()
   {
     $document = new MondongoDocumentTesting();
