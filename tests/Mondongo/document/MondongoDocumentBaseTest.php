@@ -110,6 +110,18 @@ class MondongoDocumentBaseTest extends MondongoTestCase
     $this->assertSame('3', $article['comments'][1]['content']);
   }
 
+  /**
+   * @expectedException InvalidArgumentException
+   */
+  public function testSetDataExtra()
+  {
+    $article = new Article();
+    $article->setData(array(
+      'title' => 'Title',
+      'foo'   => 'bar',
+    ));
+  }
+
   public function testSetGetFields()
   {
     $document = new MondongoDocumentTesting();

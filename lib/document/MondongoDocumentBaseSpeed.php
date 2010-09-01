@@ -207,6 +207,11 @@ abstract class MondongoDocumentBaseSpeed implements ArrayAccess
           unset($data[$name]);
         }
       }
+
+      if ($data)
+      {
+        throw new InvalidArgumentException('The data is not valid.');
+      }
     }
 
     // PERFORMANCE
