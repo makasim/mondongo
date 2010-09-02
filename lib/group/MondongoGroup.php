@@ -41,8 +41,8 @@ class MondongoGroup implements ArrayAccess, Countable, IteratorAggregate
    */
   public function __construct(array $elements = array(), $callback = null)
   {
-    $this->elements = $elements;
-    $this->callback = $callback;
+    $this->setElements($elements);
+    $this->setCallback($callback);
   }
 
   /*

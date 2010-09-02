@@ -21,7 +21,7 @@
 
 class MondongoGroupTest extends MondongoTestCase
 {
-  protected $elements = array('foo' => 'foobar', 'bar' => 'barfoo');
+  protected $elements = array(0 => 'foobar', 1 => 'barfoo');
 
   protected $callback = array();
 
@@ -88,13 +88,13 @@ class MondongoGroupTest extends MondongoTestCase
   {
     $group = new MondongoGroup($this->elements);
 
-    $this->assertTrue($group->exists('foo'));
-    $this->assertFalse($group->exists('no'));
+    $this->assertTrue($group->exists(0));
+    $this->assertFalse($group->exists(10));
   }
 
   public function testExistsElement()
   {
-    $group = new MondongoGroup(array('foo' => $date = new DateTime(), 'bar' => 12));
+    $group = new MondongoGroup(array(0 => $date = new DateTime(), 1 => 12));
 
     $this->assertTrue($group->existsElement($date));
     $this->assertTrue($group->existsElement(12));
@@ -105,10 +105,10 @@ class MondongoGroupTest extends MondongoTestCase
 
   public function testIndexOf()
   {
-    $group = new MondongoGroup(array('foo' => $date = new DateTime(), 'bar' => 12));
+    $group = new MondongoGroup(array(0 => $date = new DateTime(), 1 => 12));
 
-    $this->assertSame('foo', $group->indexOf($date));
-    $this->assertSame('bar', $group->indexOf(12));
+    $this->assertSame(0, $group->indexOf($date));
+    $this->assertSame(1, $group->indexOf(12));
 
     $this->assertFalse($group->indexOf(new DateTime()));
     $this->assertFalse($group->indexOf('foo'));
@@ -118,13 +118,13 @@ class MondongoGroupTest extends MondongoTestCase
   {
     $group = new MondongoGroup($this->elements);
 
-    $group->remove('bar');
+    $group->remove(1);
 
-    $this->assertTrue($group->exists('foo'));
-    $this->assertFalse($group->exists('bar'));
+    $this->assertTrue($group->exists(0));
+    $this->assertFalse($group->exists(1));
 
     $group->setCallback($this->callback);
-    $group->remove('foo');
+    $group->remove(0);
     $this->assertTrue($this->value);
   }
 
@@ -144,10 +144,10 @@ class MondongoGroupTest extends MondongoTestCase
   {
     $group = new MondongoGroup($this->elements);
 
-    $this->assertTrue(isset($group['foo']));
-    $this->assertFalse(isset($group['no']));
+    $this->assertTrue(isset($group[0]));
+    $this->assertFalse(isset($group[10]));
 
-    $this->assertSame('foobar', $group['foo']);
+    $this->assertSame('foobar', $group[0]);
     $this->assertNull($group['no']);
 
     $group['ups'] = 'spu';
