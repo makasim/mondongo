@@ -330,22 +330,13 @@ class MondongoRepository
   /**
    * Remove documents.
    *
-   * Options:
-   *
-   *   * query: the query
-   *
-   * @param string $options An array of options.
+   * @param array $criteria Description of documents to remove.
    *
    * @return void
    */
-  public function remove($options = array())
+  public function remove($criteria = array())
   {
-    if (!isset($options['query']))
-    {
-      $options['query'] = array();
-    }
-
-    $this->getCollection()->remove($options['query']);
+    $this->getCollection()->remove($criteria);
   }
 
   /**

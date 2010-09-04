@@ -156,7 +156,7 @@ class MondongoTest extends MondongoTestCase
     }
     $this->mondongo->save('Article', $articles);
 
-    $this->mondongo->remove('Article', array('query' => array('title' => 'Article 1')));
+    $this->mondongo->remove('Article', array('title' => 'Article 1'));
     $this->assertEquals(8, count($this->mondongo->find('Article')));
   }
 

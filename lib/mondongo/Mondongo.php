@@ -294,16 +294,16 @@ class Mondongo
   /**
    * Remove documents.
    *
-   * @param string $name    The document name.
-   * @param array  $options An array of options.
+   * @param string $name     The document name.
+   * @param array  $criteria Description of the documents to remove.
    *
    * @return void
    *
    * @see MondongoRepository::remove()
    */
-  public function remove($name, $options = array())
+  public function remove($name, $criteria = array())
   {
-    $this->getRepository($name)->remove($options);
+    $this->getRepository($name)->remove($criteria);
   }
 
   /**

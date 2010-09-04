@@ -179,7 +179,7 @@ class MondongoRepositoryTest extends MondongoTestCase
 
     $repository = $this->mondongo->getRepository('Article');
 
-    $repository->remove(array('query' => array('_id' => new MongoId($id = $articles[5]->getId()))));
+    $repository->remove(array('_id' => new MongoId($id = $articles[5]->getId())));
     $this->assertEquals(7, count((array) $repository->find()));
 
     $repository->remove();
