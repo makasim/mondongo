@@ -56,16 +56,12 @@ class MondongoDocumentTest extends MondongoTestCase
     $article = new Article();
     $this->assertSame(array(
       'is_active' => false,
-      'source'    => array(),
-      'comments'  => array(),
     ), $article->getQueryForSave());
 
     $article->set('options', $options = array('foo' => 'bar'));
     $this->assertSame(array(
       'is_active' => false,
       'options'   => serialize($options),
-      'source'    => array(),
-      'comments'  => array(),
     ), $article->getQueryForSave());
 
     $source = new Source();
@@ -96,11 +92,6 @@ class MondongoDocumentTest extends MondongoTestCase
     $this->assertSame(array('$set' => array(
       'title'     => 'Mondongo',
       'is_active' => true,
-      'source'    => array('title' => 'Foo'),
-      'comments'  => array(
-        array('name'  => 'Pablo'),
-        array('email' => 'foo@bar.com'),
-      ),
     )), $article->getQueryForSave());
 
     $article = new Article();
@@ -110,27 +101,6 @@ class MondongoDocumentTest extends MondongoTestCase
 
     $this->assertSame(array(
       '$unset' => array('title' => 1),
-      '$set'   => array(
-        'source'   => array(),
-        'comments' => array(),
-      ),
-    ), $article->getQueryForSave());
-
-    $article = $this->mondongo->find('Article', array('query' => array('_id' => $article->getId()), 'fields' => array('title' => 1), 'one' => true));
-    $this->assertSame(array(
-      '$set' => array(
-      'source'   => array(),
-      'comments' => array(),
-      ),
-    ), $article->getQueryForSave());
-
-    $article->set('is_active', false);
-    $this->assertSame(array(
-      '$set' => array(
-        'is_active' => false,
-        'source'    => array(),
-        'comments'  => array(),
-      )
     ), $article->getQueryForSave());
   }
 
@@ -156,6 +126,109 @@ class MondongoDocumentTest extends MondongoTestCase
     ));
 
     $this->assertEquals($result, $user->getQueryForSave());
+  }
+
+  public function testQueryForSaveModifyEmbedOne()
+  {
+    $user = new User();
+    $user['profile']['first_name'] = 'Pablo';
+    $this->mondongo->save('User', $user);
+    $user['profile']['first_name'] = 'Mondongo';
+
+    $this->assertSame(array(
+      '$set' => array(
+        'profile.first_name' => 'Mondongo',
+      )
+    ), $user->getQueryForSave());
+  }
+
+  public function testQueryForSaveModifyEmbedMany()
+  {
+    $article = new Article();
+
+    $comments = array();
+    for ($i = 1; $i <= 10; $i++)
+    {
+      $comments[$i] = $comment = new Comment();
+      $comment['name'] = 'Comment '.$i;
+      $article['comments']->add($comment);
+    }
+
+    $this->mondongo->save('Article', $article);
+
+    $article['comments'][0]['name'] = 'Comment 1 Modified';
+    $article['comments'][5]['name'] = 'Comment 6 Modified';
+
+    $this->assertSame(array(
+      '$set' => array(
+        'comments.0.name' => 'Comment 1 Modified',
+        'comments.5.name' => 'Comment 6 Modified',
+      ),
+    ), $article->getQueryForSave());
+
+    $this->mondongo->save('Article', $article);
+
+    $article['comments']->remove(3);
+    $article['comments']->remove(5);
+
+    $comments[11] = $comment = new Comment();
+    $comment['name'] = 'Comment 11';
+    $article['comments']->add($comment);
+
+    $comments[12] = $comment = new Comment();
+    $comment['name'] = 'Comment 12';
+    $article['comments']->add($comment);
+
+    $this->assertSame(array(
+      '$pushAll' => array(
+        'comments' => array(
+          array(
+            'name' => 'Comment 11',
+          ),
+          array(
+            'name' => 'Comment 12',
+          ),
+        ),
+      ),
+      '$pullAll' => array(
+        'comments' => array(
+          array(
+            'name' => 'Comment 4',
+          ),
+          array(
+            'name' => 'Comment 6 Modified',
+          ),
+        ),
+      ),
+    ), $article->getQueryForSave());
+  }
+
+  public function testQueryForSaveDeepEmbeds()
+  {
+    $user = new User();
+    $user['profile'] = $profile1 = new UserProfile();
+    $profile1['first_name'] = 'Pablo';
+    $this->mondongo->save('User', $user);
+
+    $profile1['contacts'][0] = $contact1 = new UserProfileContact();
+    $contact1['address'] = 'A1';
+    $contact1['phonenumbers'][0] = $phonenumber1 = new UserProfileContactPhonenumber();
+    $phonenumber1['number'] = 'P1';
+
+    $this->assertSame(array(
+      '$pushAll' => array(
+        'profile.contacts' => array(
+          array(
+            'address' => 'A1',
+            'phonenumbers' => array(
+              array(
+                'number' => 'P1',
+              ),
+            ),
+          ),
+        ),
+      ),
+    ), $user->getQueryForSave());
   }
 
   public function testRelationsOne()

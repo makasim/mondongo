@@ -29,20 +29,20 @@ class MondongoGroup implements ArrayAccess, Countable, IteratorAggregate
 {
   protected $elements = array();
 
+  protected $originalElements = array();
+
   protected $callback = array();
 
   /*
    * Constructor.
    *
    * @param array $elements An array of elements (optional).
-   * @param mixed $callback A callback for the changes (optional).
    *
    * @return void
    */
-  public function __construct(array $elements = array(), $callback = null)
+  public function __construct(array $elements = array())
   {
     $this->setElements($elements);
-    $this->setCallback($callback);
   }
 
   /*
@@ -65,6 +65,26 @@ class MondongoGroup implements ArrayAccess, Countable, IteratorAggregate
   public function getElements()
   {
     return $this->elements;
+  }
+
+  /**
+   * Returns the original elements.
+   *
+   * @return array The original elements.
+   */
+  public function getOriginalElements()
+  {
+    return $this->originalElements;
+  }
+
+  /**
+   * Save the original elements.
+   *
+   * @return void
+   */
+  public function saveOriginalElements()
+  {
+    $this->originalElements = $this->elements;
   }
 
   /*

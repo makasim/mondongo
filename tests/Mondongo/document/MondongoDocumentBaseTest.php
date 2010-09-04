@@ -108,6 +108,7 @@ class MondongoDocumentBaseTest extends MondongoTestCase
     $this->assertSame('Comment 0', $article['comments'][0]['content']);
     $this->assertSame('Pablo', $article['comments'][1]['name']);
     $this->assertSame('3', $article['comments'][1]['content']);
+    $this->assertSame(2, count($article['comments']->getOriginalElements()));
   }
 
   /**
@@ -120,6 +121,51 @@ class MondongoDocumentBaseTest extends MondongoTestCase
       'title' => 'Title',
       'foo'   => 'bar',
     ));
+  }
+
+  public function testGetDocumentData()
+  {
+    $article = new Article();
+    $article->fromArray(array(
+      'title' => 'Mondongo',
+    ));
+
+    $this->assertSame(array(
+      'fields' => array(
+        'author_id'    => null,
+        'title'        => 'Mondongo',
+        'content'      => null,
+        'category_ids' => null,
+        'is_active'    => false,
+        'options'      => null,
+      ),
+      'references' => array(
+        'author'     => null,
+        'categories' => null,
+      ),
+      'embeds' => array(
+        'source'   => null,
+        'comments' => null,
+      ),
+      'relations' => array(
+      ),
+    ), $article->getDocumentData());
+  }
+
+  public function testGetDocumentDataToMongo()
+  {
+    $article = new Article();
+    $article['options'] = array('foo' => 'bar', 'bar' => 'foo');
+    $article['source'] = $source = new Source();
+    $source['title'] = 10;
+
+    $this->assertSame(array(
+      'is_active' => false,
+      'options'   => 'a:2:{s:3:"foo";s:3:"bar";s:3:"bar";s:3:"foo";}',
+      'source'    => array(
+        'title' => '10',
+      ),
+    ), $article->getDocumentDataToMongo());
   }
 
   public function testSetGetFields()

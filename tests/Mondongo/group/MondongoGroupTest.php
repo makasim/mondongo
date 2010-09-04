@@ -21,7 +21,9 @@
 
 class MondongoGroupTest extends MondongoTestCase
 {
-  protected $elements = array(0 => 'foobar', 1 => 'barfoo');
+  protected $element0;
+  protected $element1;
+  protected $elements;
 
   protected $callback = array();
 
@@ -29,6 +31,12 @@ class MondongoGroupTest extends MondongoTestCase
 
   public function setUp()
   {
+    $this->element0 = new Comment();
+    $this->element0['name'] = 'Element0';
+    $this->element1 = new Comment();
+    $this->element1['name'] = 'Element0';
+    $this->elements = array($this->element0, $this->element1);
+
     $this->callback = array($this, 'changeValue');
     $this->value    = false;
   }
@@ -43,15 +51,28 @@ class MondongoGroupTest extends MondongoTestCase
     $group = new MondongoGroup($this->elements);
     $this->assertSame($this->elements, $group->getElements());
 
-    $group->setElements($elements = array('ups', 'spu'));
+    $group->setElements($elements = array(new Comment(), new Comment()));
     $this->assertSame($elements, $group->getElements());
+  }
+
+  public function testOriginalElements()
+  {
+    $group = new MondongoGroup($this->elements);
+
+    $this->assertSame(array(), $group->getOriginalElements());
+    $group->saveOriginalElements();
+    $this->assertSame($originalElements = array(
+      $this->element0,
+      $this->element1,
+    ), $group->getOriginalElements());
+    $group->add(new Comment());
+    $this->assertSame($originalElements, $group->getOriginalElements());
   }
 
   public function testCallback()
   {
-    $group = new MondongoGroup(array(), 'callback');
+    $group = new MondongoGroup();
 
-    $this->assertEquals('callback', $group->getCallback());
     $group->setCallback('foobar');
     $this->assertEquals('foobar', $group->getCallback());
   }
@@ -61,12 +82,12 @@ class MondongoGroupTest extends MondongoTestCase
     $elements = $this->elements;
     $group    = new MondongoGroup($elements);
 
-    $group->add('ups');
-    array_push($elements, 'ups');
+    $group->add($comment = new Comment());
+    array_push($elements, $comment);
     $this->assertSame($elements, $group->getElements());
 
     $group->setCallback($this->callback);
-    $group->add('ups');
+    $group->add($comment);
     $this->assertTrue($this->value);
   }
 
@@ -75,12 +96,12 @@ class MondongoGroupTest extends MondongoTestCase
     $elements = $this->elements;
     $group    = new MondongoGroup($elements);
 
-    $group->set('ups', 'spu');
-    $elements['ups'] = 'spu';
+    $group->set(20, $comment = new Comment());
+    $elements[20] = $comment;
     $this->assertSame($elements, $group->getElements());
 
     $group->setCallback($this->callback);
-    $group->set('foobar', true);
+    $group->set('foobar', new Comment);
     $this->assertTrue($this->value);
   }
 
@@ -135,7 +156,8 @@ class MondongoGroupTest extends MondongoTestCase
     $group->clear();
     $this->assertSame(array(), $group->getElements());
 
-    $group = new MondongoGroup($this->elements, $this->callback);
+    $group = new MondongoGroup($this->elements);
+    $group->setCallback($this->callback);
     $group->clear();
     $this->assertTrue($this->value);
   }
@@ -147,14 +169,14 @@ class MondongoGroupTest extends MondongoTestCase
     $this->assertTrue(isset($group[0]));
     $this->assertFalse(isset($group[10]));
 
-    $this->assertSame('foobar', $group[0]);
+    $this->assertSame($this->element0, $group[0]);
     $this->assertNull($group['no']);
 
-    $group['ups'] = 'spu';
-    $this->assertSame('spu', $group['ups']);
+    $group[10] = $comment = new Comment();
+    $this->assertSame($comment, $group[10]);
 
-    unset($group['ups']);
-    $this->assertNull($group['ups']);
+    unset($group[10]);
+    $this->assertNull($group[10]);
   }
 
   public function testCountable()

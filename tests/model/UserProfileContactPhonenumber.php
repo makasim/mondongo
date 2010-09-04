@@ -19,15 +19,12 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class UserProfileContact extends MondongoDocumentEmbed
+class UserProfileContactPhonenumber extends MondongoDocumentEmbed
 {
   static public function define($definition)
   {
     $definition->setFields(array(
-      'address'     => 'string',
-      'phonenumber' => 'string',
+      'number' => 'string',
     ));
-
-    $definition->embed('phonenumbers', array('class' => 'UserProfileContactPhonenumber', 'type' => 'many'));
   }
 }

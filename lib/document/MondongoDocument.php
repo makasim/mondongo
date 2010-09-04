@@ -110,91 +110,138 @@ abstract class MondongoDocument extends MondongoDocumentBase
   {
     $query = array();
 
+    return $this->queryDocument($query, null, $this);
+  }
+
+  protected function queryDocument($query, $name, $document)
+  {
+    $definition = $document->getDefinition();
+    $data       = $document->getDocumentData();
+
     // fields
-    foreach (array_keys($this->getFieldsModified()) as $field)
+    if ($fieldsModified = $document->getFieldsModified())
     {
-      if ($this->isNew())
+      $fields = array();
+      foreach (array_keys($fieldsModified) as $field)
       {
-        $query[$field] = $this->data['fields'][$field];
-      }
-      else
-      {
-        if (null === $value = $this->data['fields'][$field])
+        if (null !== $value = $data['fields'][$field])
         {
-          $query['$unset'][$field] = 1;
+          $fields[$field] = $value;
         }
+      }
+
+      if ($fields)
+      {
+        $closure = $definition->getClosureToMongo();
+        $fields  = $closure($fields);
+      }
+
+      foreach (array_keys($fieldsModified) as $field)
+      {
+        // insert
+        if ($this->isNew())
+        {
+          // base
+          if (null === $name)
+          {
+            $query[$field] = $fields[$field];
+          }
+          // embed
+          else
+          {
+            $q =& $query;
+            foreach ($name as $n)
+            {
+              if (!isset($q[$n]))
+              {
+                $q[$n] = array();
+              }
+              $q =& $q[$n];
+            }
+
+            $q[$field] = $fields[$field];
+          }
+        }
+        // update
         else
         {
-          $query['$set'][$field] = $value;
+          $fieldName = (null === $name ? '' : implode('.', $name).'.').$field;
+
+          // set
+          if (array_key_exists($field, $fields))
+          {
+            $query['$set'][$fieldName] = $fields[$field];
+          }
+          // unset
+          else
+          {
+            $query['$unset'][$fieldName] = 1;
+          }
         }
       }
-    }
-
-    if ($this->isNew())
-    {
-      $closure = $this->getDefinition()->getClosureToMongo();
-      $query   = $closure($query);
-    }
-    else if (isset($query['$set']))
-    {
-      $closure       = $this->getDefinition()->getClosureToMongo();
-      $query['$set'] = $this->getDefinition()->dataToMongo($query['$set']);
     }
 
     // embeds
-    if (isset($this->data['embeds']))
+    if (isset($data['embeds']))
     {
-      foreach (array_keys($this->data['embeds']) as $name)
+      foreach ($data['embeds'] as $embedName => $embed)
       {
-        $embed = $this->get($name);
-
         if (null !== $embed)
         {
-          $value = $this->queryForSaveEmbed($embed);
+          $embedName = null === $name ? array($embedName) : array_merge($name, array($embedName));
 
-          if ($this->isNew())
+          // one
+          if ($embed instanceof MondongoDocumentEmbed)
           {
-            $query[$name] = $value;
+            $query = $this->queryDocument($query, $embedName, $embed);
           }
+          // many
           else
           {
-            $query['$set'][$name] = $value;
+            $elements = $embed->getElements();
+
+            // insert
+            if ($this->isNew())
+            {
+              foreach ($elements as $key => $element)
+              {
+                $query = $this->queryDocument($query, array_merge($embedName, array($key)), $element);
+              }
+            }
+            // update
+            else
+            {
+              $originalElements = $embed->getOriginalElements();
+
+              // insert
+              foreach ($elements as $key => $element)
+              {
+                if (!isset($originalElements[$key]) || spl_object_hash($element) != spl_object_hash($originalElements[$key]))
+                {
+                  $query['$pushAll'][implode('.', $embedName)][] = $element->getDocumentDataToMongo();
+                }
+                // update
+                else
+                {
+                  $query = $this->queryDocument($query, array_merge($embedName, array($key)), $element);
+                }
+              }
+
+              // delete
+              foreach ($originalElements as $key => $element)
+              {
+                if (!isset($elements[$key]) || spl_object_hash($element) != spl_object_hash($elements[$key]))
+                {
+                  $query['$pullAll'][implode('.', $embedName)][] = $element->getDocumentDataToMongo();
+                }
+              }
+            }
           }
         }
       }
     }
 
     return $query;
-  }
-
-  protected function queryForSaveEmbed($embed)
-  {
-    // one
-    if ($embed instanceof MondongoDocumentEmbed)
-    {
-      $definition = $embed->getDefinition();
-
-      if ($value = $embed->toArray(false))
-      {
-        $value = $definition->dataToMongo($value);
-      }
-
-      foreach ($definition->getEmbeds() as $name => $embedDefinition)
-      {
-        $value[$name] = $this->queryForSaveEmbed($embed->get($name));
-      }
-    }
-    // many
-    else
-    {
-      $value = array();
-      foreach ($embed as $key => $e)
-      {
-        $value[$key] = $this->queryForSaveEmbed($e);
-      }
-    }
-
-    return $value;
   }
 
   /**

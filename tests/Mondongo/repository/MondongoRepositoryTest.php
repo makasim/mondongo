@@ -357,6 +357,43 @@ class MondongoRepositoryTest extends MondongoTestCase
     $this->mondongo->getRepository('Author')->save(new Author());
   }
 
+  public function testSaveWithCombinedCommands()
+  {
+    $repository = $this->mondongo->getRepository('Article');
+
+    $article = new Article();
+    $article['title'] = 'Mon';
+    $article['content'] = 'Dongo';
+    $article['comments']->add($comment1 = new Comment());
+    $comment1['name'] = 'Comment1';
+    $article['comments']->add($comment2 = new Comment());
+    $comment2['name'] = 'Comment2';
+
+    $repository->save($article);
+
+    $article['title'] = 'Mondongo';
+    $article['content'] = null;
+    $article['comments']->add($comment3 = new Comment());
+    $comment3['name'] = 'Comment3';
+    $article['comments']->remove(1);
+
+    $repository->save($article);
+
+    $this->assertEquals(array(
+      '_id'       => $article->getId(),
+      'title'     => 'Mondongo',
+      'is_active' => false,
+      'comments'  => array(
+        array(
+          'name' => 'Comment1',
+        ),
+        array(
+          'name' => 'Comment3',
+        ),
+      ),
+    ), $this->db->article->findOne(array('_id' => $article->getId())));
+  }
+
   public function testDelete()
   {
     $repository = $this->mondongo->getRepository('Article');

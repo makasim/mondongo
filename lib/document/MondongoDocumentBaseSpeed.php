@@ -146,6 +146,8 @@ abstract class MondongoDocumentBaseSpeed implements ArrayAccess
             {
               $e->clearFieldsModified();
             }
+
+            $embed->saveOriginalElements();
           }
         }
       }
@@ -202,6 +204,7 @@ abstract class MondongoDocumentBaseSpeed implements ArrayAccess
             }
 
             $embed->setElements($elements);
+            $embed->saveOriginalElements();
           }
 
           unset($data[$name]);
@@ -219,6 +222,69 @@ abstract class MondongoDocumentBaseSpeed implements ArrayAccess
     $this->clearFieldsModified();
     */
     $this->fieldsModified = array();
+  }
+
+  /**
+   * Returns the document data.
+   *
+   * @return array The document data.
+   */
+  public function getDocumentData()
+  {
+    return $this->data;
+  }
+
+  /**
+   * Returns the document data to Mongo.
+   *
+   * @return array The document data to Mongo.
+   */
+  public function getDocumentDataToMongo()
+  {
+    $data = array();
+
+    // fields
+    if (isset($this->data['fields']))
+    {
+      $fields = array();
+      foreach ($this->data['fields'] as $name => $value)
+      {
+        if (null !== $value)
+        {
+          $fields[$name] = $value;
+        }
+      }
+
+      $closure = $this->getDefinition()->getClosureToMongo();
+      $data = $closure($fields);
+    }
+
+    // embeds
+    if (isset($this->data['embeds']))
+    {
+      foreach ($this->data['embeds'] as $name => $embed)
+      {
+        if (null !== $embed)
+        {
+          // one
+          if ($embed instanceof MondongoDocumentEmbed)
+          {
+            $data[$name] = $embed->getDocumentDataToMongo();
+          }
+          // many
+          else
+          {
+            $data[$name] = array();
+            foreach ($embed as $key => $element)
+            {
+              $data[$name][$key] = $element->getDocumentDataToMongo();
+            }
+          }
+        }
+      }
+    }
+
+    return $data;
   }
 
   /**
@@ -492,7 +558,8 @@ abstract class MondongoDocumentBaseSpeed implements ArrayAccess
 
           if ($value = $repository->find(array('_id' => array('$in' => $id))))
           {
-            $value = new MondongoGroup($value, array($this, 'updateReferences'));
+            $value = new MondongoGroup($value);
+            $value->setCallback(array($this, 'updateReferences'));
           }
         }
 

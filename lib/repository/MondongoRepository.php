@@ -441,7 +441,32 @@ class MondongoRepository
           // preSave
           $this->notifyEvent($document, $events, $extensions, 'preSave');
 
-          $this->collection->update(array('_id' => $document->getId()), $document->getQueryForSave());
+          $update = $document->getQueryForSave();
+
+          // $set && $unset
+          $updatum = array();
+          foreach (array('$set', '$unset') as $command)
+          {
+            if (isset($update[$command]))
+            {
+              $updatum[$command] = $update[$command];
+            }
+          }
+          if ($updatum)
+          {
+            $this->collection->update(array('_id' => $document->getId()), $updatum);
+          }
+
+          // $pushAll && $pullAll
+          // mongodb don't support (yet) same fields in $pushAll and $pullAll
+          foreach (array('$pushAll', '$pullAll') as $command)
+          {
+            if (isset($update[$command]))
+            {
+              $this->collection->update(array('_id' => $document->getId()), array($command => $update[$command]));
+              unset($update[$command]);
+            }
+          }
 
           $document->clearModified();
 
