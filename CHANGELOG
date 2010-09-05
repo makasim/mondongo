@@ -1,3 +1,16 @@
+05/09/2010 - Version 0.9.2
+--------------------------
+
+ * [4020acf] added removeElement function to MondongoGroup and return the element in remove function
+ * [6a6ef8b] revert change of repository remove api (too verbose)
+ * [f72bc3a] used atomic operations with embeds
+ * [3637104] changed the constructor and some tests of MondongoGroup
+ * [c521515] check the extra data hydrating documents
+ * [5999725] fixed hydrate the embeds with toPHP function of types
+ * [3fd6a24] allow embeds as objects in the fromArray method of documents
+ * [884e563] allow references (by reference name) in the fromArray method of documents
+ * [7ca18f3] added count method to the repository
+
 27/08/2010 - Version 0.9.1
 --------------------------
 
