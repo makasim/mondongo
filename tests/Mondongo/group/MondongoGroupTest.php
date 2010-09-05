@@ -139,13 +139,36 @@ class MondongoGroupTest extends MondongoTestCase
   {
     $group = new MondongoGroup($this->elements);
 
-    $group->remove(1);
+    $this->assertSame($this->element1, $group->remove(1));
 
     $this->assertTrue($group->exists(0));
     $this->assertFalse($group->exists(1));
 
     $group->setCallback($this->callback);
+
+    $this->assertNull($group->remove(10));
+    $this->assertFalse($this->value);
+
     $group->remove(0);
+    $this->assertTrue($this->value);
+  }
+
+  public function testRemoveElement()
+  {
+    $group = new MondongoGroup($this->elements);
+
+    $this->assertTrue($group->removeElement($this->element1));
+
+    $this->assertTrue($group->existsElement($this->element0));
+    $this->assertFalse($group->existsElement($this->element1));
+
+    $group->setCallback($this->callback);
+
+    $this->assertFalse($group->removeElement(new Comment()));
+    $this->assertFalse($this->value);
+
+
+    $group->removeElement($this->element0);
     $this->assertTrue($this->value);
   }
 

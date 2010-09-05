@@ -204,13 +204,42 @@ class MondongoGroup implements ArrayAccess, Countable, IteratorAggregate
    *
    * @param mixed $key The key.
    *
-   * @return void
+   * @return mixed The element if exists, NULL otherwise.
    */
   public function remove($key)
   {
-    unset($this->elements[$key]);
+    if (isset($this->elements[$key]))
+    {
+      $element = $this->elements[$key];
+      unset($this->elements[$key]);
 
-    $this->callback();
+      $this->callback();
+
+      return $element;
+    }
+
+    return null;
+  }
+
+  /**
+   * Remove an element if exists.
+   *
+   * @param mixed $element The element.
+   *
+   * @return bool TRUE if the element exists, FALSE otherwise.
+   */
+  public function removeElement($element)
+  {
+    if (false !== $key = $this->indexOf($element))
+    {
+      unset($this->elements[$key]);
+
+      $this->callback();
+
+      return true;
+    }
+
+    return false;
   }
 
   /**
