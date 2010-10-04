@@ -48,6 +48,7 @@ class CoreStart extends Extension
         $this->processInitFields();
         $this->processInitReferences();
         $this->processInitEmbeds();
+        $this->processInitRelations();
     }
 
     /*
@@ -185,10 +186,20 @@ EOF
     /*
      * Init Embeds.
      */
-    public function processInitEmbeds()
+    protected function processInitEmbeds()
     {
         if (!isset($this->classData['embeds'])) {
             $this->classData['embeds'] = array();
+        }
+    }
+
+    /*
+     * Init relations.
+     */
+    protected function processInitRelations()
+    {
+        if (!isset($this->classData['relations'])) {
+            $this->classData['relations'] = array();
         }
     }
 }

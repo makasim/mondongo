@@ -54,6 +54,7 @@ class CoreEnd extends Extension
         $this->processDocumentFields();
         $this->processDocumentReferences();
         $this->processDocumentEmbeds();
+        $this->processDocumentRelations();
 
         // repository
         $this->processRepositoryDocumentClassProperty();
@@ -93,6 +94,11 @@ class CoreEnd extends Extension
         // embeds
         foreach ($this->classData['embeds'] as $name => $embed) {
             $data['embeds'][$name] = null;
+        }
+
+        // relations
+        foreach ($this->classData['relations'] as $name => $relation) {
+            $data['relations'][$name] = null;
         }
 
         $this->container['document_base']->addProperty(new Property('protected', 'data', $data));
@@ -411,6 +417,45 @@ EOF;
             }
 
             $this->container['document_base']->addMethod(new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode));
+            $this->container['document_base']->addMethod(new Method('public', 'get'.Inflector::camelize($name), '', $getterCode));
+        }
+    }
+
+    /*
+     * Document relations.
+     */
+    protected function processDocumentRelations()
+    {
+        foreach ($this->classData['relations'] as $name => $relation) {
+            /*
+             * one
+             */
+            if ('one' == $relation['type']) {
+                $getterCode = <<<EOF
+        if (null === \$this->data['relations']['$name']) {
+            \$this->data['relations']['$name'] = \Mondongo\Container::getForDocumentClass('{$relation['class']}')->getRepository('{$relation['class']}')->find(array(
+                'query' => array('{$relation['field']}' => \$this->getId()),
+                'one'   => true,
+            ));
+        }
+
+        return \$this->data['relations']['$name'];
+EOF;
+            /*
+             * many
+             */
+            } else {
+                $getterCode = <<<EOF
+        if (null === \$this->data['relations']['$name']) {
+            \$this->data['relations']['$name'] = \Mondongo\Container::getForDocumentClass('{$relation['class']}')->getRepository('{$relation['class']}')->find(array(
+                'query' => array('{$relation['field']}' => \$this->getId()),
+            ));
+        }
+
+        return \$this->data['relations']['$name'];
+EOF;
+            }
+
             $this->container['document_base']->addMethod(new Method('public', 'get'.Inflector::camelize($name), '', $getterCode));
         }
     }

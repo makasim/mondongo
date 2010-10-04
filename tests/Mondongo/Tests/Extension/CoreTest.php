@@ -27,6 +27,7 @@ use Mondongo\Group;
 use Mondongo\Mondongo;
 use Model\Document\Article;
 use Model\Document\Author;
+use Model\Document\AuthorTelephone;
 use Model\Document\Category;
 use Model\Document\Comment;
 use Model\Document\Source;
@@ -105,6 +106,20 @@ class CoreTest extends TestCase
                 'comments' => null,
             ),
         ), $article->getDocumentData());
+
+        $author = new Author();
+        $this->assertSame(array(
+            'fields' => array(
+                'name'         => null,
+                'telephone_id' => null,
+            ),
+            'references' => array(
+                'telephone' => null,
+            ),
+            'relations' => array(
+                'articles' => null,
+            ),
+        ), $author->getDocumentData());
     }
 
     public function testDocumentFieldsModifiedsProperty()
@@ -387,6 +402,48 @@ class CoreTest extends TestCase
     {
         $article = new Article();
         $article->setComments(new Comment());
+    }
+
+    public function testDocumentRelationsOne()
+    {
+        $telephone = new AuthorTelephone();
+        $telephone->setNumber('123');
+        $telephone->save();
+
+        $telephoneAuthor = array();
+        for ($i = 1; $i <= 10; $i++) {
+            $author = new Author();
+            $author->setName('Author '.$i);
+            if (3 == $i) {
+                $telephoneAuthor = $author;
+                $author->setTelephoneId($telephone->getId()->__toString());
+            }
+            $author->save();
+        }
+
+        $this->assertEquals($telephoneAuthor, $result = $telephone->getAuthor());
+        $this->assertSame($result, $telephone->getAuthor());
+    }
+
+    public function testDocumentRelationsMany()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+
+        $articles = array();
+        for ($i = 1; $i <= 10; $i++) {
+            $article = new Article();
+            if ($i % 2) {
+                $articles[] = $article;
+                $article->setAuthorId($author->getId()->__toString());
+            }
+            $article->setTitle('Article '.$i);
+            $article->save();
+        }
+
+        $this->assertEquals($articles, $results = $author->getArticles());
+        $this->assertSame($results, $author->getArticles());
     }
 
     public function testDocumentSetDocumentDataMethod()

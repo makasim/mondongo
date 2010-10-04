@@ -23,7 +23,22 @@ use \Mondongo\Mondator\Output;
 $classes = array(
     'Author' => array(
         'fields' => array(
-            'name' => 'string',
+            'name'         => 'string',
+            'telephone_id' => 'id',
+        ),
+        'references' => array(
+            'telephone' => array('class' => 'Model\Document\AuthorTelephone', 'field' => 'telephone_id', 'type' => 'one'),
+        ),
+        'relations' => array(
+            'articles' => array('class' => 'Model\Document\Article', 'field' => 'author_id', 'type' => 'many'),
+        ),
+    ),
+    'AuthorTelephone' => array(
+        'fields' => array(
+            'number' => 'string',
+        ),
+        'relations' => array(
+            'author' => array('class' => 'Model\Document\Author', 'field' => 'telephone_id', 'type' => 'one'),
         ),
     ),
     'Category' => array(
