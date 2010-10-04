@@ -42,7 +42,7 @@ abstract class Author extends \Mondongo\Document\Document
             $this->data['fields']['name'] = (string) $data['name'];
         }
         if (isset($data['telephone_id'])) {
-            $this->data['fields']['telephone_id'] = (string) $data['telephone_id'];
+            $this->data['fields']['telephone_id'] = $data['telephone_id'];
         }
 
 
@@ -55,7 +55,7 @@ abstract class Author extends \Mondongo\Document\Document
             $fields['name'] = (string) $fields['name'];
         }
         if (isset($fields['telephone_id'])) {
-            $fields['telephone_id'] = new \MongoId($fields['telephone_id']);
+            $fields['telephone_id'] = $fields['telephone_id'];
         }
 
 

@@ -416,7 +416,7 @@ class CoreTest extends TestCase
             $author->setName('Author '.$i);
             if (3 == $i) {
                 $telephoneAuthor = $author;
-                $author->setTelephoneId($telephone->getId()->__toString());
+                $author->setTelephoneId($telephone->getId());
             }
             $author->save();
         }
@@ -436,7 +436,7 @@ class CoreTest extends TestCase
             $article = new Article();
             if ($i % 2) {
                 $articles[] = $article;
-                $article->setAuthorId($author->getId()->__toString());
+                $article->setAuthorId($author->getId());
             }
             $article->setTitle('Article '.$i);
             $article->save();

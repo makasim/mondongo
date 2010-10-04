@@ -24,7 +24,7 @@ $classes = array(
     'Author' => array(
         'fields' => array(
             'name'         => 'string',
-            'telephone_id' => 'id',
+            'telephone_id' => 'raw',
         ),
         'references' => array(
             'telephone' => array('class' => 'Model\Document\AuthorTelephone', 'field' => 'telephone_id', 'type' => 'one'),
@@ -66,7 +66,7 @@ $classes = array(
             'title'        => 'string',
             'content'      => 'string',
             'is_active'    => 'boolean',
-            'author_id'    => 'id',
+            'author_id'    => 'raw',
             'category_ids' => 'raw',
         ),
         'references' => array(

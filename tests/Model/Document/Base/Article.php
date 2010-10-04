@@ -53,7 +53,7 @@ abstract class Article extends \Mondongo\Document\Document
             $this->data['fields']['is_active'] = (bool) $data['is_active'];
         }
         if (isset($data['author_id'])) {
-            $this->data['fields']['author_id'] = (string) $data['author_id'];
+            $this->data['fields']['author_id'] = $data['author_id'];
         }
         if (isset($data['category_ids'])) {
             $this->data['fields']['category_ids'] = $data['category_ids'];
@@ -90,7 +90,7 @@ abstract class Article extends \Mondongo\Document\Document
             $fields['is_active'] = (bool) $fields['is_active'];
         }
         if (isset($fields['author_id'])) {
-            $fields['author_id'] = new \MongoId($fields['author_id']);
+            $fields['author_id'] = $fields['author_id'];
         }
         if (isset($fields['category_ids'])) {
             $fields['category_ids'] = $fields['category_ids'];
