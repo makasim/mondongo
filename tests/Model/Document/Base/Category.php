@@ -15,6 +15,10 @@ abstract class Category extends \Mondongo\Document\Document
     protected $fieldsModified = array (
 );
 
+    static protected $map = array (
+  'name' => 'Name',
+);
+
     public function getMondongo()
     {
         return \Mondongo\Container::getForDocumentClass('Model\Document\Category');
@@ -23,6 +27,11 @@ abstract class Category extends \Mondongo\Document\Document
     public function getRepository()
     {
         return $this->getMondongo()->getRepository('Model\Document\Category');
+    }
+
+    static public function getMap()
+    {
+        return self::$map;
     }
 
     public function setDocumentData($data)

@@ -14,6 +14,11 @@ abstract class BaseArticle extends \Mondongo\Document\Document
     protected $fieldsModified = array (
 );
 
+    static protected $map = array (
+  'title' => 'Title',
+  'content' => 'Content',
+);
+
     public function getMondongo()
     {
         return \Mondongo\Container::getForDocumentClass('Article');
@@ -22,6 +27,11 @@ abstract class BaseArticle extends \Mondongo\Document\Document
     public function getRepository()
     {
         return $this->getMondongo()->getRepository('Article');
+    }
+
+    static public function getMap()
+    {
+        return self::$map;
     }
 
     public function setDocumentData($data)

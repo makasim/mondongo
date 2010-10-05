@@ -16,6 +16,11 @@ abstract class Comment extends \Mondongo\Document\DocumentEmbed
     protected $fieldsModified = array (
 );
 
+    static protected $map = array (
+  'name' => 'Name',
+  'text' => 'Text',
+);
+
     public function getMondongo()
     {
         return \Mondongo\Container::getForDocumentClass('Model\Document\Comment');
@@ -24,6 +29,11 @@ abstract class Comment extends \Mondongo\Document\DocumentEmbed
     public function getRepository()
     {
         return $this->getMondongo()->getRepository('Model\Document\Comment');
+    }
+
+    static public function getMap()
+    {
+        return self::$map;
     }
 
     public function setDocumentData($data)

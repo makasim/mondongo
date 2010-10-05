@@ -49,6 +49,10 @@ class CoreEnd extends Extension
         // document
         $this->processDocumentDataProperty();
         $this->processDocumentFieldsModifiedsProperty();
+
+        $this->processDocumentMapProperty();
+        $this->processDocumentGetMapMethod();
+
         $this->processDocumentSetDocumentDataMethod();
         $this->processDocumentFieldsToMongoMethod();
         $this->processDocumentFields();
@@ -117,6 +121,51 @@ class CoreEnd extends Extension
         }
 
         $this->container['document_base']->addProperty(new Property('protected', 'fieldsModified', $this->fieldsModified));
+    }
+
+    /*
+     * Document "map" property.
+     */
+    protected function processDocumentMapProperty()
+    {
+        $map = array();
+
+        // fields
+        foreach ($this->classData['fields'] as $name => $field) {
+            $map[$name] = Inflector::camelize($name);
+        }
+
+        // references
+        foreach ($this->classData['references'] as $name => $reference) {
+            $map[$name] = Inflector::camelize($name);
+        }
+
+        // embeds
+        foreach ($this->classData['embeds'] as $name => $embed) {
+            $map[$name] = Inflector::camelize($name);
+        }
+
+        // relations
+        foreach ($this->classData['relations'] as $name => $relation) {
+            $map[$name] = Inflector::camelize($name);
+        }
+
+        $property = new Property('protected', 'map', $map);
+        $property->setIsStatic(true);
+        $this->container['document_base']->addProperty($property);
+    }
+
+    /*
+     * Document "getMap" method.
+     */
+    public function processDocumentGetMapMethod()
+    {
+        $method = new Method('public', 'getMap', '', <<<EOF
+        return self::\$map;
+EOF
+        );
+        $method->setIsStatic(true);
+        $this->container['document_base']->addMethod($method);
     }
 
     /*

@@ -29,6 +29,18 @@ abstract class Article extends \Mondongo\Document\Document
     protected $fieldsModified = array (
 );
 
+    static protected $map = array (
+  'title' => 'Title',
+  'content' => 'Content',
+  'is_active' => 'IsActive',
+  'author_id' => 'AuthorId',
+  'category_ids' => 'CategoryIds',
+  'author' => 'Author',
+  'categories' => 'Categories',
+  'source' => 'Source',
+  'comments' => 'Comments',
+);
+
     public function getMondongo()
     {
         return \Mondongo\Container::getForDocumentClass('Model\Document\Article');
@@ -37,6 +49,11 @@ abstract class Article extends \Mondongo\Document\Document
     public function getRepository()
     {
         return $this->getMondongo()->getRepository('Model\Document\Article');
+    }
+
+    static public function getMap()
+    {
+        return self::$map;
     }
 
     public function setDocumentData($data)

@@ -24,6 +24,13 @@ abstract class Author extends \Mondongo\Document\Document
     protected $fieldsModified = array (
 );
 
+    static protected $map = array (
+  'name' => 'Name',
+  'telephone_id' => 'TelephoneId',
+  'telephone' => 'Telephone',
+  'articles' => 'Articles',
+);
+
     public function getMondongo()
     {
         return \Mondongo\Container::getForDocumentClass('Model\Document\Author');
@@ -32,6 +39,11 @@ abstract class Author extends \Mondongo\Document\Document
     public function getRepository()
     {
         return $this->getMondongo()->getRepository('Model\Document\Author');
+    }
+
+    static public function getMap()
+    {
+        return self::$map;
     }
 
     public function setDocumentData($data)

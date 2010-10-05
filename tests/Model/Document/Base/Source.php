@@ -16,6 +16,11 @@ abstract class Source extends \Mondongo\Document\DocumentEmbed
     protected $fieldsModified = array (
 );
 
+    static protected $map = array (
+  'name' => 'Name',
+  'url' => 'Url',
+);
+
     public function getMondongo()
     {
         return \Mondongo\Container::getForDocumentClass('Model\Document\Source');
@@ -24,6 +29,11 @@ abstract class Source extends \Mondongo\Document\DocumentEmbed
     public function getRepository()
     {
         return $this->getMondongo()->getRepository('Model\Document\Source');
+    }
+
+    static public function getMap()
+    {
+        return self::$map;
     }
 
     public function setDocumentData($data)

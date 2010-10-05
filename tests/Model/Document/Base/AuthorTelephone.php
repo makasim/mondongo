@@ -19,6 +19,11 @@ abstract class AuthorTelephone extends \Mondongo\Document\Document
     protected $fieldsModified = array (
 );
 
+    static protected $map = array (
+  'number' => 'Number',
+  'author' => 'Author',
+);
+
     public function getMondongo()
     {
         return \Mondongo\Container::getForDocumentClass('Model\Document\AuthorTelephone');
@@ -27,6 +32,11 @@ abstract class AuthorTelephone extends \Mondongo\Document\Document
     public function getRepository()
     {
         return $this->getMondongo()->getRepository('Model\Document\AuthorTelephone');
+    }
+
+    static public function getMap()
+    {
+        return self::$map;
     }
 
     public function setDocumentData($data)

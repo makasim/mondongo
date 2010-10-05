@@ -17,6 +17,11 @@ abstract class User extends \Mondongo\Document\Document
   'is_active' => NULL,
 );
 
+    static protected $map = array (
+  'username' => 'Username',
+  'is_active' => 'IsActive',
+);
+
     public function getMondongo()
     {
         return \Mondongo\Container::getForDocumentClass('Model\Document\User');
@@ -25,6 +30,11 @@ abstract class User extends \Mondongo\Document\Document
     public function getRepository()
     {
         return $this->getMondongo()->getRepository('Model\Document\User');
+    }
+
+    static public function getMap()
+    {
+        return self::$map;
     }
 
     public function setDocumentData($data)
