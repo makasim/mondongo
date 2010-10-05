@@ -536,4 +536,104 @@ class CoreTest extends TestCase
         $this->assertSame('article', $this->mondongo->getRepository('\Model\Document\Article')->getCollectionName());
         $this->assertSame('my_name', $this->mondongo->getRepository('Model\Document\CollectionName')->getCollectionName());
     }
+
+    public function testFromArray()
+    {
+        $article = new Article();
+        $article->fromArray(array(
+            'title'     => 'Mondongo',
+            'content'   => 'Content',
+            'is_active' => true,
+            'author_id' => '123',
+            'category_ids' => array(
+                '234',
+                '345',
+            ),
+            'source' => array(
+                'name' => 'Mondongo',
+                'url'  => 'http://mondongo.es',
+            ),
+            'comments' => array(
+                array(
+                    'name' => 'Pablo',
+                    'text' => 'Wow',
+                ),
+                array(
+                    'name' => 'Name 2',
+                    'text' => 'Text 2',
+                ),
+            ),
+        ));
+
+        $this->assertSame('Mondongo', $article->getTitle());
+        $this->assertSame('Content', $article->getContent());
+        $this->assertTrue($article->getIsActive());
+        $this->assertSame('123', $article->getAuthorId());
+        $this->assertSame(array('234', '345'), $article->getCategoryIds());
+        $this->assertSame('Mondongo', $article->getSource()->getName());
+        $this->assertSame('http://mondongo.es', $article->getSource()->getUrl());
+        $this->assertSame(2, $article->getComments()->count());
+        $this->assertSame('Pablo', $article->getComments()->getByKey(0)->getName());
+        $this->assertSame('Wow', $article->getComments()->getByKey(0)->getText());
+        $this->assertSame('Name 2', $article->getComments()->getByKey(1)->getName());
+        $this->assertSame('Text 2', $article->getComments()->getByKey(1)->getText());
+    }
+
+    public function testFromArrayReferencesOne()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+
+        $article = new Article();
+        $article->fromArray(array(
+            'author' => $author,
+        ));
+
+        $this->assertSame($author, $article->getAuthor());
+    }
+
+    public function testFromArrayReferencesMany()
+    {
+        $categories = array();
+        for ($i = 1; $i <= 10; $i++) {
+            $categories[] = $category = new Category();
+            $category->setName('Category '.$i);
+            $category->save();
+        }
+
+        $article = new Article();
+        $article->fromArray(array(
+            'categories' => $categories,
+        ));
+
+        $this->assertSame($categories, $article->getCategories()->getElements());
+    }
+
+    public function testFromArrayEmbedsOne()
+    {
+        $source = new Source();
+
+        $article = new Article();
+        $article->fromArray(array(
+            'source' => $source,
+        ));
+
+        $this->assertSame($source, $article->getSource());
+    }
+
+    public function testFromArrayEmbedsMany()
+    {
+        $comments = array();
+        for ($i = 1; $i <= 10; $i++) {
+            $comments[] = new Comment();
+        }
+
+        $article = new Article();
+        $article->fromArray(array(
+            'comments' => $comments,
+        ));
+
+        $this->assertSame($comments, $article->getComments()->getElements());
+    }
 }
