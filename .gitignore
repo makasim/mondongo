@@ -1,2 +1,4 @@
 package.xml
 phpunit.xml
+tests/model
+tests/Model
