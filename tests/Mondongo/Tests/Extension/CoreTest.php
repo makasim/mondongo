@@ -105,21 +105,11 @@ class CoreTest extends TestCase
                 'source'   => null,
                 'comments' => null,
             ),
-        ), $article->getDocumentData());
-
-        $author = new Author();
-        $this->assertSame(array(
-            'fields' => array(
-                'name'         => null,
-                'telephone_id' => null,
-            ),
-            'references' => array(
-                'telephone' => null,
-            ),
             'relations' => array(
-                'articles' => null,
+                'summary' => null,
+                'news'    => null,
             ),
-        ), $author->getDocumentData());
+        ), $article->getDocumentData());
     }
 
     public function testDocumentFieldsModifiedsProperty()
@@ -140,6 +130,8 @@ class CoreTest extends TestCase
             'categories'   => 'Categories',
             'source'       => 'Source',
             'comments'     => 'Comments',
+            'summary'      => 'Summary',
+            'news'         => 'News',
         ), Article::getMap());
     }
 

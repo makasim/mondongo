@@ -77,6 +77,28 @@ $classes = array(
             'source'   => array('class' => 'Model\Document\Source', 'type' => 'one'),
             'comments' => array('class' => 'Model\Document\Comment', 'type' => 'many'),
         ),
+        'relations' => array(
+            'summary' => array('class' => 'Model\Document\Summary', 'field' => 'article_id', 'type' => 'one'),
+            'news'    => array('class' => 'Model\Document\News', 'field' => 'article_id', 'type' => 'many'),
+        ),
+    ),
+    'News' => array(
+        'fields' => array(
+            'title'      => 'string',
+            'article_id' => 'raw',
+        ),
+        'references' => array(
+            'article' => array('class' => 'Model\Document\Article', 'field' => 'article_id', 'type' => 'one'),
+        ),
+    ),
+    'Summary' => array(
+        'fields' => array(
+            'article_id' => 'raw',
+            'text'       => 'string',
+        ),
+        'references' => array(
+            'article' => array('class' => 'Model\Document\Article', 'field' => 'article_id', 'type' => 'one'),
+        ),
     ),
     'User' => array(
         'fields' => array(
