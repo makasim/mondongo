@@ -125,6 +125,7 @@ $mondator->setClasses($classes);
 $mondator->setExtensions(array(
     new Mondongo\Extension\CoreStart(),
     new Mondongo\Extension\FromToArray(),
+    new Mondongo\Extension\ArrayAccess(),
     new Mondongo\Extension\CoreEnd(),
 ));
 $mondator->setOutputs(array(
