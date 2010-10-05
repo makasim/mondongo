@@ -148,6 +148,53 @@ class GroupTest extends TestCase
         $this->assertTrue($this->changeValue);
     }
 
+    public function testExistsByKey()
+    {
+        $group = new Group($this->elements);
+        $this->assertTrue($group->existsByKey(2));
+        $this->assertFalse($group->existsByKey(4));
+    }
+
+    public function testGetByKey()
+    {
+        $group = new Group($this->elements);
+        $this->assertSame('foo', $group->getByKey(0));
+        $this->assertSame('foobar', $group->getByKey(2));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetByKeyNotExists()
+    {
+        $group = new Group($this->elements);
+        $group->getByKey(4);
+    }
+
+    public function testRemoveByKey()
+    {
+        $this->group = new Group($this->elements);
+        $this->group->removeByKey(1);
+
+        $elements = $this->elements;
+        unset($elements[1]);
+        $this->assertSame($elements, $this->group->getElements());
+
+        $this->assertFalse($this->changeValue);
+        $this->group->setChangeCallback($this->changeCallback);
+        $this->group->removeByKey(0);
+        $this->assertTrue($this->changeValue);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveByKeyNotExists()
+    {
+        $group = new Group($this->elements);
+        $group->removeByKey(4);
+    }
+
     public function testClear()
     {
         $this->group = new Group($this->elements);

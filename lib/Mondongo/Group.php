@@ -179,6 +179,56 @@ class Group implements \Countable, \IteratorAggregate
     }
 
     /**
+     * Returns if exists a key.
+     *
+     * @param mixed $key The key.
+     *
+     * @return bool Returns if exists a key.
+     */
+    public function existsByKey($key)
+    {
+        return array_key_exists($key, $this->elements);
+    }
+
+    /**
+     * Returns an element by key.
+     *
+     * @param mixed $key The element key.
+     *
+     * @return mixed The element if exists.
+     *
+     * @throws \InvalidArgumentException If the key does not exists.
+     */
+    public function getByKey($key)
+    {
+        if (!$this->existsByKey($key)) {
+            throw new \InvalidArgumentException(sprintf('The key "%s" does not exists.', $key));
+        }
+
+        return $this->elements[$key];
+    }
+
+    /**
+     * Remove an element by key.
+     *
+     * @param mixed $key The key.
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException If the key does not exists.
+     */
+    public function removeByKey($key)
+    {
+        if (!$this->existsByKey($key)) {
+            throw new \InvalidArgumentException(sprintf('The key "%s" does not exists.', $key));
+        }
+
+        unset($this->elements[$key]);
+
+        $this->changeCallback();
+    }
+
+    /**
      * Clear the group.
      *
      * @return void
