@@ -30,14 +30,16 @@ namespace Mondongo\Type;
 class Container
 {
     static protected $map = array(
-        'array'    => 'Mondongo\\Type\\ArrayType',
-        'bin_data' => 'Mondongo\\Type\\BinDataType',
-        'boolean'  => 'Mondongo\\Type\\BooleanType',
-        'date'     => 'Mondongo\\Type\\DateType',
-        'float'    => 'Mondongo\\Type\\FloatType',
-        'integer'  => 'Mondongo\\Type\\IntegerType',
-        'raw'      => 'Mondongo\\Type\\RawType',
-        'string'   => 'Mondongo\\Type\\StringType',
+        'array'          => 'Mondongo\\Type\\ArrayType',
+        'bin_data'       => 'Mondongo\\Type\\BinDataType',
+        'boolean'        => 'Mondongo\\Type\\BooleanType',
+        'date'           => 'Mondongo\\Type\\DateType',
+        'float'          => 'Mondongo\\Type\\FloatType',
+        'integer'        => 'Mondongo\\Type\\IntegerType',
+        'raw'            => 'Mondongo\\Type\\RawType',
+        'reference_one'  => 'Mondongo\\Type\\ReferenceOneType',
+        'reference_many' => 'Mondongo\\Type\\ReferenceManyType',
+        'string'         => 'Mondongo\\Type\\StringType',
     );
 
     static protected $types = array();
@@ -127,14 +129,16 @@ class Container
     static public function resetTypes()
     {
         self::$map = array(
-            'array'    => 'Mondongo\\Type\\ArrayType',
-            'bin_data' => 'Mondongo\\Type\\BinDataType',
-            'boolean'  => 'Mondongo\\Type\\BooleanType',
-            'date'     => 'Mondongo\\Type\\DateType',
-            'float'    => 'Mondongo\\Type\\FloatType',
-            'integer'  => 'Mondongo\\Type\\IntegerType',
-            'raw'      => 'Mondongo\\Type\\RawType',
-            'string'   => 'Mondongo\\Type\\StringType',
+            'array'          => 'Mondongo\\Type\\ArrayType',
+            'bin_data'       => 'Mondongo\\Type\\BinDataType',
+            'boolean'        => 'Mondongo\\Type\\BooleanType',
+            'date'           => 'Mondongo\\Type\\DateType',
+            'float'          => 'Mondongo\\Type\\FloatType',
+            'integer'        => 'Mondongo\\Type\\IntegerType',
+            'raw'            => 'Mondongo\\Type\\RawType',
+            'reference_one'  => 'Mondongo\\Type\\ReferenceOneType',
+            'reference_many' => 'Mondongo\\Type\\ReferenceManyType',
+            'string'         => 'Mondongo\\Type\\StringType',
         );
 
         self::$types = array();

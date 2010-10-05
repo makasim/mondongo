@@ -24,7 +24,7 @@ $classes = array(
     'Author' => array(
         'fields' => array(
             'name'         => 'string',
-            'telephone_id' => 'raw',
+            'telephone_id' => 'reference_one',
         ),
         'references' => array(
             'telephone' => array('class' => 'Model\Document\AuthorTelephone', 'field' => 'telephone_id', 'type' => 'one'),
@@ -66,8 +66,8 @@ $classes = array(
             'title'        => 'string',
             'content'      => 'string',
             'is_active'    => 'boolean',
-            'author_id'    => 'raw',
-            'category_ids' => 'raw',
+            'author_id'    => 'reference_one',
+            'category_ids' => 'reference_many',
         ),
         'references' => array(
             'author'     => array('class' => 'Model\Document\Author', 'field' => 'author_id', 'type' => 'one'),
@@ -85,7 +85,7 @@ $classes = array(
     'News' => array(
         'fields' => array(
             'title'      => 'string',
-            'article_id' => 'raw',
+            'article_id' => 'reference_one',
         ),
         'references' => array(
             'article' => array('class' => 'Model\Document\Article', 'field' => 'article_id', 'type' => 'one'),
@@ -93,7 +93,7 @@ $classes = array(
     ),
     'Summary' => array(
         'fields' => array(
-            'article_id' => 'raw',
+            'article_id' => 'reference_one',
             'text'       => 'string',
         ),
         'references' => array(
