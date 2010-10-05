@@ -60,8 +60,6 @@ class CoreEnd extends Extension
         $this->processDocumentEmbeds();
         $this->processDocumentRelations();
 
-        $this->processDocumentFromArrayMethod();
-
         // repository
         $this->processRepositoryDocumentClassProperty();
         $this->processRepositoryConnectionNameProperty();
@@ -509,88 +507,6 @@ EOF;
 
             $this->container['document_base']->addMethod(new Method('public', 'get'.Inflector::camelize($name), '', $getterCode));
         }
-    }
-
-    /*
-     * Document "fromArray" method.
-     */
-    public function processDocumentFromArrayMethod()
-    {
-        $code = '';
-
-        // fields
-        foreach ($this->classData['fields'] as $name => $field) {
-            $setter = 'set'.Inflector::camelize($name);
-            $code .= <<<EOF
-        if (isset(\$array['$name'])) {
-            \$this->$setter(\$array['$name']);
-        }
-
-EOF;
-        }
-
-        // references
-        foreach ($this->classData['references'] as $name => $reference) {
-            $setter = 'set'.Inflector::camelize($name);
-
-            if ('one' == $reference['type']) {
-                $code .= <<<EOF
-        if (isset(\$array['$name'])) {
-            \$this->$setter(\$array['$name']);
-        }
-
-EOF;
-            } else {
-                $code .= <<<EOF
-        if (isset(\$array['$name'])) {
-            \$reference = \$array['$name'];
-            if (is_array(\$reference)) {
-                \$reference = new \Mondongo\Group(\$reference);
-            }
-            \$this->$setter(\$reference);
-        }
-
-EOF;
-            }
-        }
-
-        // embeds
-        foreach ($this->classData['embeds'] as $name => $embed) {
-            $setter = 'set'.Inflector::camelize($name);
-            $getter = 'get'.Inflector::camelize($name);
-
-            if ('one' == $embed['type']) {
-                $typeCode = <<<EOF
-                \$embed->fromArray(\$array['$name']);
-EOF;
-            } else {
-                $typeCode = <<<EOF
-                foreach (\$array['$name'] as \$a) {
-                    if (is_array(\$a)) {
-                        \$e = new \\{$embed['class']}();
-                        \$e->fromArray(\$a);
-                    } else {
-                        \$e = \$a;
-                    }
-                    \$embed->add(\$e);
-                }
-EOF;
-            }
-
-            $code .= <<<EOF
-        if (isset(\$array['$name'])) {
-            if (is_array(\$array['$name'])) {
-                \$embed = \$this->$getter();
-$typeCode
-            } else {
-                \$this->$setter(\$array['$name']);
-            }
-        }
-
-EOF;
-        }
-
-        $this->container['document_base']->addMethod(new Method('public', 'fromArray', '$array', $code));
     }
 
     /*
