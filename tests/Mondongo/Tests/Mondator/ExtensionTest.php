@@ -101,4 +101,40 @@ class ExtensionTest extends TestCase
         $extension = new ExtensionTesting();
         $extension->getOption('foobar');
     }
+
+    public function testProcessExtensionsAsArray()
+    {
+        $extension = new \Mondongo\Tests\Mondator\Fixtures\Extension\ProcessOthersFromArray();
+
+        $container = new Container();
+        $className = 'Article';
+        $classData = new \ArrayObject(array(
+            'extensions' => array(
+                array(
+                    'class'   => 'Mondongo\Tests\Mondator\Fixtures\Extension\InitDefinition',
+                    'options' => array(
+                        'definition_name' => 'mydefinition',
+                        'class_name'      => 'MyClassName',
+                    ),
+                ),
+                array(
+                    'class'   => 'Mondongo\Tests\Mondator\Fixtures\Extension\AddProperty',
+                    'options' => array(
+                        'definition' => 'mydefinition',
+                        'visibility' => 'MyClassName',
+                        'name'       => 'myVar',
+                        'value'      => 'foo',
+                    ),
+                ),
+            ),
+        ));
+
+        $extension->process($container, $className, $classData);
+
+        $this->assertSame(1, count($container->getDefinitions()));
+        $this->assertTrue(isset($container['mydefinition']));
+        $properties = $container['mydefinition']->getProperties();
+        $this->assertSame(1, count($properties));
+        $this->assertSame('myVar', $properties[0]->getName());
+    }
 }

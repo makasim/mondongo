@@ -137,6 +137,17 @@ abstract class Extension
     /*
      * Tools.
      */
+    protected function processExtensionsFromArray(array $extensions)
+    {
+        foreach ($extensions as $key => $data) {
+            if (!isset($data['class'])) {
+                throw new \InvalidArgumentException(sprintf('The extension "%s" does not have class.'));
+            }
+            $extension = new $data['class'](isset($data['options']) ? $data['options'] : array());
+            $extension->process($this->container, $this->className, $this->classData);
+        }
+    }
+
     protected function getMethodCode(\ReflectionMethod $method, array $replace = array())
     {
         $lines = file($method->getFileName());

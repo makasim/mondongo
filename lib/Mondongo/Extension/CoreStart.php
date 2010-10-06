@@ -49,6 +49,10 @@ class CoreStart extends Extension
         $this->processInitReferences();
         $this->processInitEmbeds();
         $this->processInitRelations();
+
+        if (isset($this->classData['extensions'])) {
+            $this->processExtensionsAsArray($this->classData['extensions']);
+        }
     }
 
     /*
