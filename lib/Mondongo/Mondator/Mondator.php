@@ -203,11 +203,11 @@ class Mondator
     }
 
     /**
-     * Process the Mondator.
+     * Generate the definition containers of classes.
      *
-     * @return void
+     * @return array The array of containers.
      */
-    public function process()
+    public function generateContainers()
     {
         $containers = array();
 
@@ -219,13 +219,25 @@ class Mondator
 
         // extensions
         foreach ($classes as $className => $classData) {
-            $containers[] = $container = new Container();
+            $containers[$className] = $container = new Container();
 
             foreach ($this->getExtensions() as $extension) {
                 $extension->process($container, $className, $classData);
             }
         }
 
+        return $containers;
+    }
+
+    /**
+     * Dump containers.
+     *
+     * @param array $containers An array of containers.
+     *
+     * @return void
+     */
+    public function dumpContainers(array $containers)
+    {
         // directories
         foreach ($containers as $container) {
             foreach ($container->getDefinitions() as $name => $definition) {
@@ -261,5 +273,15 @@ class Mondator
                 }
             }
         }
+    }
+
+    /**
+     * Generate and dump the containers.
+     *
+     * @return void
+     */
+    public function process()
+    {
+        $this->dumpContainers($this->generateContainers());
     }
 }

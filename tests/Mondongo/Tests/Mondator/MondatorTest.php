@@ -110,4 +110,48 @@ class MondatorTest extends TestCase
         $mondator = new Mondator();
         $mondator->getClass('output1');
     }
+
+    public function testGenerateContainers()
+    {
+        $mondator = new Mondator();
+        $mondator->setClasses(array(
+            'Article' => array(
+                'name' => 'foo',
+            ),
+            'Category' => array(
+                'name' => 'bar',
+            ),
+        ));
+        $mondator->setExtensions(array(
+            new \Mondongo\Tests\Mondator\Fixtures\Extension\Name(),
+            new \Mondongo\Tests\Mondator\Fixtures\Extension\InitDefinition(array(
+                'definition_name' => 'myclass',
+                'class_name'      => 'MiClase',
+            )),
+            new \Mondongo\Tests\Mondator\Fixtures\Extension\AddProperty(array(
+                'definition' => 'myclass',
+                'visibility' => 'public',
+                'name'       => 'MiPropiedad',
+                'value'      => 'foobar',
+            )),
+        ));
+
+        $containers = $mondator->generateContainers();
+
+        $this->assertSame(2, count($containers));
+        $this->assertTrue(isset($containers['Article']));
+        $this->assertTrue(isset($containers['Category']));
+        $this->assertInstanceOf('Mondongo\Mondator\Definition\Container', $containers['Article']);
+        $this->assertInstanceOf('Mondongo\Mondator\Definition\Container', $containers['Category']);
+
+        $this->assertSame(2, count($containers['Article']->getDefinitions()));
+        $this->assertTrue(isset($containers['Article']['name']));
+        $this->assertTrue(isset($containers['Article']['myclass']));
+        $this->assertSame('foo', $containers['Article']['name']->getClassName());
+
+        $this->assertSame(2, count($containers['Category']->getDefinitions()));
+        $this->assertTrue(isset($containers['Category']['name']));
+        $this->assertTrue(isset($containers['Category']['myclass']));
+        $this->assertSame('bar', $containers['Category']['name']->getClassName());
+    }
 }
