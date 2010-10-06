@@ -273,6 +273,12 @@ abstract class Repository
         if ($inserts) {
             $a = array();
             foreach ($inserts as $oid => $document) {
+                // preInsert event
+                $document->preInsert();
+
+                // preSave event
+                $document->preSave();
+
                 $a[$oid] = $document->getQueryForSave();
             }
 
@@ -281,17 +287,35 @@ abstract class Repository
             foreach ($a as $oid => $data) {
                 $inserts[$oid]->setId($data['_id']);
                 $inserts[$oid]->clearModified();
+
+                // postInsert event
+                $inserts[$oid]->postInsert();
+
+                // postSave event
+                $inserts[$oid]->postSave();
             }
         }
 
         // update
         if ($updates) {
             foreach ($updates as $document) {
+                // preUpdate event
+                $document->preUpdate();
+
+                // preSave event
+                $document->preSave();
+
                 $query = $document->getQueryForSave();
 
                 $this->getCollection()->update(array('_id' => $document->getId()), $query, array('safe' => true));
 
                 $document->clearModified();
+
+                // postUpdate event
+                $document->postUpdate();
+
+                // postSave event
+                $document->postSave();
             }
         }
     }
@@ -312,8 +336,16 @@ abstract class Repository
         $ids = array();
         foreach ($documents as $document) {
             $ids[] = $document->getId();
+
+            // preDelete event
+            $document->preDelete();
         }
 
         $this->getCollection()->remove(array('_id' => array('$in' => $ids)), array('safe' => true));
+
+        foreach ($documents as $document) {
+            // postDelete event
+            $document->postDelete();
+        }
     }
 }

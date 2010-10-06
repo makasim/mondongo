@@ -171,4 +171,39 @@ abstract class DocumentEmbed
 
         return $data;
     }
+
+    /*
+     * Events.
+     */
+    public function preInsert()
+    {
+    }
+
+    public function postInsert()
+    {
+    }
+
+    public function preUpdate()
+    {
+    }
+
+    public function postUpdate()
+    {
+    }
+
+    public function preSave()
+    {
+    }
+
+    public function postSave()
+    {
+    }
+
+    public function preDelete()
+    {
+    }
+
+    public function postDelete()
+    {
+    }
 }

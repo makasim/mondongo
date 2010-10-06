@@ -112,6 +112,11 @@ $classes = array(
     'CollectionName' => array(
         'collection' => 'my_name',
     ),
+    'Events' => array(
+        'fields' => array(
+            'name' => 'string',
+        ),
+    ),
 );
 foreach ($classes as &$class) {
     $class['namespaces'] = array(

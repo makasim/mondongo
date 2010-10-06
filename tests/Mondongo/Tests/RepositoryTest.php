@@ -26,6 +26,7 @@ use Mondongo\Connection;
 use Mondongo\Mondongo;
 use Mondongo\Repository as RepositoryBase;
 use Model\Document\Article;
+use Model\Document\Events;
 
 class Repository extends RepositoryBase
 {
@@ -262,6 +263,33 @@ class RepositoryTest extends TestCase
         $this->assertSame(9, $this->db->article->find(array('title' => new \MongoRegex('/^Article/')))->count());
     }
 
+    public function testSaveEvents()
+    {
+        $repository = $this->mondongo->getRepository('Model\Document\Events');
+
+        $document = new Events();
+        $document->setName('Mondongo');
+        $repository->save($document);
+
+        $this->assertSame(array(
+            'preInsert',
+            'preSave',
+            'postInsert',
+            'postSave'
+        ), $document->getEvents());
+
+        $document->clearEvents();
+        $document->setName('Pablo');
+        $repository->save($document);
+
+        $this->assertSame(array(
+            'preUpdate',
+            'preSave',
+            'postUpdate',
+            'postSave'
+        ), $document->getEvents());
+    }
+
     public function testRemoveUnique()
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');
@@ -282,5 +310,22 @@ class RepositoryTest extends TestCase
         $this->assertSame(0, $this->db->article->find(array(
             '_id' => array('$in' => array($articles[4]->getId(), $articles[7]->getId())),
         ))->count());
+    }
+
+    public function testRemoveEvents()
+    {
+        $repository = $this->mondongo->getRepository('Model\Document\Events');
+
+        $document = new Events();
+        $document->setName('Mondongo');
+        $repository->save($document);
+
+        $document->clearEvents();
+        $repository->delete($document);
+
+        $this->assertSame(array(
+            'preDelete',
+            'postDelete',
+        ), $document->getEvents());
     }
 }
