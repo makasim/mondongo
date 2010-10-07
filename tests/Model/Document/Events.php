@@ -2,6 +2,9 @@
 
 namespace Model\Document;
 
+/**
+ * Events document.
+ */
 class Events extends \Model\Document\Base\Events
 {
     protected $events = array();
