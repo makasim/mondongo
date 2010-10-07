@@ -60,6 +60,8 @@ class CoreEnd extends Extension
         $this->processDocumentEmbeds();
         $this->processDocumentRelations();
 
+        $this->processDocumentExtensionsEventsMethods();
+
         // repository
         $this->processRepositoryDocumentClassProperty();
         $this->processRepositoryConnectionNameProperty();
@@ -506,6 +508,25 @@ EOF;
             }
 
             $this->container['document_base']->addMethod(new Method('public', 'get'.Inflector::camelize($name), '', $getterCode));
+        }
+    }
+
+    /*
+     * Document extensions events.
+     */
+    protected function processDocumentExtensionsEventsMethods()
+    {
+        foreach (array(
+            'preInsert', 'postInsert',
+            'preUpdate', 'postUpdate',
+            'preSave'  , 'postSave'  ,
+            'preDelete', 'postDelete',
+        ) as $event) {
+            $code = '';
+            foreach ($this->classData['extensions_events'][$event] as $method) {
+                $code .= "        \$this->$method();\n";
+            }
+            $this->container['document_base']->addMethod(new Method('public', $event.'Extensions', '', $code));
         }
     }
 

@@ -274,9 +274,11 @@ abstract class Repository
             $a = array();
             foreach ($inserts as $oid => $document) {
                 // preInsert event
+                $document->preInsertExtensions();
                 $document->preInsert();
 
                 // preSave event
+                $document->preSaveExtensions();
                 $document->preSave();
 
                 $a[$oid] = $document->getQueryForSave();
@@ -289,9 +291,11 @@ abstract class Repository
                 $inserts[$oid]->clearModified();
 
                 // postInsert event
+                $inserts[$oid]->postInsertExtensions();
                 $inserts[$oid]->postInsert();
 
                 // postSave event
+                $inserts[$oid]->postSaveExtensions();
                 $inserts[$oid]->postSave();
             }
         }
@@ -300,9 +304,11 @@ abstract class Repository
         if ($updates) {
             foreach ($updates as $document) {
                 // preUpdate event
+                $document->preUpdateExtensions();
                 $document->preUpdate();
 
                 // preSave event
+                $document->preSaveExtensions();
                 $document->preSave();
 
                 $query = $document->getQueryForSave();
@@ -312,9 +318,11 @@ abstract class Repository
                 $document->clearModified();
 
                 // postUpdate event
+                $document->postUpdateExtensions();
                 $document->postUpdate();
 
                 // postSave event
+                $document->postSaveExtensions();
                 $document->postSave();
             }
         }
@@ -338,6 +346,7 @@ abstract class Repository
             $ids[] = $document->getId();
 
             // preDelete event
+            $document->preDeleteExtensions();
             $document->preDelete();
         }
 
@@ -345,6 +354,7 @@ abstract class Repository
 
         foreach ($documents as $document) {
             // postDelete event
+            $document->postDeleteExtensions();
             $document->postDelete();
         }
     }

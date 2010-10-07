@@ -49,6 +49,7 @@ class CoreStart extends Extension
         $this->processInitReferences();
         $this->processInitEmbeds();
         $this->processInitRelations();
+        $this->processInitExtensionsEvents();
 
         if (isset($this->classData['extensions'])) {
             $this->processExtensionsAsArray($this->classData['extensions']);
@@ -205,5 +206,22 @@ EOF
         if (!isset($this->classData['relations'])) {
             $this->classData['relations'] = array();
         }
+    }
+
+    /*
+     * Init extensions events.
+     */
+    protected function processInitExtensionsEvents()
+    {
+        $this->classData['extensions_events'] = array(
+            'preInsert'  => array(),
+            'postInsert' => array(),
+            'preUpdate'  => array(),
+            'postUpdate' => array(),
+            'preSave'    => array(),
+            'postSave'   => array(),
+            'preDelete'  => array(),
+            'postDelete' => array(),
+        );
     }
 }

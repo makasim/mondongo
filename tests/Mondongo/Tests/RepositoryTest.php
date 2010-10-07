@@ -272,10 +272,14 @@ class RepositoryTest extends TestCase
         $repository->save($document);
 
         $this->assertSame(array(
+            'preInsertExtensions',
             'preInsert',
+            'preSaveExtensions',
             'preSave',
+            'postInsertExtensions',
             'postInsert',
-            'postSave'
+            'postSaveExtensions',
+            'postSave',
         ), $document->getEvents());
 
         $document->clearEvents();
@@ -283,9 +287,13 @@ class RepositoryTest extends TestCase
         $repository->save($document);
 
         $this->assertSame(array(
+            'preUpdateExtensions',
             'preUpdate',
+            'preSaveExtensions',
             'preSave',
+            'postUpdateExtensions',
             'postUpdate',
+            'postSaveExtensions',
             'postSave'
         ), $document->getEvents());
     }
@@ -324,7 +332,9 @@ class RepositoryTest extends TestCase
         $repository->delete($document);
 
         $this->assertSame(array(
+            'preDeleteExtensions',
             'preDelete',
+            'postDeleteExtensions',
             'postDelete',
         ), $document->getEvents());
     }

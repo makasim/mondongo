@@ -16,6 +16,9 @@ class Events extends \Model\Document\Base\Events
         $this->events = array();
     }
 
+    /*
+     * Events.
+     */
     public function preInsert()
     {
         $this->events[] = 'preInsert';
@@ -54,5 +57,48 @@ class Events extends \Model\Document\Base\Events
     public function postDelete()
     {
         $this->events[] = 'postDelete';
+    }
+
+    /*
+     * Extensions events.
+     */
+    public function preInsertExtensions()
+    {
+        $this->events[] = 'preInsertExtensions';
+    }
+
+    public function postInsertExtensions()
+    {
+        $this->events[] = 'postInsertExtensions';
+    }
+
+    public function preUpdateExtensions()
+    {
+        $this->events[] = 'preUpdateExtensions';
+    }
+
+    public function postUpdateExtensions()
+    {
+        $this->events[] = 'postUpdateExtensions';
+    }
+
+    public function preSaveExtensions()
+    {
+        $this->events[] = 'preSaveExtensions';
+    }
+
+    public function postSaveExtensions()
+    {
+        $this->events[] = 'postSaveExtensions';
+    }
+
+    public function preDeleteExtensions()
+    {
+        $this->events[] = 'preDeleteExtensions';
+    }
+
+    public function postDeleteExtensions()
+    {
+        $this->events[] = 'postDeleteExtensions';
     }
 }
