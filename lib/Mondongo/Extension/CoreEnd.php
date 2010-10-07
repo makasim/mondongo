@@ -107,7 +107,9 @@ class CoreEnd extends Extension
             $data['relations'][$name] = null;
         }
 
-        $this->container['document_base']->addProperty(new Property('protected', 'data', $data));
+        $property = new Property('protected', 'data', $data);
+
+        $this->container['document_base']->addProperty($property);
     }
 
     /*
@@ -122,7 +124,9 @@ class CoreEnd extends Extension
             }
         }
 
-        $this->container['document_base']->addProperty(new Property('protected', 'fieldsModified', $this->fieldsModified));
+        $property = new Property('protected', 'fieldsModified', $this->fieldsModified);
+
+        $this->container['document_base']->addProperty($property);
     }
 
     /*
@@ -154,6 +158,7 @@ class CoreEnd extends Extension
 
         $property = new Property('protected', 'map', $map);
         $property->setIsStatic(true);
+
         $this->container['document_base']->addProperty($property);
     }
 
@@ -167,6 +172,15 @@ class CoreEnd extends Extension
 EOF
         );
         $method->setIsStatic(true);
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Returns the fields map.
+     *
+     * @return array The fields map.
+     */
+EOF
+        );
+
         $this->container['document_base']->addMethod($method);
     }
 
@@ -234,13 +248,23 @@ EOF;
 
         $resetFieldsModified = $this->fieldsModified ? "\$this->fieldsModified = array();" : '';
 
-        $this->container['document_base']->addMethod(new Method('public', 'setDocumentData', '$data', <<<EOF
+        $method = new Method('public', 'setDocumentData', '$data', <<<EOF
 $idCode
 $fieldsCode
 $embedsCode
         $resetFieldsModified
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Set the data in the document (hydrate).
+     *
+     * @return void
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 
     /*
@@ -263,12 +287,24 @@ EOF
 EOF;
         }
 
-        $this->container['document_base']->addMethod(new Method('public', 'fieldsToMongo', '$fields', <<<EOF
+        $method = new Method('public', 'fieldsToMongo', '$fields', <<<EOF
 $fieldsCode
 
         return \$fields;
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Convert an array of fields with data to Mongo values.
+     *
+     * @param array \$fields An array of fields with data.
+     *
+     * @return array The fields with data in Mongo values.
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 
     /*
@@ -278,20 +314,42 @@ EOF
     {
         foreach ($this->classData['fields'] as $name => $field) {
             // set method
-            $this->container['document_base']->addMethod(new Method(
+            $method = new Method(
                 'public',
                 'set'.Inflector::camelize($name),
                 '$value',
                 $this->getMethodCode(new \ReflectionMethod(__CLASS__, 'setField'), array('$_name_' => "'$name'"))
-            ));
+            );
+            $method->setPHPDoc(<<<EOF
+    /**
+     * Set the "$name" field.
+     *
+     * @param mixed \$value The value.
+     *
+     * @return void
+     */
+EOF
+            );
+
+            $this->container['document_base']->addMethod($method);
 
             // get method
-            $this->container['document_base']->addMethod(new Method(
+            $method = new Method(
                 'public',
                 'get'.Inflector::camelize($name),
                 '',
                 "        return \$this->data['fields']['$name'];"
-            ));
+            );
+            $method->setPHPDoc(<<<EOF
+    /**
+     * Returns the "$name" field.
+     *
+     * @return mixed The $name field.
+     */
+EOF
+            );
+
+            $this->container['document_base']->addMethod($method);
         }
     }
 
@@ -333,6 +391,15 @@ EOF
         \$this->{$fieldSetter}(\$value->getId());
         \$this->data['references']['$name'] = \$value;
 EOF;
+                $setterPHPDoc = <<<EOF
+    /**
+     * Set the "$name" reference.
+     *
+     * @param {$reference['class']} \$value The value.
+     *
+     * @return void
+     */
+EOF;
                 // getter
                 $getterCode = <<<EOF
         if (null === \$this->data['references']['$name']) {
@@ -344,6 +411,13 @@ EOF;
         }
 
         return \$this->data['references']['$name'];
+EOF;
+                $getterPHPDoc = <<<EOF
+    /**
+     * Returns the "$name" reference.
+     *
+     * @return {$reference['class']} The "$name" reference.
+     */
 EOF;
             /*
              * Many
@@ -370,6 +444,15 @@ EOF;
         \$this->{$fieldSetter}(\$ids);
         \$this->data['references']['$name'] = \$value;
 EOF;
+                $setterPHPDoc = <<<EOF
+    /**
+     * Set the "$name" reference.
+     *
+     * @param Mondongo\Group \$value A Mondongo\Group instance.
+     *
+     * @return void
+     */
+EOF;
                 // getter
                 $getterCode = <<<EOF
         if (null === \$this->data['references']['$name']) {
@@ -389,14 +472,28 @@ EOF;
 
         return \$this->data['references']['$name'];
 EOF;
+                $getterPHPDoc = <<<EOF
+    /**
+     * Returns the "$name" reference.
+     *
+     * @return Mondongo\Group The "$name" reference.
+     */
+EOF;
             }
 
-            $this->container['document_base']->addMethod(new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode));
-            $this->container['document_base']->addMethod(new Method('public', 'get'.Inflector::camelize($name), '', $getterCode));
+            // setter
+            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
+            $method->setPHPDoc($setterPHPDoc);
+            $this->container['document_base']->addMethod($method);
+
+            // getter
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setPHPDoc($setterPHPDoc);
+            $this->container['document_base']->addMethod($method);
 
             // update
             if ('many' == $reference['type']) {
-                $this->container['document_base']->addMethod(new Method('public', $updateMethodName, '', <<<EOF
+                $updateCode = <<<EOF
         if (null !== \$this->data['references']['$name']) {
             \$ids = array();
             foreach (\$this->data['references']['$name'] as \$document) {
@@ -413,8 +510,18 @@ EOF;
                 \$this->$fieldSetter(\$ids);
             }
         }
-EOF
-            ));
+EOF;
+                $updatePHPDoc = <<<EOF
+    /**
+     * Update the "$name" reference.
+     *
+     * @return void
+     */
+EOF;
+
+                $method = new Method('public', $updateMethodName, '', $updateCode);
+                $method->setPHPDoc($updatePHPDoc);
+                $this->container['document_base']->addMethod($method);
             }
         }
     }
@@ -437,6 +544,15 @@ EOF
 
         \$this->data['embeds']['$name'] = \$value;
 EOF;
+                $setterPHPDoc = <<<EOF
+    /**
+     * Set the "$name" embed.
+     *
+     * @param {$embed['class']} \$value The embed.
+     *
+     * @return void
+     */
+EOF;
                 // getter
                 $getterCode = <<<EOF
         if (null === \$this->data['embeds']['$name']) {
@@ -444,6 +560,13 @@ EOF;
         }
 
         return \$this->data['embeds']['$name'];
+EOF;
+                $getterPHPDoc = <<<EOF
+    /**
+     * Returns the "$name" embed..
+     *
+     * @return {$embed['class']} The "$name" embed.
+     */
 EOF;
             /*
              * many
@@ -457,6 +580,15 @@ EOF;
 
         \$this->data['embeds']['$name'] = \$value;
 EOF;
+                $setterPHPDoc = <<<EOF
+    /**
+     * Set the "$name" embed.
+     *
+     * @param Mondongo\Group \$value A Mondongo group.
+     *
+     * @return void
+     */
+EOF;
                 // getter
                 $getterCode = <<<EOF
         if (null === \$this->data['embeds']['$name']) {
@@ -465,10 +597,24 @@ EOF;
 
         return \$this->data['embeds']['$name'];
 EOF;
+                $getterPHPDoc = <<<EOF
+    /**
+     * Returns the "$name" embed.
+     *
+     * @return Mondongo\Group The "$name" embed.
+     */
+EOF;
             }
 
-            $this->container['document_base']->addMethod(new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode));
-            $this->container['document_base']->addMethod(new Method('public', 'get'.Inflector::camelize($name), '', $getterCode));
+            // setter
+            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
+            $method->setPHPDoc($setterPHPDoc);
+            $this->container['document_base']->addMethod($method);
+
+            // getter
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setPHPDoc($getterPHPDoc);
+            $this->container['document_base']->addMethod($method);
         }
     }
 
@@ -492,6 +638,13 @@ EOF;
 
         return \$this->data['relations']['$name'];
 EOF;
+                $getterPHPDoc = <<<EOF
+    /**
+     * Returns the "$name" relation.
+     *
+     * @return {$relation['class']} The "$name" relation.
+     */
+EOF;
             /*
              * many
              */
@@ -505,9 +658,18 @@ EOF;
 
         return \$this->data['relations']['$name'];
 EOF;
+                $getterPHPDoc = <<<EOF
+    /**
+     * Returns the "$name" relation.
+     *
+     * @return array The "$name" relation.
+     */
+EOF;
             }
 
-            $this->container['document_base']->addMethod(new Method('public', 'get'.Inflector::camelize($name), '', $getterCode));
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setPHPDoc($getterPHPDoc);
+            $this->container['document_base']->addMethod($method);
         }
     }
 
@@ -535,7 +697,9 @@ EOF;
      */
     protected function processRepositoryDocumentClassProperty()
     {
-        $this->container['repository_base']->addProperty(new Property('protected', 'documentClass', $this->container['document']->getFullClass()));
+        $property = new Property('protected', 'documentClass', $this->container['document']->getFullClass());
+
+        $this->container['repository_base']->addProperty($property);
     }
 
     /*
@@ -543,7 +707,9 @@ EOF;
      */
     protected function processRepositoryConnectionNameProperty()
     {
-        $this->container['repository_base']->addProperty(new Property('protected', 'connectionName', $this->classData['connection']));
+        $property = new Property('protected', 'connectionName', $this->classData['connection']);
+
+        $this->container['repository_base']->addProperty($property);
     }
 
     /*
@@ -551,6 +717,8 @@ EOF;
      */
     protected function processRepositoryCollectionNameProperty()
     {
-        $this->container['repository_base']->addProperty(new Property('protected', 'collectionName', $this->classData['collection']));
+        $property = new Property('protected', 'collectionName', $this->classData['collection']);
+
+        $this->container['repository_base']->addProperty($property);
     }
 }

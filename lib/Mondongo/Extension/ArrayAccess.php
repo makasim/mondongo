@@ -51,10 +51,20 @@ class ArrayAccess extends Extension
      */
     protected function processOffsetExistsMethod()
     {
-        $this->container['document_base']->addMethod(new Method('public', 'offsetExists', '$name', <<<EOF
+        $method = new Method('public', 'offsetExists', '$name', <<<EOF
         throw new \LogicException('You cannot check if data exists in a document.');
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Throws an \LogicException because you cannot check if data exists.
+     *
+     * @throws \LogicException
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 
     /*
@@ -62,16 +72,31 @@ EOF
      */
     protected function processOffsetSetMethod()
     {
-        $this->container['document_base']->addMethod(new Method('public', 'offsetSet', '$name, $value', <<<EOF
+        $method = new Method('public', 'offsetSet', '$name, $value', <<<EOF
         if (!isset(self::\$map[\$name])) {
             throw new \InvalidArgumentException(sprintf('The name "%s" does not exists.', \$name));
         }
 
         \$method = 'set'.self::\$map[\$name];
 
-        return \$this->\$method(\$value);
+        \$this->\$method(\$value);
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Set data in the document.
+     *
+     * @param string \$name  The data name.
+     * @param mixed  \$value The value.
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException If the data name does not exists.
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 
     /*
@@ -79,16 +104,30 @@ EOF
      */
     protected function processOffsetGetMethod()
     {
-        $this->container['document_base']->addMethod(new Method('public', 'offsetGet', '$name', <<<EOF
+        $method = new Method('public', 'offsetGet', '$name', <<<EOF
         if (!isset(self::\$map[\$name])) {
-            throw new \InvalidArgumentException(sprintf('The name "%s" does not exists.', \$name));
+            throw new \InvalidArgumentException(sprintf('The data "%s" does not exists.', \$name));
         }
 
         \$method = 'get'.self::\$map[\$name];
 
         return \$this->\$method();
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Returns data of the document.
+     *
+     * @param string \$name The data name.
+     *
+     * @return mixed Some data.
+     *
+     * @throws \InvalidArgumentException If the data name does not exists.
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 
     /*
@@ -96,9 +135,19 @@ EOF
      */
     protected function processOffsetUnsetMethod()
     {
-        $this->container['document_base']->addMethod(new Method('public', 'offsetUnset', '$name', <<<EOF
-        throw new \LogicException('You cannot unset data in a document.');
+        $method = new Method('public', 'offsetUnset', '$name', <<<EOF
+        throw new \LogicException('You cannot unset data in the document.');
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Throws a \LogicException because you cannot unset data in the document.
+     *
+     * @throws \LogicException
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 }

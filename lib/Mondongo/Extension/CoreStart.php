@@ -100,6 +100,12 @@ class CoreStart extends Extension
         $definition->setNamespace($this->classData['namespaces']['document']);
         $definition->setClassName($this->className);
         $definition->setParentClass($documentBaseClass);
+        $definition->setPHPDoc(<<<EOF
+/**
+ * {$this->className} document.
+ */
+EOF
+        );
 
         // document_base
         $this->container['document_base'] = $definition = new Definition();
@@ -111,12 +117,24 @@ class CoreStart extends Extension
         } else {
             $definition->setParentClass('\\Mondongo\\Document\\Document');
         }
+        $definition->setPHPDoc(<<<EOF
+/**
+ * Base class of {$this->className} document.
+ */
+EOF
+        );
 
         // repository
         $this->container['repository'] = $definition = new Definition();
         $definition->setNamespace($this->classData['namespaces']['repository']);
         $definition->setClassName($repositoryClass);
         $definition->setParentClass($repositoryBaseClass);
+        $definition->setPHPDoc(<<<EOF
+/**
+ * Repository of {$this->className} document.
+ */
+EOF
+        );
 
         // repository_base
         $this->container['repository_base'] = $definition = new Definition();
@@ -124,6 +142,12 @@ class CoreStart extends Extension
         $definition->setIsAbstract(true);
         $definition->setClassName($this->getClassName($repositoryBaseClass));
         $definition->setParentClass('\\Mondongo\\Repository');
+        $definition->setPHPDoc(<<<EOF
+/**
+ * Base class of repository of {$this->className} document.
+ */
+EOF
+        );
     }
 
     /*
@@ -131,10 +155,20 @@ class CoreStart extends Extension
      */
     public function processDocumentGetMondongoMethod()
     {
-        $this->container['document_base']->addMethod(new Method('public', 'getMondongo', '', <<<EOF
+        $method = new Method('public', 'getMondongo', '', <<<EOF
         return \Mondongo\Container::getForDocumentClass('{$this->container['document']->getFullClass()}');
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Returns the Mondongo of the document.
+     *
+     * @return Mondongo\Mondongo The Mondongo of the document.
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 
     /*
@@ -142,10 +176,20 @@ EOF
      */
     public function processDocumentGetRepositoryMethod()
     {
-        $this->container['document_base']->addMethod(new Method('public', 'getRepository', '', <<<EOF
+        $method = new Method('public', 'getRepository', '', <<<EOF
         return \$this->getMondongo()->getRepository('{$this->container['document']->getFullClass()}');
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Returns the repository of the document.
+     *
+     * @return Mondongo\Repository The repository of the document.
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 
     /*

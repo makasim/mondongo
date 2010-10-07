@@ -121,7 +121,19 @@ $typeCode
 EOF;
         }
 
-        $this->container['document_base']->addMethod(new Method('public', 'fromArray', '$array', $code));
+        $method = new Method('public', 'fromArray', '$array', $code);
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Import data from an array.
+     *
+     * @param array \$array An array.
+     *
+     * @return void
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 
     /*
@@ -163,7 +175,7 @@ $typeCode
 EOF;
         }
 
-        $this->container['document_base']->addMethod(new Method('public', 'toArray', '$withEmbeds = true', <<<EOF
+        $method = new Method('public', 'toArray', '$withEmbeds = true', <<<EOF
         \$array = array();
 
 $fieldsCode
@@ -174,6 +186,18 @@ $embedsCode
 
         return \$array;
 EOF
-        ));
+        );
+        $method->setPHPDoc(<<<EOF
+    /**
+     * Export the document data to array.
+     *
+     * @param bool \$withEmbeds If export embeds or not.
+     *
+     * @return array An array with the document data.
+     */
+EOF
+        );
+
+        $this->container['document_base']->addMethod($method);
     }
 }
