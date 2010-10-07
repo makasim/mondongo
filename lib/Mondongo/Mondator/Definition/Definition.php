@@ -43,6 +43,8 @@ class Definition
 
     protected $methods = array();
 
+    protected $PHPDoc;
+
     /**
      * Set the namespace.
      *
@@ -250,5 +252,27 @@ class Definition
     public function getMethods()
     {
         return $this->methods;
+    }
+
+    /**
+     * Set the PHPDoc.
+     *
+     * @param string|null $PHPDoc The PHPDoc.
+     *
+     * @return void
+     */
+    public function setPHPDoc($PHPDoc)
+    {
+        $this->PHPDoc = $PHPDoc;
+    }
+
+    /**
+     * Returns the PHPDoc.
+     *
+     * @return string|null The PHPDoc.
+     */
+    public function getPHPDoc()
+    {
+        return $this->PHPDoc;
     }
 }

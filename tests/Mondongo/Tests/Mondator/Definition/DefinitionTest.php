@@ -109,4 +109,11 @@ class DefinitionTest extends TestCase
         $definition->setMethods(array($method3, $method4));
         $this->assertSame(array($method3, $method4), $definition->getMethods());
     }
+
+    public function testPHPDoc()
+    {
+        $definition = new Definition();
+        $definition->setPHPDoc('myDoc');
+        $this->assertSame('myDoc', $definition->getPHPDoc());
+    }
 }

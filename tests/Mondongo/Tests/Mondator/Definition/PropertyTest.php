@@ -77,4 +77,12 @@ class PropertyTest extends TestCase
         $property = new Property('protected', 'visibilities', array('public', 'protected'));
         $property->setIsStatic(1);
     }
+
+    public function testPHPDoc()
+    {
+        $property = new Property('protected', 'visibilities', array('public', 'protected'));
+
+        $property->setPHPDoc('myDoc');
+        $this->assertSame('myDoc', $property->getPHPDoc());
+    }
 }

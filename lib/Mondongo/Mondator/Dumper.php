@@ -108,6 +108,9 @@ EOF;
     {
         $declaration = '';
 
+        // PHPDoc
+        $PHPDoc = $this->definition->getPHPDoc();
+
         // abstract
         $declaration .= $this->definition->getIsAbstract() ? 'abstract ' : '';
 
@@ -127,6 +130,7 @@ EOF;
         return <<<EOF
 
 
+$PHPDoc
 $declaration
 {
 EOF;
@@ -137,12 +141,14 @@ EOF;
         $code = '';
 
         foreach ($this->definition->getProperties() as $property) {
+            $PHPDoc   = $property->getPHPDoc();
             $isStatic = $property->getIsStatic() ? 'static ' : '';
             $value    = var_export($property->getValue(), true);
 
             $code .= <<<EOF
 
 
+$PHPDoc
     $isStatic{$property->getVisibility()} \${$property->getName()} = $value;
 EOF;
         }
@@ -155,18 +161,21 @@ EOF;
         $code = '';
 
         foreach ($this->definition->getMethods() as $method) {
+            $PHPDoc   = $method->getPHPDoc();
             $isStatic = $method->getIsStatic() ? 'static ' : '';
 
             if ($method->getIsAbstract()) {
                 $code .= <<<EOF
 
 
+$PHPDoc
     abstract $isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()});
 EOF;
             } else {
                 $code .= <<<EOF
 
 
+$PHPDoc
     $isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()})
     {
 {$method->getCode()}

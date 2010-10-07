@@ -37,6 +37,8 @@ class Property
 
     protected $isStatic;
 
+    protected $PHPDoc;
+
     /**
      * Constructor.
      *
@@ -147,5 +149,27 @@ class Property
     public function getIsStatic()
     {
         return $this->isStatic;
+    }
+
+    /**
+     * Set the PHPDoc.
+     *
+     * @param string|null $PHPDoc The PHPDoc.
+     *
+     * @return void
+     */
+    public function setPHPDoc($PHPDoc)
+    {
+        $this->PHPDoc = $PHPDoc;
+    }
+
+    /**
+     * Returns the PHPDoc.
+     *
+     * @return string|null The PHPDoc.
+     */
+    public function getPHPDoc()
+    {
+        return $this->PHPDoc;
     }
 }

@@ -41,6 +41,8 @@ class Method
 
     protected $isAbstract;
 
+    protected $PHPDoc;
+
     /**
      * Constructor.
      *
@@ -207,5 +209,27 @@ class Method
     public function getIsAbstract()
     {
         return $this->isAbstract;
+    }
+
+    /**
+     * Set the PHPDoc.
+     *
+     * @param string|null $PHPDoc The PHPDoc.
+     *
+     * @return void
+     */
+    public function setPHPDoc($PHPDoc)
+    {
+        $this->PHPDoc = $PHPDoc;
+    }
+
+    /**
+     * Returns the PHPDoc.
+     *
+     * @return string|null The PHPDoc.
+     */
+    public function getPHPDoc()
+    {
+        return $this->PHPDoc;
     }
 }

@@ -105,4 +105,12 @@ class MethodTest extends TestCase
         $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
         $method->setIsAbstract(1);
     }
+
+    public function testPHPDoc()
+    {
+        $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
+
+        $method->setPHPDoc('myDoc');
+        $this->assertSame('myDoc', $method->getPHPDoc());
+    }
 }
