@@ -52,7 +52,7 @@ class CoreStart extends Extension
         $this->processInitExtensionsEvents();
 
         if (isset($this->classData['extensions'])) {
-            $this->processExtensionsAsArray($this->classData['extensions']);
+            $this->processExtensionsFromArray($this->classData['extensions']);
         }
     }
 
