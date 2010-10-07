@@ -210,15 +210,15 @@ abstract class Repository
     }
 
     /**
-     * Find a document by id.
+     * Find one document by id.
      *
-     * @param mixed  $id The document id (string or MongoId object).
+     * @param \MongoId $id The document \MongoId.
      *
      * @return mixed The document or NULL if it does not exists.
      */
-    public function get($id)
+    public function findOneById(\MongoId $id)
     {
-        return $this->find(array('query' => array('_id' => is_string($id) ? new \MongoId($id) : $id), 'one' => true));
+        return $this->find(array('query' => array('_id' => $id), 'one' => true));
     }
 
     /**

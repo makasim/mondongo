@@ -173,16 +173,15 @@ class RepositoryTest extends TestCase
         $this->assertNull($repository->findOne(array('query' => array('_id' => new \MongoId('123')))));
     }
 
-    public function testGet()
+    public function testFindOneById()
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals($articles[2], $repository->get($articles[2]->getId()));
-        $this->assertEquals($articles[2], $repository->get($articles[2]->getId()->__toString()));
-        $this->assertEquals($articles[5], $repository->get($articles[5]->getId()));
+        $this->assertEquals($articles[2], $repository->findOneById($articles[2]->getId()));
+        $this->assertEquals($articles[5], $repository->findOneById($articles[5]->getId()));
 
-        $this->assertNull($repository->get('123'));
+        $this->assertNull($repository->findOneById(new \MongoId('123')));
     }
 
     public function testRemove()

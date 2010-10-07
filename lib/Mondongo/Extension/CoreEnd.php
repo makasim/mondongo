@@ -403,7 +403,10 @@ EOF;
                 // getter
                 $getterCode = <<<EOF
         if (null === \$this->data['references']['$name']) {
-            \$value = \\Mondongo\Container::getForDocumentClass('{$reference['class']}')->getRepository('{$reference['class']}')->get(\$this->$fieldGetter());
+            \$value = \\Mondongo\Container::getForDocumentClass('{$reference['class']}')
+                ->getRepository('{$reference['class']}')
+                ->findOneById(\$this->$fieldGetter())
+            ;
             if (!\$value) {
                 throw new \RuntimeException('The reference "$name" does not exists');
             }

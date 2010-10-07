@@ -158,7 +158,7 @@ class CoreTest extends TestCase
 
         $article->save();
 
-        $article = $this->mondongo->getRepository('Model\Document\Article')->get($article->getId());
+        $article = $this->mondongo->getRepository('Model\Document\Article')->findOneById($article->getId());
         $this->assertEquals($author, $a = $article->getAuthor());
         $this->assertSame($a, $article->getAuthor());
     }
@@ -187,7 +187,7 @@ class CoreTest extends TestCase
     public function testDocumentReferencesOneGetterNotExists()
     {
         $article = new Article();
-        $article->setAuthorId('123');
+        $article->setAuthorId(new \MongoId('123'));
         $article->getAuthor();
     }
 
@@ -216,7 +216,7 @@ class CoreTest extends TestCase
 
         $article->save();
 
-        $article = $this->mondongo->getRepository('Model\Document\Article')->get($article->getId());
+        $article = $this->mondongo->getRepository('Model\Document\Article')->findOneById($article->getId());
         $this->assertEquals($group, $g = $article->getCategories());
         $this->assertSame($g, $article->getCategories());
     }
