@@ -88,7 +88,13 @@ class Mondator
     }
 
     /**
+     * Returns a class.
      *
+     * @param string $name The class name.
+     *
+     * @return array The class.
+     *
+     * @throws \InvalidArgumentException If the class does not exists.
      */
     public function getClass($name)
     {
