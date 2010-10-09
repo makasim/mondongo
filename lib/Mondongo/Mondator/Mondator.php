@@ -31,78 +31,78 @@ use Mondongo\Mondator\Definition\Container;
  */
 class Mondator
 {
-    protected $classes = array();
+    protected $classDefinitions = array();
 
     protected $extensions = array();
 
     protected $outputs = array();
 
     /**
-     * Set a class.
+     * Set a class definition.
      *
-     * @param string $name The class name.
-     * @param array  $data The class data.
+     * @param string $className The class name.
+     * @param array  $classData The class data.
      *
      * @return void
      */
-    public function setClass($name, array $data)
+    public function setClassDefinition($className, array $classData)
     {
-        $this->classes[$name] = $data;
+        $this->classDefinitions[$className] = $classData;
     }
 
     /**
-     * Set the classes.
+     * Set the class definitions.
      *
-     * @param array $classes An array of classes (name as key and data as value).
+     * @param array $classDefinitions An array of class definitions (class name as key and class data as value).
      *
      * @return void
      */
-    public function setClasses(array $classes)
+    public function setClassDefinitions(array $classDefinitions)
     {
-        $this->classes = array();
-        foreach ($classes as $name => $data) {
-            $this->setClass($name, $data);
+        $this->classDefinitions = array();
+        foreach ($classDefinitions as $className => $classData) {
+            $this->setClassDefinition($className, $classData);
         }
     }
 
     /**
-     * Returns if a class exists.
+     * Returns if a class definition exists.
      *
-     * @param string $name The class name.
+     * @param string $className The class name.
      *
-     * @return bool Returns if the class exists.
+     * @return bool Returns if the class definition exists.
      */
-    public function hasClass($name)
+    public function hasClassDefinition($className)
     {
-        return array_key_exists($name, $this->classes);
+        return array_key_exists($className, $this->classDefinitions);
     }
 
     /**
-     * Returns the classes.
+     * Returns the class definitions.
      *
-     * @return array The classes.
+     * @return array The class definitions.
      */
-    public function getClasses()
+    public function getClassDefinitions()
     {
-        return $this->classes;
+        return $this->classDefinitions;
     }
 
     /**
-     * Returns a class.
+     * Returns a class definition.
      *
-     * @param string $name The class name.
+     * @param string $className The class name.
      *
-     * @return array The class.
+     * @return array The class definition.
      *
-     * @throws \InvalidArgumentException If the class does not exists.
+     * @throws \InvalidArgumentException If the class definition does not exists.
      */
-    public function getClass($name)
+    public function getClassDefinition($className)
     {
-        if (!$this->hasClass($name)) {
-            throw new \InvalidArgumentException(sprintf('The class "%s" does not exists.', $name));
+        if (!$this->hasClassDefinition($className)) {
+            throw new \InvalidArgumentException(sprintf('The class definition "%s" does not exists.', $className));
         }
 
-        return $this->classes[$name];
+        return $this->classDefinitions[$className];
     }
 
     /**
@@ -219,7 +219,7 @@ class Mondator
 
         // classes
         $classes = array();
-        foreach ($this->getClasses() as $className => $classData) {
+        foreach ($this->getClassDefinitions() as $className => $classData) {
             $classes[$className] = new \ArrayObject($classData);
         }
 

@@ -28,40 +28,40 @@ use Mondongo\Mondator\Output;
 
 class MondatorTest extends TestCase
 {
-    public function testClasses()
+    public function testClassDefinitions()
     {
         $mondator = new Mondator();
-        $mondator->setClass('Article', $article = array(
+        $mondator->setClassDefinition('Article', $article = array(
             'title'   => 'string',
             'content' => 'string',
         ));
-        $mondator->setClass('Comment', $comment = array(
+        $mondator->setClassDefinition('Comment', $comment = array(
             'name' => 'string',
             'text' => 'string',
         ));
 
-        $this->assertTrue($mondator->hasClass('Article'));
-        $this->assertFalse($mondator->hasClass('Category'));
+        $this->assertTrue($mondator->hasClassDefinition('Article'));
+        $this->assertFalse($mondator->hasClassDefinition('Category'));
 
-        $this->assertSame($article, $mondator->getClass('Article'));
-        $this->assertSame($comment, $mondator->getClass('Comment'));
+        $this->assertSame($article, $mondator->getClassDefinition('Article'));
+        $this->assertSame($comment, $mondator->getClassDefinition('Comment'));
 
-        $this->assertSame(array('Article' => $article, 'Comment' => $comment), $mondator->getClasses());
+        $this->assertSame(array('Article' => $article, 'Comment' => $comment), $mondator->getClassDefinitions());
 
-        $mondator->setClasses($classes = array(
+        $mondator->setClassDefinitions($classes = array(
             'Category' => array('name' => 'string'),
             'Post'     => array('message' => 'string'),
         ));
-        $this->assertSame($classes, $mondator->getClasses());
+        $this->assertSame($classes, $mondator->getClassDefinitions());
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testGetClassNotExists()
+    public function testGetClassDefinitionNotExists()
     {
         $mondator = new Mondator();
-        $mondator->getClass('Article');
+        $mondator->getClassDefinition('Article');
     }
 
     public function testExtensions()
@@ -108,13 +108,13 @@ class MondatorTest extends TestCase
     public function testGetOutputNotExists()
     {
         $mondator = new Mondator();
-        $mondator->getClass('output1');
+        $mondator->getOutput('output1');
     }
 
     public function testGenerateContainers()
     {
         $mondator = new Mondator();
-        $mondator->setClasses(array(
+        $mondator->setClassDefinitions(array(
             'Article' => array(
                 'name' => 'foo',
             ),

@@ -126,7 +126,7 @@ foreach ($classes as &$class) {
 }
 
 $mondator = new Mondator();
-$mondator->setClasses($classes);
+$mondator->setClassDefinitions($classes);
 $mondator->setExtensions(array(
     new Mondongo\Extension\CoreStart(),
     new Mondongo\Extension\FromToArray(),
@@ -143,7 +143,7 @@ $mondator->process();
 
 // not namespaced
 $mondator = new Mondator();
-$mondator->setClasses(array(
+$mondator->setClassDefinitions(array(
     'Article' => array(
         'fields' => array(
             'title'   => 'string',
