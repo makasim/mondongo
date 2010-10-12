@@ -80,10 +80,10 @@ class DefinitionTest extends TestCase
 
     public function testProperties()
     {
-        $property1 = new Property('public', 'property1');
-        $property2 = new Property('public', 'property2');
-        $property3 = new Property('public', 'property3');
-        $property4 = new Property('public', 'property4');
+        $property1 = new Property('public', 'property1', true);
+        $property2 = new Property('public', 'property2', true);
+        $property3 = new Property('public', 'property3', true);
+        $property4 = new Property('public', 'property4', true);
 
         $definition = new Definition();
         $definition->addProperty($property1);

@@ -48,7 +48,7 @@ class Property
      *
      * @return void
      */
-    public function __construct($visibility, $name, $value = null)
+    public function __construct($visibility, $name, $value)
     {
         $this->setVisibility($visibility);
         $this->setName($name);
