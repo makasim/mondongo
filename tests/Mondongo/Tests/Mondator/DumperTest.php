@@ -29,7 +29,7 @@ class DumperTest extends TestCase
 {
     public function testConstructor()
     {
-        $definition = new Definition();
+        $definition = new Definition('Class1');
 
         $dumper = new Dumper($definition);
         $this->assertSame($definition, $dumper->getDefinition());
@@ -37,8 +37,8 @@ class DumperTest extends TestCase
 
     public function testDefinition()
     {
-        $definition1 = new Definition();
-        $definition2 = new Definition();
+        $definition1 = new Definition('Class1');
+        $definition2 = new Definition('Class2');
 
         $dumper = new Dumper($definition1);
         $dumper->setDefinition($definition2);

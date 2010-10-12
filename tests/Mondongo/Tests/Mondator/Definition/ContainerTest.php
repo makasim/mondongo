@@ -29,10 +29,10 @@ class ContainerTest extends TestCase
 {
     public function testDefinitions()
     {
-        $definitionDocument   = new Definition();
-        $definitionRepository = new Definition();
-        $definitionMore       = new Definition();
-        $definitionTest       = new Definition();
+        $definitionDocument   = new Definition('Class1');
+        $definitionRepository = new Definition('Class2');
+        $definitionMore       = new Definition('Class3');
+        $definitionTest       = new Definition('Class4');
 
         $container = new Container();
         $this->assertFalse($container->hasDefinition('document'));
@@ -62,8 +62,8 @@ class ContainerTest extends TestCase
 
     public function testArrayAccessInterface()
     {
-        $definition1 = new Definition();
-        $definition2 = new Definition();
+        $definition1 = new Definition('Class1');
+        $definition2 = new Definition('Class2');
 
         $container = new Container();
         $this->assertFalse(isset($container['definition1']));

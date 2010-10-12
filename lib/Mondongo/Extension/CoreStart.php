@@ -129,9 +129,8 @@ class CoreStart extends Extension
          * Definitions
          */
         // document
-        $this->container['document'] = $definition = new Definition();
+        $this->container['document'] = $definition = new Definition($this->className);
         $definition->setNamespace($this->classData['namespaces']['document']);
-        $definition->setClassName($this->className);
         $definition->setParentClass($documentBaseClass);
         $definition->setPHPDoc(<<<EOF
 /**
@@ -141,10 +140,9 @@ EOF
         );
 
         // document_base
-        $this->container['document_base'] = $definition = new Definition();
+        $this->container['document_base'] = $definition = new Definition($this->getClassName($documentBaseClass));
         $definition->setNamespace($this->getNamespace($documentBaseClass));
         $definition->setIsAbstract(true);
-        $definition->setClassName($this->getClassName($documentBaseClass));
         if ($this->classData['embed']) {
             $definition->setParentClass('\\Mondongo\\Document\\DocumentEmbed');
         } else {
@@ -159,9 +157,8 @@ EOF
 
         if (!$this->classData['embed']) {
             // repository
-            $this->container['repository'] = $definition = new Definition();
+            $this->container['repository'] = $definition = new Definition($repositoryClass);
             $definition->setNamespace($this->classData['namespaces']['repository']);
-            $definition->setClassName($repositoryClass);
             $definition->setParentClass($repositoryBaseClass);
             $definition->setPHPDoc(<<<EOF
 /**
@@ -171,10 +168,9 @@ EOF
             );
 
             // repository_base
-            $this->container['repository_base'] = $definition = new Definition();
+            $this->container['repository_base'] = $definition = new Definition($this->getClassName($repositoryBaseClass));
             $definition->setNamespace($this->getNamespace($repositoryBaseClass));
             $definition->setIsAbstract(true);
-            $definition->setClassName($this->getClassName($repositoryBaseClass));
             $definition->setParentClass('\\Mondongo\\Repository');
             $definition->setPHPDoc(<<<EOF
 /**

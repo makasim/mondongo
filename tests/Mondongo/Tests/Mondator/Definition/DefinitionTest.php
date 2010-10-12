@@ -28,23 +28,29 @@ use Mondongo\Mondator\Definition\Property;
 
 class DefinitionTest extends TestCase
 {
+    public function testConstructor()
+    {
+        $definition = new Definition('Class1');
+        $this->assertSame('Class1', $definition->getClassName());
+    }
+
     public function testNamespace()
     {
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $definition->setNamespace('\Mondongo\Mondator\Definition');
         $this->assertSame('\Mondongo\Mondator\Definition', $definition->getNamespace());
     }
 
     public function testClassName()
     {
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $definition->setClassName('FooBar');
         $this->assertSame('FooBar', $definition->getClassName());
     }
 
     public function testGetFullClass()
     {
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $definition->setClassName('Document');
         $this->assertSame('Document', $definition->getFullClass());
 
@@ -54,14 +60,14 @@ class DefinitionTest extends TestCase
 
     public function testParentClass()
     {
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $definition->setParentClass('ParentFooBar');
         $this->assertSame('ParentFooBar', $definition->getParentClass());
     }
 
     public function testInterfaces()
     {
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $definition->addInterface('\ArrayAccess');
         $definition->addInterface('\Countable');
         $this->assertSame(array('\ArrayAccess', '\Countable'), $definition->getInterfaces());
@@ -72,7 +78,7 @@ class DefinitionTest extends TestCase
 
     public function testIsAbstract()
     {
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $this->assertFalse($definition->getIsAbstract());
         $definition->setIsAbstract(true);
         $this->assertTrue($definition->getIsAbstract());
@@ -85,7 +91,7 @@ class DefinitionTest extends TestCase
         $property3 = new Property('public', 'property3', true);
         $property4 = new Property('public', 'property4', true);
 
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $definition->addProperty($property1);
         $definition->addProperty($property2);
         $this->assertSame(array($property1, $property2), $definition->getProperties());
@@ -101,7 +107,7 @@ class DefinitionTest extends TestCase
         $method3 = new Method('public', 'method3', '', '');
         $method4 = new Method('public', 'method4', '', '');
 
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $definition->addMethod($method1);
         $definition->addMethod($method2);
         $this->assertSame(array($method1, $method2), $definition->getMethods());
@@ -112,7 +118,7 @@ class DefinitionTest extends TestCase
 
     public function testPHPDoc()
     {
-        $definition = new Definition();
+        $definition = new Definition('Class1');
         $definition->setPHPDoc('myDoc');
         $this->assertSame('myDoc', $definition->getPHPDoc());
     }

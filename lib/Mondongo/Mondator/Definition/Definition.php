@@ -46,6 +46,18 @@ class Definition
     protected $PHPDoc;
 
     /**
+     * Constructor.
+     *
+     * @param string $className The class name.
+     *
+     * @return void
+     */
+    public function __construct($className)
+    {
+        $this->setClassName($className);
+    }
+
+    /**
      * Set the namespace.
      *
      * @param string $namespace The namespace.
