@@ -124,17 +124,14 @@ $configClasses = array(
         ),
     ),
 );
-foreach ($configClasses as &$configClass) {
-    $configClass['namespaces'] = array(
-        'document'   => 'Model\Document',
-        'repository' => 'Model\Repository',
-    );
-}
 
 $mondator = new Mondator();
 $mondator->setConfigClasses($configClasses);
 $mondator->setExtensions(array(
-    new Mondongo\Extension\CoreStart(),
+    new Mondongo\Extension\CoreStart(array(
+        'default_document_namespace'   => 'Model\Document',
+        'default_repository_namespace' => 'Model\Repository',
+    )),
     new Mondongo\Extension\FromToArray(),
     new Mondongo\Extension\ArrayAccess(),
     new Mondongo\Extension\CoreEnd(),

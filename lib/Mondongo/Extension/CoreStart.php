@@ -35,6 +35,11 @@ use Mondongo\Inflector;
  */
 class CoreStart extends Extension
 {
+    protected $options = array(
+        'default_document_namespace'   => false,
+        'default_repository_namespace' => false,
+    );
+
     /**
      * @inheritdoc
      */
@@ -77,8 +82,26 @@ class CoreStart extends Extension
         /*
          * Namespaces
          */
+        // init
         if (!isset($this->classData['namespaces'])) {
             $this->classData['namespaces'] = array('document' => null, 'repository' => null);
+        }
+
+        // default
+        if (
+          !isset($this->classData['namespaces']['document'])
+          &&
+          $defaultDocumentNamespace = $this->getOption('default_document_namespace')
+        ) {
+            $this->classData['namespaces']['document'] = $defaultDocumentNamespace;
+        }
+
+        if (
+          !isset($this->classData['namespaces']['repository'])
+          &&
+          $defaultDocumentNamespace = $this->getOption('default_repository_namespace')
+        ) {
+            $this->classData['namespaces']['repository'] = $defaultDocumentNamespace;
         }
 
         // document
