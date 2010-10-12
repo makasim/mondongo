@@ -37,6 +37,8 @@ class Definition
 
     protected $interfaces = array();
 
+    protected $isFinal = false;
+
     protected $isAbstract = false;
 
     protected $properties = array();
@@ -171,7 +173,29 @@ class Definition
     }
 
     /**
-     * Set if it is abstract.
+     * Set if the class is final.
+     *
+     * @param bool $isFinal If the class is final.
+     *
+     * @return void
+     */
+    public function setIsFinal($isFinal)
+    {
+        $this->isFinal = (bool) $isFinal;
+    }
+
+    /**
+     * Returns if the class is final.
+     *
+     * @return bool Returns if the class is final.
+     */
+    public function getIsFinal()
+    {
+        return $this->isFinal;
+    }
+
+    /**
+     * Set if the class is abstract.
      *
      * @param bool $isAbstract If the class is abstract.
      *

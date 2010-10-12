@@ -37,6 +37,8 @@ class Method
 
     protected $code;
 
+    protected $isFinal = false;
+
     protected $isStatic = false;
 
     protected $isAbstract = false;
@@ -152,21 +154,37 @@ class Method
     }
 
     /**
+     * Set if the method is final.
+     *
+     * @param bool $isFinal If the method is final.
+     *
+     * @return void
+     */
+    public function setIsFinal($isFinal)
+    {
+        $this->isFinal = (bool) $isFinal;
+    }
+
+    /**
+     * Returns if the method is final.
+     *
+     * @return bool If the method is final.
+     */
+    public function getIsFinal()
+    {
+        return $this->isFinal;
+    }
+
+    /**
      * Set if the method is static.
      *
      * @param bool $isStatic If the method is static.
      *
      * @return void
-     *
-     * @throws \InvalidArgumentException If the $isStatic is not a boolean.
      */
     public function setIsStatic($isStatic)
     {
-        if (!is_bool($isStatic)) {
-            throw new \InvalidArgumentException('The $isStatic is not a boolean.');
-        }
-
-        $this->isStatic = $isStatic;
+        $this->isStatic = (bool) $isStatic;
     }
 
     /**
@@ -185,16 +203,10 @@ class Method
      * @param bool $isAbstract If the method is abstract.
      *
      * @return void
-     *
-     * @throws \InvalidArgumentException If the $isAbstract is not a boolean.
      */
     public function setIsAbstract($isAbstract)
     {
-        if (!is_bool($isAbstract)) {
-            throw new \InvalidArgumentException('The $isAbstract is not a boolean.');
-        }
-
-        $this->isAbstract = $isAbstract;
+        $this->isAbstract = (bool) $isAbstract;
     }
 
     /**

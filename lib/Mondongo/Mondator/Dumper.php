@@ -106,13 +106,18 @@ EOF;
 
     protected function startClass()
     {
-        $declaration = '';
-
         // PHPDoc
         $PHPDoc = $this->definition->getPHPDoc();
 
+        /*
+         * declaration
+         */
+        $declaration = '';
+
         // abstract
-        $declaration .= $this->definition->getIsAbstract() ? 'abstract ' : '';
+        if ($this->definition->getIsAbstract()) {
+            $declaration .= 'abstract ';
+        }
 
         // class
         $declaration .= 'class '.$this->definition->getClassName();
@@ -161,9 +166,16 @@ EOF;
         $code = '';
 
         foreach ($this->definition->getMethods() as $method) {
-            $PHPDoc   = $method->getPHPDoc();
+            // PHPDoc
+            $PHPDoc = $method->getPHPDoc();
+
+            // isFinal
+            $isFinal = $method->getIsFinal() ? 'final ' : '';
+
+            // isStatic
             $isStatic = $method->getIsStatic() ? 'static ' : '';
 
+            // abstract
             if ($method->getIsAbstract()) {
                 $code .= <<<EOF
 
@@ -176,7 +188,7 @@ EOF;
 
 
 $PHPDoc
-    $isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()})
+    $isFinal$isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()})
     {
 {$method->getCode()}
     }

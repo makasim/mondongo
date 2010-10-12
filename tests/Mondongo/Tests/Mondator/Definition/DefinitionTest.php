@@ -76,6 +76,14 @@ class DefinitionTest extends TestCase
         $this->assertSame($interfaces, $definition->getInterfaces());
     }
 
+    public function testIsFinal()
+    {
+        $definition = new Definition('Class1');
+        $this->assertFalse($definition->getIsFinal());
+        $definition->setIsFinal(true);
+        $this->assertTrue($definition->getIsFinal());
+    }
+
     public function testIsAbstract()
     {
         $definition = new Definition('Class1');

@@ -68,6 +68,15 @@ class MethodTest extends TestCase
         $this->assertSame('$this->visibility = $v;', $method->getCode());
     }
 
+    public function testIsFinal()
+    {
+        $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
+
+        $this->assertFalse($method->getIsFinal());
+        $method->setIsFinal(true);
+        $this->assertTrue($method->getIsFinal());
+    }
+
     public function testIsStatic()
     {
         $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
@@ -77,15 +86,6 @@ class MethodTest extends TestCase
         $this->assertTrue($method->getIsStatic());
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetIsStaticNotBoolean()
-    {
-        $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
-        $method->setIsStatic(1);
-    }
-
     public function testIsAbstract()
     {
         $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
@@ -93,15 +93,6 @@ class MethodTest extends TestCase
         $this->assertFalse($method->getIsAbstract());
         $method->setIsAbstract(true);
         $this->assertTrue($method->getIsAbstract());
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testSetIsAbstractNotBoolean()
-    {
-        $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
-        $method->setIsAbstract(1);
     }
 
     public function testPHPDoc()
