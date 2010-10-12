@@ -45,8 +45,8 @@ class CoreStart extends Extension
         if (!$this->classData['embed']) {
             $this->processDocumentGetMondongoMethod();
             $this->processDocumentGetRepositoryMethod();
-            $this->processConnectionName();
-            $this->processCollectionName();
+            $this->processInitConnectionName();
+            $this->processInitCollectionName();
         }
 
         $this->processInitFields();
@@ -207,7 +207,7 @@ EOF
     /*
      * Connection name.
      */
-    protected function processConnectionName()
+    protected function processInitConnectionName()
     {
         if (!isset($this->classData['connection'])) {
             $this->classData['connection'] = null;
@@ -217,7 +217,7 @@ EOF
     /*
      * Collection name.
      */
-    protected function processCollectionName()
+    protected function processInitCollectionName()
     {
         if (!isset($this->classData['collection'])) {
             $this->classData['collection'] = Inflector::underscore($this->className);
