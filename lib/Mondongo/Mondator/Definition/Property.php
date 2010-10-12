@@ -35,7 +35,7 @@ class Property
 
     protected $value;
 
-    protected $isStatic;
+    protected $isStatic = false;
 
     protected $PHPDoc;
 
@@ -45,16 +45,14 @@ class Property
      * @param string $visibility The visibility.
      * @param string $name       The name.
      * @param mixed  $value      The value.
-     * @param bool   $isStatic   If the property is static (optional, false by default).
      *
      * @return void
      */
-    public function __construct($visibility, $name, $value = null, $isStatic = false)
+    public function __construct($visibility, $name, $value = null)
     {
         $this->setVisibility($visibility);
         $this->setName($name);
         $this->setValue($value);
-        $this->setIsStatic($isStatic);
     }
 
     /**

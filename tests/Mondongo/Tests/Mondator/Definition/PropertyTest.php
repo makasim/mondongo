@@ -28,12 +28,11 @@ class PropertyTest extends TestCase
 {
     public function testConstructor()
     {
-        $property = new Property('protected', 'visibilities', array('public', 'protected'), true);
+        $property = new Property('protected', 'visibilities', array('public', 'protected'));
 
         $this->assertSame('protected', $property->getVisibility());
         $this->assertSame('visibilities', $property->getName());
         $this->assertSame(array('public', 'protected'), $property->getValue());
-        $this->assertTrue($property->getIsStatic());
     }
 
     public function testVisibility()

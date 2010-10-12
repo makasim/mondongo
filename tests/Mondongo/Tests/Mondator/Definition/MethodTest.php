@@ -28,14 +28,12 @@ class MethodTest extends TestCase
 {
     public function testConstructor()
     {
-        $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;', true, false);
+        $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
 
         $this->assertSame('public',  $method->getVisibility());
         $this->assertSame('setVisibility', $method->getName());
         $this->assertSame('$visibility', $method->getArguments());
         $this->assertSame('$this->visibility = $visibility;', $method->getCode());
-        $this->assertTrue($method->getIsStatic());
-        $this->assertFalse($method->getIsAbstract());
     }
 
     public function testVisibility()

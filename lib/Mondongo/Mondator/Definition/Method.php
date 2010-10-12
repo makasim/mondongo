@@ -37,9 +37,9 @@ class Method
 
     protected $code;
 
-    protected $isStatic;
+    protected $isStatic = false;
 
-    protected $isAbstract;
+    protected $isAbstract = false;
 
     protected $PHPDoc;
 
@@ -50,19 +50,15 @@ class Method
      * @param string $name       The name.
      * @param string $arguments  The arguments (as string).
      * @param string $code       The code.
-     * @param bool   $isStatic   If the method is static (optional, false by default).
-     * @param bool   $isAbstract If the method is abstract (optional, false by default).
      *
      * @return void
      */
-    public function __construct($visibility, $name, $arguments, $code, $isStatic = false, $isAbstract = false)
+    public function __construct($visibility, $name, $arguments, $code)
     {
         $this->setVisibility($visibility);
         $this->setName($name);
         $this->setArguments($arguments);
         $this->setCode($code);
-        $this->setIsStatic($isStatic);
-        $this->setIsAbstract($isAbstract);
     }
 
     /**
