@@ -41,14 +41,22 @@ class CoreStart extends Extension
     protected function doProcess()
     {
         $this->processInitDefinitions();
-        $this->processDocumentGetMondongoMethod();
-        $this->processDocumentGetRepositoryMethod();
-        $this->processConnectionName();
-        $this->processCollectionName();
+
+        if (!$this->classData['embed']) {
+            $this->processDocumentGetMondongoMethod();
+            $this->processDocumentGetRepositoryMethod();
+            $this->processConnectionName();
+            $this->processCollectionName();
+        }
+
         $this->processInitFields();
         $this->processInitReferences();
         $this->processInitEmbeds();
-        $this->processInitRelations();
+
+        if (!$this->classData['embeds']) {
+            $this->processInitRelations();
+        }
+
         $this->processInitExtensionsEvents();
 
         if (isset($this->classData['extensions'])) {
@@ -82,14 +90,16 @@ class CoreStart extends Extension
         }
 
         // repository
-        if (isset($this->classData['namespaces']['repository'])) {
-            $repositoryClass     = $this->className;
-            $repositoryBaseClass = '\\'.$this->classData['namespaces']['repository'].'\\Base\\'.$this->className;
-        } else {
-            $this->classData['namespaces']['repository'] = null;
+        if (!$this->classData['embed']) {
+            if (isset($this->classData['namespaces']['repository'])) {
+                $repositoryClass     = $this->className;
+                $repositoryBaseClass = '\\'.$this->classData['namespaces']['repository'].'\\Base\\'.$this->className;
+            } else {
+                $this->classData['namespaces']['repository'] = null;
 
-            $repositoryClass     = $this->className.'Repository';
-            $repositoryBaseClass = 'Base'.$this->className.'Repository';
+                $repositoryClass     = $this->className.'Repository';
+                $repositoryBaseClass = 'Base'.$this->className.'Repository';
+            }
         }
 
         /*
@@ -124,30 +134,32 @@ EOF
 EOF
         );
 
-        // repository
-        $this->container['repository'] = $definition = new Definition();
-        $definition->setNamespace($this->classData['namespaces']['repository']);
-        $definition->setClassName($repositoryClass);
-        $definition->setParentClass($repositoryBaseClass);
-        $definition->setPHPDoc(<<<EOF
+        if (!$this->classData['embed']) {
+            // repository
+            $this->container['repository'] = $definition = new Definition();
+            $definition->setNamespace($this->classData['namespaces']['repository']);
+            $definition->setClassName($repositoryClass);
+            $definition->setParentClass($repositoryBaseClass);
+            $definition->setPHPDoc(<<<EOF
 /**
  * Repository of {$this->className} document.
  */
 EOF
-        );
+            );
 
-        // repository_base
-        $this->container['repository_base'] = $definition = new Definition();
-        $definition->setNamespace($this->getNamespace($repositoryBaseClass));
-        $definition->setIsAbstract(true);
-        $definition->setClassName($this->getClassName($repositoryBaseClass));
-        $definition->setParentClass('\\Mondongo\\Repository');
-        $definition->setPHPDoc(<<<EOF
+            // repository_base
+            $this->container['repository_base'] = $definition = new Definition();
+            $definition->setNamespace($this->getNamespace($repositoryBaseClass));
+            $definition->setIsAbstract(true);
+            $definition->setClassName($this->getClassName($repositoryBaseClass));
+            $definition->setParentClass('\\Mondongo\\Repository');
+            $definition->setPHPDoc(<<<EOF
 /**
  * Base class of repository of {$this->className} document.
  */
 EOF
-        );
+            );
+        }
     }
 
     /*

@@ -117,6 +117,12 @@ $configClasses = array(
             'name' => 'string',
         ),
     ),
+    'EmbedNot' => array(
+        'embed' => true,
+        'relations' => array(
+            'article' => array('class' => 'Model\Document\Article', 'field' => 'embed_not_id', 'type' => 'one'),
+        ),
+    ),
 );
 foreach ($configClasses as &$configClass) {
     $configClass['namespaces'] = array(

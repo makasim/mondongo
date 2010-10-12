@@ -30,6 +30,7 @@ use Model\Document\Author;
 use Model\Document\AuthorTelephone;
 use Model\Document\Category;
 use Model\Document\Comment;
+use Model\Document\EmbedNot;
 use Model\Document\Source;
 use Model\Document\User;
 
@@ -81,6 +82,24 @@ class CoreTest extends TestCase
     {
         $article = new \Article();
         $this->assertSame($this->mondongo->getRepository('Article'), $article->getRepository());
+    }
+
+    public function testEmbedNotRepository()
+    {
+        $this->assertFalse(class_exists('Model\Repository\EmbedNot'));
+        $this->assertFalse(class_exists('Model\Repository\Base\EmbedNot'));
+    }
+
+    public function testEmbedNotDocumentGetMondongoMethod()
+    {
+        $embedNot = new EmbedNot();
+        $this->assertFalse(method_exists($embedNot, 'getMondongo'));
+    }
+
+    public function testEmbedNotDocumentGetRepositoryMethod()
+    {
+        $embedNot = new EmbedNot();
+        $this->assertFalse(method_exists($embedNot, 'getRepository'));
     }
 
     /*

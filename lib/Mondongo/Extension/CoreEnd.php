@@ -58,14 +58,18 @@ class CoreEnd extends Extension
         $this->processDocumentFields();
         $this->processDocumentReferences();
         $this->processDocumentEmbeds();
-        $this->processDocumentRelations();
+        if (!$this->classData['embed']) {
+            $this->processDocumentRelations();
+        }
 
         $this->processDocumentExtensionsEventsMethods();
 
         // repository
-        $this->processRepositoryDocumentClassProperty();
-        $this->processRepositoryConnectionNameProperty();
-        $this->processRepositoryCollectionNameProperty();
+        if (!$this->classData['embed']) {
+            $this->processRepositoryDocumentClassProperty();
+            $this->processRepositoryConnectionNameProperty();
+            $this->processRepositoryCollectionNameProperty();
+        }
     }
 
     /*
