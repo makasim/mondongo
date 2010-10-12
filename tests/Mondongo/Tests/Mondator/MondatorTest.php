@@ -114,7 +114,7 @@ class MondatorTest extends TestCase
     public function testGenerateContainers()
     {
         $mondator = new Mondator();
-        $mondator->setClassDefinitions(array(
+        $mondator->setConfigClasses(array(
             'Article' => array(
                 'name' => 'foo',
             ),
