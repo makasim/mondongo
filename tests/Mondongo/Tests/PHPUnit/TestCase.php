@@ -44,8 +44,19 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
         $this->mongo = new \Mongo();
 
-        $this->mongo->dropDB('mondongo_tests');
         $this->db = $this->mongo->selectDB('mondongo_tests');
+
+        foreach (array(
+            'author',
+            'author_telephone',
+            'category',
+            'article',
+            'news',
+            'summary',
+            'user',
+        ) as $collectionName) {
+            $this->db->$collectionName->remove(array(), array('safe' => true));
+        }
 
         $this->mondongo = new Mondongo();
         $this->mondongo->setConnection('default', new Connection('localhost', 'mondongo_tests'));
