@@ -20,7 +20,7 @@ use \Mondongo\Mondator\Mondator;
 use \Mondongo\Mondator\Output;
 
 // namespaced
-$classes = array(
+$configClasses = array(
     'Author' => array(
         'fields' => array(
             'name'         => 'string',
@@ -118,15 +118,15 @@ $classes = array(
         ),
     ),
 );
-foreach ($classes as &$class) {
-    $class['namespaces'] = array(
+foreach ($configClasses as &$configClass) {
+    $configClass['namespaces'] = array(
         'document'   => 'Model\Document',
         'repository' => 'Model\Repository',
     );
 }
 
 $mondator = new Mondator();
-$mondator->setClassDefinitions($classes);
+$mondator->setConfigClasses($configClasses);
 $mondator->setExtensions(array(
     new Mondongo\Extension\CoreStart(),
     new Mondongo\Extension\FromToArray(),
@@ -143,7 +143,7 @@ $mondator->process();
 
 // not namespaced
 $mondator = new Mondator();
-$mondator->setClassDefinitions(array(
+$mondator->setConfigClasses(array(
     'Article' => array(
         'fields' => array(
             'title'   => 'string',

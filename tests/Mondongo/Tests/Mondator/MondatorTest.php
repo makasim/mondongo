@@ -28,40 +28,40 @@ use Mondongo\Mondator\Output;
 
 class MondatorTest extends TestCase
 {
-    public function testClassDefinitions()
+    public function testConfigClasses()
     {
         $mondator = new Mondator();
-        $mondator->setClassDefinition('Article', $article = array(
+        $mondator->setConfigClass('Article', $article = array(
             'title'   => 'string',
             'content' => 'string',
         ));
-        $mondator->setClassDefinition('Comment', $comment = array(
+        $mondator->setConfigClass('Comment', $comment = array(
             'name' => 'string',
             'text' => 'string',
         ));
 
-        $this->assertTrue($mondator->hasClassDefinition('Article'));
-        $this->assertFalse($mondator->hasClassDefinition('Category'));
+        $this->assertTrue($mondator->hasConfigClass('Article'));
+        $this->assertFalse($mondator->hasConfigClass('Category'));
 
-        $this->assertSame($article, $mondator->getClassDefinition('Article'));
-        $this->assertSame($comment, $mondator->getClassDefinition('Comment'));
+        $this->assertSame($article, $mondator->getConfigClass('Article'));
+        $this->assertSame($comment, $mondator->getConfigClass('Comment'));
 
-        $this->assertSame(array('Article' => $article, 'Comment' => $comment), $mondator->getClassDefinitions());
+        $this->assertSame(array('Article' => $article, 'Comment' => $comment), $mondator->getConfigClasses());
 
-        $mondator->setClassDefinitions($classes = array(
+        $mondator->setConfigClasses($classes = array(
             'Category' => array('name' => 'string'),
             'Post'     => array('message' => 'string'),
         ));
-        $this->assertSame($classes, $mondator->getClassDefinitions());
+        $this->assertSame($classes, $mondator->getConfigClasses());
     }
 
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testGetClassDefinitionNotExists()
+    public function testGetConfigClassNotExists()
     {
         $mondator = new Mondator();
-        $mondator->getClassDefinition('Article');
+        $mondator->getConfigClass('Article');
     }
 
     public function testExtensions()

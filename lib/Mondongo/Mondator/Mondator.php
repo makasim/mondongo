@@ -31,78 +31,78 @@ use Mondongo\Mondator\Definition\Container;
  */
 class Mondator
 {
-    protected $classDefinitions = array();
+    protected $configClasses = array();
 
     protected $extensions = array();
 
     protected $outputs = array();
 
     /**
-     * Set a class definition.
+     * Set a config class.
      *
-     * @param string $className The class name.
-     * @param array  $classData The class data.
+     * @param string $className   The class name.
+     * @param array  $configClass The config class.
      *
      * @return void
      */
-    public function setClassDefinition($className, array $classData)
+    public function setConfigClass($className, array $configClass)
     {
-        $this->classDefinitions[$className] = $classData;
+        $this->configClasses[$className] = $configClass;
     }
 
     /**
-     * Set the class definitions.
+     * Set the config classes.
      *
-     * @param array $classDefinitions An array of class definitions (class name as key and class data as value).
+     * @param array $configClasses An array of config classes (class name as key and config class as value).
      *
      * @return void
      */
-    public function setClassDefinitions(array $classDefinitions)
+    public function setConfigClasses(array $configClasses)
     {
-        $this->classDefinitions = array();
-        foreach ($classDefinitions as $className => $classData) {
-            $this->setClassDefinition($className, $classData);
+        $this->configClasses = array();
+        foreach ($configClasses as $className => $configClass) {
+            $this->setConfigClass($className, $configClass);
         }
     }
 
     /**
-     * Returns if a class definition exists.
+     * Returns if a config class exists.
      *
      * @param string $className The class name.
      *
-     * @return bool Returns if the class definition exists.
+     * @return bool Returns if the config class exists.
      */
-    public function hasClassDefinition($className)
+    public function hasConfigClass($className)
     {
-        return array_key_exists($className, $this->classDefinitions);
+        return array_key_exists($className, $this->configClasses);
     }
 
     /**
-     * Returns the class definitions.
+     * Returns the config classes.
      *
-     * @return array The class definitions.
+     * @return array The config classes.
      */
-    public function getClassDefinitions()
+    public function getConfigClasses()
     {
-        return $this->classDefinitions;
+        return $this->configClasses;
     }
 
     /**
-     * Returns a class definition.
+     * Returns a config class.
      *
      * @param string $className The class name.
      *
-     * @return array The class definition.
+     * @return array The config class.
      *
-     * @throws \InvalidArgumentException If the class definition does not exists.
+     * @throws \InvalidArgumentException If the config class does not exists.
      */
-    public function getClassDefinition($className)
+    public function getConfigClass($className)
     {
-        if (!$this->hasClassDefinition($className)) {
-            throw new \InvalidArgumentException(sprintf('The class definition "%s" does not exists.', $className));
+        if (!$this->hasConfigClass($className)) {
+            throw new \InvalidArgumentException(sprintf('The config class "%s" does not exists.', $className));
         }
 
-        return $this->classDefinitions[$className];
+        return $this->configClasses[$className];
     }
 
     /**
@@ -219,7 +219,7 @@ class Mondator
 
         // classes
         $classes = array();
-        foreach ($this->getClassDefinitions() as $className => $classData) {
+        foreach ($this->getConfigClasses() as $className => $classData) {
             $classes[$className] = new \ArrayObject($classData);
         }
 
