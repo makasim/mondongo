@@ -27,7 +27,7 @@ namespace Mondongo\Mondator\Definition;
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class Container implements \ArrayAccess
+class Container implements \ArrayAccess, \Countable
 {
     protected $definitions = array();
 
@@ -99,6 +99,34 @@ class Container implements \ArrayAccess
         return $this->definitions;
     }
 
+    /**
+     * Remove a definition
+     *
+     * @param string $name The definition name
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException If the definition does not exists.
+     */
+    public function removeDefinition($name)
+    {
+        if (!$this->hasDefinition($name)) {
+            throw new \InvalidArgumentException(sprintf('The definition "%s" does not exists.', $name));
+        }
+
+        unset($this->definitions[$name]);
+    }
+
+    /**
+     * Clear the definitions.
+     *
+     * @return void
+     */
+    public function clearDefinitions()
+    {
+        $this->definitions = array();
+    }
+
     /*
      * \ArrayAccess interface.
      */
@@ -119,6 +147,16 @@ class Container implements \ArrayAccess
 
     public function offsetUnset($name)
     {
-        throw new \LogicException('You cannot unset definitions.');
+        $this->removeDefinition($name);
+    }
+
+    /**
+     * Returns the number of definitions (implements the \Countable interface).
+     *
+     * @return integer The number of definitions.
+     */
+    public function count()
+    {
+        return count($this->definitions);
     }
 }

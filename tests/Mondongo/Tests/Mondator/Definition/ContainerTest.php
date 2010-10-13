@@ -29,26 +29,54 @@ class ContainerTest extends TestCase
 {
     public function testDefinitions()
     {
-        $definitionDocument   = new Definition('Class1');
-        $definitionRepository = new Definition('Class2');
-        $definitionMore       = new Definition('Class3');
-        $definitionTest       = new Definition('Class4');
+        $definitions = array();
+
+        $definitions[1] = new Definition('Class1');
+        $definitions[2] = new Definition('Class2');
+        $definitions[3] = new Definition('Class3');
+        $definitions[4] = new Definition('Class4');
 
         $container = new Container();
-        $this->assertFalse($container->hasDefinition('document'));
-        $container->setDefinition('document', $definitionDocument);
-        $this->assertTrue($container->hasDefinition('document'));
-        $container->setDefinition('repository', $definitionRepository);
 
-        $this->assertSame($definitionDocument, $container->getDefinition('document'));
-        $this->assertSame($definitionRepository, $container->getDefinition('repository'));
+        // setDefinition
+        $container->setDefinition('definition1', $definitions[1]);
+        $container->setDefinition('definition2', $definitions[2]);
         $this->assertSame(array(
-            'document'   => $definitionDocument,
-            'repository' => $definitionRepository,
+            'definition1' => $definitions[1],
+            'definition2' => $definitions[2],
         ), $container->getDefinitions());
 
-        $container->setDefinitions($definitions = array('more' => $definitionMore, 'test' => $definitionTest));
-        $this->assertSame($definitions, $container->getDefinitions());
+        // hasDefinition
+        $this->assertTrue($container->hasDefinition('definition1'));
+        $this->assertFalse($container->hasDefinition('definition3'));
+
+        // getDefinition
+        $this->assertSame($definitions[1], $container->getDefinition('definition1'));
+        $this->assertSame($definitions[2], $container->getDefinition('definition2'));
+
+        // setDefinitions
+        $container->setDefinitions($setDefinitions = array(
+            'definition3' => $definitions[3],
+            'definition4' => $definitions[4]
+        ));
+        $this->assertSame($setDefinitions, $container->getDefinitions());
+
+        // removeDefinition
+        $container->setDefinitions(array(
+            'definition1' => $definitions[1],
+            'definition2' => $definitions[2],
+            'definition3' => $definitions[3],
+            'definition4' => $definitions[4],
+        ));
+        $container->removeDefinition('definition2');
+        $this->assertFalse($container->hasDefinition('definition2'));
+        $this->assertTrue($container->hasDefinition('definition1'));
+        $this->assertTrue($container->hasDefinition('definition3'));
+        $this->assertTrue($container->hasDefinition('definition4'));
+
+        // clearDefinitions
+        $container->clearDefinitions();
+        $this->assertSame(array(), $container->getDefinitions());
     }
 
     /**
@@ -57,7 +85,16 @@ class ContainerTest extends TestCase
     public function testGetDefinitionNotExists()
     {
         $container = new Container();
-        $container->getDefinition('document');
+        $container->getDefinition('definition');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveDefinitionNotExists()
+    {
+        $container = new Container();
+        $container->removeDefinition('definition');
     }
 
     public function testArrayAccessInterface()
@@ -66,20 +103,34 @@ class ContainerTest extends TestCase
         $definition2 = new Definition('Class2');
 
         $container = new Container();
-        $this->assertFalse(isset($container['definition1']));
+
+        // set
         $container['definition1'] = $definition1;
         $container['definition2'] = $definition2;
+
+        // exists
         $this->assertTrue(isset($container['definition1']));
+        $this->assertFalse(isset($container['definition3']));
+
+        // get
         $this->assertSame($definition1, $container['definition1']);
         $this->assertSame($definition2, $container['definition2']);
+
+        // unset
+        unset($container['definition2']);
+        $this->assertFalse(isset($container['definition2']));
+        $this->assertTrue(isset($container['definition1']));
     }
 
-    /**
-     * @expectedException \LogicException
-     */
-    public function testArrayAccessInterfaceUnsetDisabled()
+    public function testCount()
     {
         $container = new Container();
-        unset($container['definition1']);
+        $container->setDefinitions(array(
+            new Definition('Class1'),
+            new Definition('Class2'),
+        ));
+
+        $this->assertSame(2, $container->count());
+        $this->assertSame(2, count($container));
     }
 }
