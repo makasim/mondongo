@@ -52,6 +52,7 @@ class CoreStart extends Extension
             $this->processDocumentGetRepositoryMethod();
             $this->processInitConnectionName();
             $this->processInitCollectionName();
+            $this->processInitIndexes();
         }
 
         $this->processInitFields();
@@ -240,6 +241,16 @@ EOF
     {
         if (!isset($this->classData['collection'])) {
             $this->classData['collection'] = Inflector::underscore($this->className);
+        }
+    }
+
+    /*
+     * Init indexes.
+     */
+    protected function processInitIndexes()
+    {
+        if (!isset($this->classData['indexes'])) {
+            $this->classData['indexes'] = array();
         }
     }
 

@@ -69,6 +69,7 @@ class CoreEnd extends Extension
             $this->processRepositoryDocumentClassProperty();
             $this->processRepositoryConnectionNameProperty();
             $this->processRepositoryCollectionNameProperty();
+            $this->processRepositoryEnsureIndexesMethod();
         }
     }
 
@@ -727,5 +728,33 @@ EOF;
         $property = new Property('protected', 'collectionName', $this->classData['collection']);
 
         $this->container['repository_base']->addProperty($property);
+    }
+
+    /*
+     * Repository "ensureIndexes" method.
+     */
+    protected function processRepositoryEnsureIndexesMethod()
+    {
+        $code = '';
+        foreach ($this->classData['indexes'] as $key => $index) {
+            $keys    = var_export($index['keys'], true);
+            $options = var_export(array_merge(isset($index['options']) ? $index['options'] : array(), array('safe' => true)), true);
+
+            $code .= <<<EOF
+        \$this->getCollection()->ensureIndex($keys, $options);
+EOF;
+        }
+
+        $method = new Method('public', 'ensureIndexes', '', $code);
+        $method->setDocComment(<<<EOF
+    /**
+     * Ensure indexes.
+     *
+     * @return void
+     */
+EOF
+        );
+
+        $this->container['repository_base']->addMethod($method);
     }
 }

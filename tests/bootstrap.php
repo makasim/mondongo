@@ -64,6 +64,7 @@ $configClasses = array(
         'collection' => 'article',
         'fields' => array(
             'title'        => 'string',
+            'slug'         => 'string',
             'content'      => 'string',
             'is_active'    => 'boolean',
             'author_id'    => 'reference_one',
@@ -80,6 +81,15 @@ $configClasses = array(
         'relations' => array(
             'summary' => array('class' => 'Model\Document\Summary', 'field' => 'article_id', 'type' => 'one'),
             'news'    => array('class' => 'Model\Document\News', 'field' => 'article_id', 'type' => 'many'),
+        ),
+        'indexes' => array(
+            array(
+                'keys'    => array('slug' => 1),
+                'options' => array('unique' => true),
+            ),
+            array(
+                'keys' => array('author_id' => 1, 'is_active' => 1),
+            ),
         ),
     ),
     'News' => array(

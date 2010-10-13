@@ -111,6 +111,7 @@ class CoreTest extends TestCase
         $this->assertSame(array(
             'fields' => array(
                 'title'        => null,
+                'slug'         => null,
                 'content'      => null,
                 'is_active'    => null,
                 'author_id'    => null,
@@ -141,6 +142,7 @@ class CoreTest extends TestCase
     {
         $this->assertSame(array(
             'title'        => 'Title',
+            'slug'         => 'Slug',
             'content'      => 'Content',
             'is_active'    => 'IsActive',
             'author_id'    => 'AuthorId',
@@ -560,5 +562,17 @@ class CoreTest extends TestCase
     {
         $this->assertSame('article', $this->mondongo->getRepository('\Model\Document\Article')->getCollectionName());
         $this->assertSame('my_name', $this->mondongo->getRepository('Model\Document\CollectionName')->getCollectionName());
+    }
+
+    public function testRepositoryEnsureIndexesMethod()
+    {
+        $this->mondongo->getRepository('Model\Document\Article')->ensureIndexes();
+
+        $indexInfo = $this->db->article->getIndexInfo();
+
+        $this->assertSame(array('slug' => 1), $indexInfo[1]['key']);
+        $this->assertSame(true, $indexInfo[1]['unique']);
+
+        $this->assertSame(array('author_id' => 1, 'is_active' => 1), $indexInfo[2]['key']);
     }
 }
