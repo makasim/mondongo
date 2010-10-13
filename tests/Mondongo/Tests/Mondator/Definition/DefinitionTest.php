@@ -94,34 +94,112 @@ class DefinitionTest extends TestCase
 
     public function testProperties()
     {
-        $property1 = new Property('public', 'property1', true);
-        $property2 = new Property('public', 'property2', true);
-        $property3 = new Property('public', 'property3', true);
-        $property4 = new Property('public', 'property4', true);
+        $properties = array();
+
+        $properties[1] = new Property('public', 'property1', true);
+        $properties[2] = new Property('public', 'property2', true);
+        $properties[3] = new Property('public', 'property3', true);
+        $properties[4] = new Property('public', 'property4', true);
 
         $definition = new Definition('Class1');
-        $definition->addProperty($property1);
-        $definition->addProperty($property2);
-        $this->assertSame(array($property1, $property2), $definition->getProperties());
 
-        $definition->setProperties(array($property3, $property4));
-        $this->assertSame(array($property3, $property4), $definition->getProperties());
+        // addProperty
+        $definition->addProperty($properties[1]);
+        $definition->addProperty($properties[2]);
+        $this->assertSame(array($properties[1], $properties[2]), $definition->getProperties());
+
+        // setProperties
+        $definition->setProperties(array($properties[3], $properties[4]));
+        $this->assertSame(array($properties[3], $properties[4]), $definition->getProperties());
+
+        // hasPropertyByName
+        $this->assertTrue($definition->hasPropertyByName('property3'));
+        $this->assertFalse($definition->hasPropertyByName('property1'));
+
+        // getPropertyByName
+        $this->assertSame($properties[3], $definition->getPropertyByName('property3'));
+        $this->assertSame($properties[4], $definition->getPropertyByName('property4'));
+
+        // removePropertyByName
+        $definition->setProperties($properties);
+        $definition->removePropertyByName('property2');
+        $this->assertFalse($definition->hasPropertyByName('property2'));
+        $this->assertTrue($definition->hasPropertyByName('property1'));
+        $this->assertTrue($definition->hasPropertyByName('property3'));
+        $this->assertTrue($definition->hasPropertyByName('property4'));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetPropertyByNameNotExists()
+    {
+        $definition = new Definition('Class1');
+        $definition->getPropertyByName('propertyName');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemovePropertyByNameNotExists()
+    {
+        $definition = new Definition('Class1');
+        $definition->removePropertyByName('propertyName');
     }
 
     public function testMethods()
     {
-        $method1 = new Method('public', 'method1', '', '');
-        $method2 = new Method('public', 'method2', '', '');
-        $method3 = new Method('public', 'method3', '', '');
-        $method4 = new Method('public', 'method4', '', '');
+        $methods = array();
+
+        $methods[1] = new Method('public', 'method1', '', '');
+        $methods[2] = new Method('public', 'method2', '', '');
+        $methods[3] = new Method('public', 'method3', '', '');
+        $methods[4] = new Method('public', 'method4', '', '');
 
         $definition = new Definition('Class1');
-        $definition->addMethod($method1);
-        $definition->addMethod($method2);
-        $this->assertSame(array($method1, $method2), $definition->getMethods());
 
-        $definition->setMethods(array($method3, $method4));
-        $this->assertSame(array($method3, $method4), $definition->getMethods());
+        // addMethod
+        $definition->addMethod($methods[1]);
+        $definition->addMethod($methods[2]);
+        $this->assertSame(array($methods[1], $methods[2]), $definition->getMethods());
+
+        // setMethods
+        $definition->setMethods(array($methods[3], $methods[4]));
+        $this->assertSame(array($methods[3], $methods[4]), $definition->getMethods());
+
+        // hasMethodByName
+        $this->assertTrue($definition->hasMethodByName('method3'));
+        $this->assertFalse($definition->hasMethodByName('method1'));
+
+        // getMethodByName
+        $this->assertSame($methods[3], $definition->getMethodByName('method3'));
+        $this->assertSame($methods[4], $definition->getMethodByName('method4'));
+
+        // removeMethodByName
+        $definition->setMethods($methods);
+        $definition->removeMethodByName('method2');
+        $this->assertFalse($definition->hasMethodByName('method2'));
+        $this->assertTrue($definition->hasMethodByName('method1'));
+        $this->assertTrue($definition->hasMethodByName('method3'));
+        $this->assertTrue($definition->hasMethodByName('method4'));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetMethodByNameNotExists()
+    {
+        $definition = new Definition('Class1');
+        $definition->getMethodByName('methodName');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveMethodByNameNotExists()
+    {
+        $definition = new Definition('Class1');
+        $definition->removeMethodByName('methodName');
     }
 
     public function testPHPDoc()

@@ -254,6 +254,65 @@ class Definition
     }
 
     /**
+     * Returns if a property exists by name.
+     *
+     * @param string $name The property name.
+     *
+     * @return bool If the property exists.
+     */
+    public function hasPropertyByName($name)
+    {
+        foreach ($this->properties as $property) {
+            if ($property->getName() == $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns a property by name.
+     *
+     * @param string $name The property name.
+     *
+     * @return Mondongo\Mondator\Definition\Property The property.
+     *
+     * @throws \InvalidArgumentException If the property does not exists.
+     */
+    public function getPropertyByName($name)
+    {
+        foreach ($this->properties as $property) {
+            if ($property->getName() == $name) {
+                return $property;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('The property "%s" does not exists.', $name));
+    }
+
+    /**
+     * Remove property by name.
+     *
+     * @param string $name The property name.
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException If the property does not exists.
+     */
+    public function removePropertyByName($name)
+    {
+        foreach ($this->properties as $key => $property) {
+            if ($property->getName() == $name) {
+                unset($this->properties[$key]);
+                return;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('The property "%s" does not exists.', $name));
+    }
+
+    /**
      * Add a method.
      *
      * @param Mondongo\Mondator\Definition\Method $method The method.
@@ -288,6 +347,65 @@ class Definition
     public function getMethods()
     {
         return $this->methods;
+    }
+
+    /**
+     * Returns if exists a method by name.
+     *
+     * @param string $name The method name.
+     *
+     * @return bool If the method exists.
+     */
+    public function hasMethodByName($name)
+    {
+        foreach ($this->methods as $method) {
+            if ($method->getName() == $name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Return a method by name.
+     *
+     * @param string $name The method name.
+     *
+     * @return Mondongo\Mondator\Definition\Method The method.
+     *
+     * @throws \InvalidArgumentException If the method does not exists.
+     */
+    public function getMethodByName($name)
+    {
+        foreach ($this->methods as $method) {
+            if ($method->getName() == $name) {
+                return $method;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('The method "%s" does not exists.', $name));
+    }
+
+    /**
+     * Remove a method by name.
+     *
+     * @param string $name The method name.
+     *
+     * @return void
+     *
+     * @throws \InvalidArgumentException If the method does not exists.
+     */
+    public function removeMethodByName($name)
+    {
+        foreach ($this->methods as $key => $method) {
+            if ($method->getName() == $name) {
+                unset($this->methods[$key]);
+                return;
+            }
+        }
+
+        throw new \InvalidArgumentException(sprintf('The method "%s" does not exists.', $name));
     }
 
     /**
