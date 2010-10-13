@@ -122,7 +122,7 @@ EOF;
         }
 
         $method = new Method('public', 'fromArray', '$array', $code);
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Import data from an array.
      *
@@ -187,7 +187,7 @@ $embedsCode
         return \$array;
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Export the document data to array.
      *

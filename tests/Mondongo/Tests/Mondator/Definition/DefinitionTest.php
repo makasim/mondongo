@@ -202,10 +202,10 @@ class DefinitionTest extends TestCase
         $definition->removeMethodByName('methodName');
     }
 
-    public function testPHPDoc()
+    public function testDocComment()
     {
         $definition = new Definition('Class1');
-        $definition->setPHPDoc('myDoc');
-        $this->assertSame('myDoc', $definition->getPHPDoc());
+        $definition->setDocComment('myDoc');
+        $this->assertSame('myDoc', $definition->getDocComment());
     }
 }

@@ -95,11 +95,11 @@ class MethodTest extends TestCase
         $this->assertTrue($method->getIsAbstract());
     }
 
-    public function testPHPDoc()
+    public function testDocComment()
     {
         $method = new Method('public', 'setVisibility', '$visibility', '$this->visibility = $visibility;');
 
-        $method->setPHPDoc('myDoc');
-        $this->assertSame('myDoc', $method->getPHPDoc());
+        $method->setDocComment('myDoc');
+        $this->assertSame('myDoc', $method->getDocComment());
     }
 }

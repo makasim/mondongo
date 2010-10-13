@@ -37,7 +37,7 @@ class Property
 
     protected $isStatic = false;
 
-    protected $PHPDoc;
+    protected $docComment;
 
     /**
      * Constructor.
@@ -150,24 +150,24 @@ class Property
     }
 
     /**
-     * Set the PHPDoc.
+     * Set the doc comment.
      *
-     * @param string|null $PHPDoc The PHPDoc.
+     * @param string|null $docComment The doc comment.
      *
      * @return void
      */
-    public function setPHPDoc($PHPDoc)
+    public function setDocComment($docComment)
     {
-        $this->PHPDoc = $PHPDoc;
+        $this->docComment = $docComment;
     }
 
     /**
-     * Returns the PHPDoc.
+     * Returns the doc comment.
      *
-     * @return string|null The PHPDoc.
+     * @return string|null The doc comment.
      */
-    public function getPHPDoc()
+    public function getDocComment()
     {
-        return $this->PHPDoc;
+        return $this->docComment;
     }
 }

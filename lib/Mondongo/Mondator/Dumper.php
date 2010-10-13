@@ -106,8 +106,8 @@ EOF;
 
     protected function startClass()
     {
-        // PHPDoc
-        $PHPDoc = $this->definition->getPHPDoc();
+        // doc comment
+        $docComment = $this->definition->getDocComment();
 
         /*
          * declaration
@@ -135,7 +135,7 @@ EOF;
         return <<<EOF
 
 
-$PHPDoc
+$docComment
 $declaration
 {
 EOF;
@@ -146,14 +146,14 @@ EOF;
         $code = '';
 
         foreach ($this->definition->getProperties() as $property) {
-            $PHPDoc   = $property->getPHPDoc();
-            $isStatic = $property->getIsStatic() ? 'static ' : '';
-            $value    = var_export($property->getValue(), true);
+            $docComment = $property->getDocComment();
+            $isStatic   = $property->getIsStatic() ? 'static ' : '';
+            $value      = var_export($property->getValue(), true);
 
             $code .= <<<EOF
 
 
-$PHPDoc
+$docComment
     $isStatic{$property->getVisibility()} \${$property->getName()} = $value;
 EOF;
         }
@@ -166,8 +166,8 @@ EOF;
         $code = '';
 
         foreach ($this->definition->getMethods() as $method) {
-            // PHPDoc
-            $PHPDoc = $method->getPHPDoc();
+            // doc comment
+            $docComment = $method->getDocComment();
 
             // isFinal
             $isFinal = $method->getIsFinal() ? 'final ' : '';
@@ -180,14 +180,14 @@ EOF;
                 $code .= <<<EOF
 
 
-$PHPDoc
+$docComment
     abstract $isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()});
 EOF;
             } else {
                 $code .= <<<EOF
 
 
-$PHPDoc
+$docComment
     $isFinal$isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()})
     {
 {$method->getCode()}

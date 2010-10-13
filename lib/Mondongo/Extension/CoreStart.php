@@ -132,7 +132,7 @@ class CoreStart extends Extension
         $this->container['document'] = $definition = new Definition($this->className);
         $definition->setNamespace($this->classData['namespaces']['document']);
         $definition->setParentClass($documentBaseClass);
-        $definition->setPHPDoc(<<<EOF
+        $definition->setDocComment(<<<EOF
 /**
  * {$this->className} document.
  */
@@ -148,7 +148,7 @@ EOF
         } else {
             $definition->setParentClass('\\Mondongo\\Document\\Document');
         }
-        $definition->setPHPDoc(<<<EOF
+        $definition->setDocComment(<<<EOF
 /**
  * Base class of {$this->className} document.
  */
@@ -160,7 +160,7 @@ EOF
             $this->container['repository'] = $definition = new Definition($repositoryClass);
             $definition->setNamespace($this->classData['namespaces']['repository']);
             $definition->setParentClass($repositoryBaseClass);
-            $definition->setPHPDoc(<<<EOF
+            $definition->setDocComment(<<<EOF
 /**
  * Repository of {$this->className} document.
  */
@@ -172,7 +172,7 @@ EOF
             $definition->setNamespace($this->getNamespace($repositoryBaseClass));
             $definition->setIsAbstract(true);
             $definition->setParentClass('\\Mondongo\\Repository');
-            $definition->setPHPDoc(<<<EOF
+            $definition->setDocComment(<<<EOF
 /**
  * Base class of repository of {$this->className} document.
  */
@@ -190,7 +190,7 @@ EOF
         return \Mondongo\Container::getForDocumentClass('{$this->container['document']->getFullClass()}');
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Returns the Mondongo of the document.
      *
@@ -211,7 +211,7 @@ EOF
         return \$this->getMondongo()->getRepository('{$this->container['document']->getFullClass()}');
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Returns the repository of the document.
      *

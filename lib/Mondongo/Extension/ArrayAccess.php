@@ -55,7 +55,7 @@ class ArrayAccess extends Extension
         throw new \LogicException('You cannot check if data exists in a document.');
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Throws an \LogicException because you cannot check if data exists.
      *
@@ -82,7 +82,7 @@ EOF
         \$this->\$method(\$value);
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Set data in the document.
      *
@@ -114,7 +114,7 @@ EOF
         return \$this->\$method();
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Returns data of the document.
      *
@@ -139,7 +139,7 @@ EOF
         throw new \LogicException('You cannot unset data in the document.');
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Throws a \LogicException because you cannot unset data in the document.
      *

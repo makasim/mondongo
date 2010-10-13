@@ -176,7 +176,7 @@ class CoreEnd extends Extension
 EOF
         );
         $method->setIsStatic(true);
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Returns the fields map.
      *
@@ -259,7 +259,7 @@ $embedsCode
         $resetFieldsModified
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Set the data in the document (hydrate).
      *
@@ -297,7 +297,7 @@ $fieldsCode
         return \$fields;
 EOF
         );
-        $method->setPHPDoc(<<<EOF
+        $method->setDocComment(<<<EOF
     /**
      * Convert an array of fields with data to Mongo values.
      *
@@ -324,7 +324,7 @@ EOF
                 '$value',
                 $this->getMethodCode(new \ReflectionMethod(__CLASS__, 'setField'), array('$_name_' => "'$name'"))
             );
-            $method->setPHPDoc(<<<EOF
+            $method->setDocComment(<<<EOF
     /**
      * Set the "$name" field.
      *
@@ -344,7 +344,7 @@ EOF
                 '',
                 "        return \$this->data['fields']['$name'];"
             );
-            $method->setPHPDoc(<<<EOF
+            $method->setDocComment(<<<EOF
     /**
      * Returns the "$name" field.
      *
@@ -395,7 +395,7 @@ EOF
         \$this->{$fieldSetter}(\$value->getId());
         \$this->data['references']['$name'] = \$value;
 EOF;
-                $setterPHPDoc = <<<EOF
+                $setterDocComment = <<<EOF
     /**
      * Set the "$name" reference.
      *
@@ -419,7 +419,7 @@ EOF;
 
         return \$this->data['references']['$name'];
 EOF;
-                $getterPHPDoc = <<<EOF
+                $getterDocComment = <<<EOF
     /**
      * Returns the "$name" reference.
      *
@@ -451,7 +451,7 @@ EOF;
         \$this->{$fieldSetter}(\$ids);
         \$this->data['references']['$name'] = \$value;
 EOF;
-                $setterPHPDoc = <<<EOF
+                $setterDocComment = <<<EOF
     /**
      * Set the "$name" reference.
      *
@@ -479,7 +479,7 @@ EOF;
 
         return \$this->data['references']['$name'];
 EOF;
-                $getterPHPDoc = <<<EOF
+                $getterDocComment = <<<EOF
     /**
      * Returns the "$name" reference.
      *
@@ -490,12 +490,12 @@ EOF;
 
             // setter
             $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
-            $method->setPHPDoc($setterPHPDoc);
+            $method->setDocComment($setterDocComment);
             $this->container['document_base']->addMethod($method);
 
             // getter
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
-            $method->setPHPDoc($setterPHPDoc);
+            $method->setDocComment($setterDocComment);
             $this->container['document_base']->addMethod($method);
 
             // update
@@ -518,7 +518,7 @@ EOF;
             }
         }
 EOF;
-                $updatePHPDoc = <<<EOF
+                $updateDocComment = <<<EOF
     /**
      * Update the "$name" reference.
      *
@@ -527,7 +527,7 @@ EOF;
 EOF;
 
                 $method = new Method('public', $updateMethodName, '', $updateCode);
-                $method->setPHPDoc($updatePHPDoc);
+                $method->setDocComment($updateDocComment);
                 $this->container['document_base']->addMethod($method);
             }
         }
@@ -551,7 +551,7 @@ EOF;
 
         \$this->data['embeds']['$name'] = \$value;
 EOF;
-                $setterPHPDoc = <<<EOF
+                $setterDocComment = <<<EOF
     /**
      * Set the "$name" embed.
      *
@@ -568,7 +568,7 @@ EOF;
 
         return \$this->data['embeds']['$name'];
 EOF;
-                $getterPHPDoc = <<<EOF
+                $getterDocComment = <<<EOF
     /**
      * Returns the "$name" embed..
      *
@@ -587,7 +587,7 @@ EOF;
 
         \$this->data['embeds']['$name'] = \$value;
 EOF;
-                $setterPHPDoc = <<<EOF
+                $setterDocComment = <<<EOF
     /**
      * Set the "$name" embed.
      *
@@ -604,7 +604,7 @@ EOF;
 
         return \$this->data['embeds']['$name'];
 EOF;
-                $getterPHPDoc = <<<EOF
+                $getterDocComment = <<<EOF
     /**
      * Returns the "$name" embed.
      *
@@ -615,12 +615,12 @@ EOF;
 
             // setter
             $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
-            $method->setPHPDoc($setterPHPDoc);
+            $method->setDocComment($setterDocComment);
             $this->container['document_base']->addMethod($method);
 
             // getter
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
-            $method->setPHPDoc($getterPHPDoc);
+            $method->setDocComment($getterDocComment);
             $this->container['document_base']->addMethod($method);
         }
     }
@@ -645,7 +645,7 @@ EOF;
 
         return \$this->data['relations']['$name'];
 EOF;
-                $getterPHPDoc = <<<EOF
+                $getterDocComment = <<<EOF
     /**
      * Returns the "$name" relation.
      *
@@ -665,7 +665,7 @@ EOF;
 
         return \$this->data['relations']['$name'];
 EOF;
-                $getterPHPDoc = <<<EOF
+                $getterDocComment = <<<EOF
     /**
      * Returns the "$name" relation.
      *
@@ -675,7 +675,7 @@ EOF;
             }
 
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
-            $method->setPHPDoc($getterPHPDoc);
+            $method->setDocComment($getterDocComment);
             $this->container['document_base']->addMethod($method);
         }
     }
