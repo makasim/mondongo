@@ -157,11 +157,6 @@ class RepositoryTest extends TestCase
         $this->assertEquals($articles[4], $repository->find(array('query' => array('_id' => $articles[4]->getId()), 'one' => true)));
     }
 
-    public function testFindOptions()
-    {
-        // TODO
-    }
-
     public function testFindOne()
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');
