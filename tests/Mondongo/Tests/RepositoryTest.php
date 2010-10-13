@@ -85,7 +85,12 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals($articles, $repository->find());
+        $results = $repository->find();
+
+        $this->assertSame(count($articles), count($results));
+        foreach ($articles as $article) {
+            $this->assertContainsOnly($article, $results);
+        }
 
         $this->assertNull($repository->find(array('query' => array('_id' => new \MongoId('123')))));
     }
@@ -116,7 +121,7 @@ class RepositoryTest extends TestCase
     public function testFindOptionSort()
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');
-        $articles   = $this->createArticles(10);
+        $articles   = $this->createArticles(11);
 
         $results = $repository->find(array('sort' => array('title' => -1)));
 
@@ -124,6 +129,7 @@ class RepositoryTest extends TestCase
         $this->assertSame('Article 8', $results[1]->getTitle());
         $this->assertSame('Article 10', $results[8]->getTitle());
         $this->assertSame('Article 1', $results[9]->getTitle());
+        $this->assertSame('Article 0', $results[10]->getTitle());
     }
 
     public function testFindOptionLimit()
@@ -141,9 +147,11 @@ class RepositoryTest extends TestCase
         $articles   = $this->createArticles(10);
 
         $this->assertEquals(array($articles[8], $articles[9]), $repository->find(array(
+            'sort' => array('title' => 1),
             'skip' => 8,
         )));
         $this->assertEquals(array($articles[6], $articles[7], $articles[8], $articles[9]), $repository->find(array(
+            'sort' => array('title' => 1),
             'skip' => 6,
         )));
     }
@@ -162,7 +170,7 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals($articles[0], $repository->findOne());
+        $this->assertEquals($articles[0], $repository->findOne(array('sort' => array('title' => 1))));
         $this->assertEquals($articles[3], $repository->findOne(array('query' => array('_id' => $articles[3]->getId()))));
 
         $this->assertNull($repository->findOne(array('query' => array('_id' => new \MongoId('123')))));
@@ -177,6 +185,27 @@ class RepositoryTest extends TestCase
         $this->assertEquals($articles[5], $repository->findOneById($articles[5]->getId()));
 
         $this->assertNull($repository->findOneById(new \MongoId('123')));
+    }
+
+    public function testCount()
+    {
+        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $articles   = $this->createArticles(10);
+
+        $this->assertSame(10, $repository->count());
+    }
+
+    public function testCountQuery()
+    {
+        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $articles   = $this->createArticles(10);
+
+        for ($i = 1; $i <= 5; $i++) {
+            $articles[$i]->setTitle('Count');
+            $repository->save($articles[$i]);
+        }
+
+        $this->assertSame(5, $repository->count(array('title' => 'Count')));
     }
 
     public function testRemove()
@@ -201,27 +230,6 @@ class RepositoryTest extends TestCase
 
         $this->assertSame(1, $this->db->article->find()->count());
         $this->assertSame(1, $this->db->article->find(array('_id' => $articles[3]->getId()))->count());
-    }
-
-    public function testCount()
-    {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
-        $articles   = $this->createArticles(10);
-
-        $this->assertSame(10, $repository->count());
-    }
-
-    public function testCountQuery()
-    {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
-        $articles   = $this->createArticles(10);
-
-        for ($i = 1; $i <= 5; $i++) {
-            $articles[$i]->setTitle('Count');
-            $repository->save($articles[$i]);
-        }
-
-        $this->assertSame(5, $repository->count(array('title' => 'Count')));
     }
 
     public function testSaveInsertUnique()

@@ -55,7 +55,9 @@ class TestCase extends \PHPUnit_Framework_TestCase
             'summary',
             'user',
         ) as $collectionName) {
-            $this->db->$collectionName->remove(array(), array('safe' => true));
+            if ($this->db->selectCollection($collectionName)->find()->count()) {
+                $this->db->dropCollection($collectionName);
+            }
         }
 
         $this->mondongo = new Mondongo();
@@ -67,7 +69,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
     protected function createArticles($nb)
     {
         $articles = array();
-        for ($i = 1; $i <= $nb; $i++) {
+        for ($i = 0; $i < $nb; $i++) {
             $articles[] = $a = new Article();
             $a->setTitle('Article '.$i);
             $a->setContent('Content');

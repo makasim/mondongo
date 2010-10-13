@@ -468,7 +468,13 @@ class CoreTest extends TestCase
             $article->save();
         }
 
-        $this->assertEquals($articles, $results = $author->getArticles());
+        $results = $author->getArticles();
+
+        $this->assertSame(count($articles), count($results));
+        foreach ($articles as $article) {
+            $this->assertContainsOnly($article, $results);
+        }
+
         $this->assertSame($results, $author->getArticles());
     }
 

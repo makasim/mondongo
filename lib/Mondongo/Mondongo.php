@@ -197,4 +197,88 @@ class Mondongo
 
         return $this->repositories[$documentClass];
     }
+
+    /**
+     * Access to repository ->find() method.
+     *
+     * The first argument is the documentClass of repository.
+     *
+     * @see Mondongo\Repository::find()
+     */
+    public function find($documentClass, array $options = array())
+    {
+        return $this->getRepository($documentClass)->find($options);
+    }
+
+    /**
+     * Access to repository ->findOne() method.
+     *
+     * The first argument is the documentClass of repository.
+     *
+     * @see Mondongo\Repository::findOne()
+     */
+    public function findOne($documentClass, array $options = array())
+    {
+        return $this->getRepository($documentClass)->findOne($options);
+    }
+
+    /**
+     * Access to repository ->findOneById() method.
+     *
+     * The first argument is the documentClass of repository.
+     *
+     * @see Mondongo\Repository::findOneById()
+     */
+    public function findOneById($documentClass, \MongoId $id)
+    {
+        return $this->getRepository($documentClass)->findOneById($id);
+    }
+
+    /**
+     * Access to repository ->count() method.
+     *
+     * The first argument is the documentClass of repository.
+     *
+     * @see Mondongo\Repository::count()
+     */
+    public function count($documentClass, array $query = array())
+    {
+        return $this->getRepository($documentClass)->count($query);
+    }
+
+    /**
+     * Access to repository ->remove() method.
+     *
+     * The first argument is the documentClass of repository.
+     *
+     * @see Mondongo\Repository::remove()
+     */
+    public function remove($documentClass, array $query = array())
+    {
+        return $this->getRepository($documentClass)->remove($query);
+    }
+
+    /**
+     * Access to repository ->save() method.
+     *
+     * The first argument is the documentClass of repository.
+     *
+     * @see Mondongo\Repository::save()
+     */
+    public function save($documentClass, $documents)
+    {
+        return $this->getRepository($documentClass)->save($documents);
+    }
+
+    /**
+     * Access to repository ->delete() method.
+     *
+     * The first argument is the documentClass of repository.
+     *
+     * @see Mondongo\Repository::delete()
+     */
+    public function delete($documentClass, $documents)
+    {
+        return $this->getRepository($documentClass)->delete($documents);
+    }
 }

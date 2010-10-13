@@ -143,7 +143,7 @@ abstract class Repository
      *
      * @return mixed The document/s found within the parameters.
      */
-    public function find($options = array())
+    public function find(array $options = array())
     {
         // query
         if (!isset($options['query'])) {
@@ -204,7 +204,7 @@ abstract class Repository
      *
      * @see ::find()
      */
-    public function findOne($options = array())
+    public function findOne(array $options = array())
     {
         return $this->find(array_merge($options, array('one' => true)));
     }

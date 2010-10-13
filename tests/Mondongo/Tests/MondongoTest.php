@@ -24,6 +24,7 @@ namespace Mondongo\Tests;
 use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Connection;
 use Mondongo\Mondongo;
+use Model\Document\Article;
 
 class MondongoTest extends TestCase
 {
@@ -133,5 +134,102 @@ class MondongoTest extends TestCase
 
         $userRepository = $mondongo->getRepository('Model\Document\User');
         $this->assertInstanceOf('Model\Repository\User', $userRepository);
+    }
+
+    public function testFind()
+    {
+        $articles = $this->createArticles(10);
+
+        $results = $this->mondongo->find('Model\Document\Article');
+
+        $this->assertSame(count($articles), count($results));
+        foreach ($articles as $article) {
+            $this->assertContainsOnly($article, $results);
+        }
+    }
+
+    public function testFindOptions()
+    {
+        $articles = $this->createArticles(10);
+
+        $this->assertEquals($articles[3], $this->mondongo->find('Model\Document\Article', array(
+            'query' => array('_id' => $articles[3]->getId()),
+            'one'   => true,
+        )));
+    }
+
+    public function testFindOne()
+    {
+        $articles = $this->createArticles(10);
+
+        $this->assertEquals($articles[3], $this->mondongo->findOne('Model\Document\Article', array(
+            'query' => array('_id' => $articles[3]->getId()),
+        )));
+    }
+
+    public function testFindOneById()
+    {
+        $articles = $this->createArticles(10);
+
+        $this->assertEquals($articles[3], $this->mondongo->findOneById('Model\Document\Article', $articles[3]->getId()));
+    }
+
+    public function testCount()
+    {
+        $articles = $this->createArticles(10);
+
+        $this->assertSame(10, $this->mondongo->count('Model\Document\Article'));
+    }
+
+    public function testCountQuery()
+    {
+        $articles = $this->createArticles(10);
+
+        for ($i = 1; $i <= 5; $i++) {
+            $articles[$i]->setTitle('Count');
+            $articles[$i]->save();
+        }
+
+        $this->assertSame(5, $this->mondongo->count('Model\Document\Article', array('title' => 'Count')));
+    }
+
+    public function testRemove()
+    {
+        $articles = $this->createArticles(10);
+
+        $this->mondongo->remove('Model\Document\Article');
+
+        $this->assertSame(0, $this->db->article->find()->count());
+    }
+
+    public function testRemoveOptions()
+    {
+        $articles = $this->createArticles(10);
+
+        $articles[3]->setTitle('No');
+        $articles[3]->save();
+
+        $this->mondongo->remove('Model\Document\Article', array('title' => new \MongoRegex('/^Article/')));
+
+        $this->assertSame(1, $this->db->article->find()->count());
+        $this->assertSame(1, $this->db->article->find(array('_id' => $articles[3]->getId()))->count());
+    }
+
+    public function testSave()
+    {
+        $article = new Article();
+        $article->setTitle('Title');
+        $this->mondongo->save('Model\Document\Article', $article);
+
+        $this->assertFalse($article->isNew());
+    }
+
+    public function testDelete()
+    {
+        $articles = $this->createArticles(10);
+
+        $this->mondongo->delete('Model\Document\Article', $articles[5]);
+
+        $this->assertSame(9, $this->db->article->find()->count());
     }
 }
