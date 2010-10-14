@@ -31,9 +31,33 @@ class Mondongo
 {
     const VERSION = '1.0-DEV';
 
+    protected $loggerCallable;
+
     protected $connections = array();
 
     protected $defaultConnectionName;
+
+    /**
+     * Constructor.
+     *
+     * @param mixed $loggerCallable A PHP callable.
+     *
+     * @return void
+     */
+    public function __construct($loggerCallable = null)
+    {
+        $this->loggerCallable = $loggerCallable;
+    }
+
+    /**
+     * Returns the logger callable.
+     *
+     * @return mixed The logger callable.
+     */
+    public function getLoggerCallable()
+    {
+        return $this->loggerCallable;
+    }
 
     /**
      * Set a connection.

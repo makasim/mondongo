@@ -56,6 +56,20 @@ class Connection
     }
 
     /**
+     * Returns the mongo connection object.
+     *
+     * @return \Mongo The mongo collection object.
+     */
+    public function getMongo()
+    {
+        if (null === $this->mongo) {
+            $this->mongo = new \Mongo($this->server, $this->options);
+        }
+
+        return $this->mongo;
+    }
+
+    /**
      * Returns the database object.
      *
      * @return \MongoDB The database object.
@@ -63,8 +77,7 @@ class Connection
     public function getMongoDB()
     {
         if (null === $this->mongoDB) {
-            $this->mongo   = new \Mongo($this->server, $this->options);
-            $this->mongoDB = $this->mongo->selectDB($this->database);
+            $this->mongoDB = $this->getMongo()->selectDB($this->database);
         }
 
         return $this->mongoDB;

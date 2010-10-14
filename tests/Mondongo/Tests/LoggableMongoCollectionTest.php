@@ -21,18 +21,16 @@
 
 namespace Mondongo\Tests;
 
-use Mondongo\Connection;
+use Mondongo\LoggableMongoCollection;
 
-class ConnectionTest extends TestCase
+class LoggableMongoCollectionTest extends TestCase
 {
-    public function testConnection()
+    public function testLoggerCallable()
     {
-        $connection = new Connection($this->server, $this->dbName);
-        $mongo   = $connection->getMongo();
-        $mongoDB = $connection->getMongoDB();
+        $loggerCallable = function() {};
 
-        $this->assertInstanceOf('\Mongo', $mongo);
-        $this->assertInstanceOf('\MongoDB', $mongoDB);
-        $this->assertSame($this->dbName, $mongoDB->__toString());
+        $collection = new LoggableMongoCollection($this->db, 'article');
+        $collection->setLoggerCallable($loggerCallable);
+        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }
 }

@@ -79,6 +79,29 @@ class RepositoryTest extends TestCase
         $this->assertSame($global, $mondongo->getRepository('Model\Document\ConnectionGlobal')->getConnection());
     }
 
+    public function testCollection()
+    {
+        $mondongo = new Mondongo();
+        $mondongo->setConnection('default', $this->connection);
+        $collection = $mondongo->getRepository('\Model\Document\Article')->getCollection();
+
+        $this->assertSame('MongoCollection', get_class($collection));
+        $this->assertSame('article', $collection->getName());
+    }
+
+    public function testCollectionLoggable()
+    {
+        $loggerCallable = function() {};
+
+        $mondongo = new Mondongo($loggerCallable);
+        $mondongo->setConnection('default', $this->connection);
+        $collection = $mondongo->getRepository('\Model\Document\Article')->getCollection();
+
+        $this->assertSame('Mondongo\LoggableMongoCollection', get_class($collection));
+        $this->assertSame('article', $collection->getName());
+        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
+    }
+
     public function testFind()
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');

@@ -37,6 +37,8 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
     protected $db;
 
+    protected $connection;
+
     protected $mondongo;
 
     public function setUp()
@@ -72,8 +74,10 @@ class TestCase extends \PHPUnit_Framework_TestCase
             }
         }
 
-        $this->mondongo = new Mondongo();
-        $this->mondongo->setConnection('default', new Connection('localhost', 'mondongo_tests'));
+        $this->connection = new Connection('localhost', 'mondongo_tests');
+
+        $this->mondongo = new Mondongo(function($log) { });
+        $this->mondongo->setConnection('default', $this->connection);
 
         Container::setDefault($this->mondongo);
     }

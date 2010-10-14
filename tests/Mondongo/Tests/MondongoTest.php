@@ -27,6 +27,16 @@ use Model\Document\Article;
 
 class MondongoTest extends TestCase
 {
+    public function testConstructor()
+    {
+        $loggerCallable = function()
+        {
+        };
+
+        $mondongo = new Mondongo($loggerCallable);
+        $this->assertSame($loggerCallable, $mondongo->getLoggerCallable());
+    }
+
     public function testConnections()
     {
         $connections = array(

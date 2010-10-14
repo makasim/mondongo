@@ -121,7 +121,14 @@ abstract class Repository
     public function getCollection()
     {
         if (!$this->collection) {
-            $this->collection = $this->getConnection()->getMongoDB()->selectCollection($this->collectionName);
+            // loggable
+            if ($loggerCallable = $this->mondongo->getLoggerCallable()) {
+                $this->collection = new LoggableMongoCollection($this->getConnection()->getMongoDB(), $this->collectionName);
+                $this->collection->setLoggerCallable($loggerCallable);
+            // normal
+            } else {
+                $this->collection = new \MongoCollection($this->getConnection()->getMongoDB(), $this->collectionName);
+            }
         }
 
         return $this->collection;
