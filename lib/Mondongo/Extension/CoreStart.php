@@ -198,7 +198,7 @@ EOF
         $this->outputs['document'] = new Output($dir);
 
         // document_base
-        $this->outputs['document_base'] = new Output($this->outputs['document']->getDir().'/Base');
+        $this->outputs['document_base'] = new Output($this->outputs['document']->getDir().'/Base', true);
 
         // repository
         $dir = $this->getOption('default_repository_output');
@@ -209,7 +209,7 @@ EOF
         $this->outputs['repository'] = new Output($dir);
 
         // repository_base
-        $this->outputs['repository_base'] = new Output($this->outputs['repository']->getDir().'/Base');
+        $this->outputs['repository_base'] = new Output($this->outputs['repository']->getDir().'/Base', true);
     }
 
     /*
