@@ -21,10 +21,9 @@
 
 namespace Mondongo\Tests;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Group;
 
-class GroupTest extends TestCase
+class GroupTest extends \PHPUnit_Framework_TestCase
 {
     protected $group;
 

@@ -21,7 +21,7 @@
 
 namespace Mondongo\Tests\Extension;
 
-use Mondongo\Tests\PHPUnit\TestCase;
+use Mondongo\Tests\TestCase;
 use Model\Document\Article;
 
 class ArrayAccessTest extends TestCase

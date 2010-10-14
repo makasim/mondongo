@@ -21,7 +21,7 @@
 
 namespace Mondongo\Tests\Document;
 
-use Mondongo\Tests\PHPUnit\TestCase;
+use Mondongo\Tests\TestCase;
 use Mondongo\Document\Document as DocumentBase;
 use Model\Document\Article;
 use Model\Document\Comment;

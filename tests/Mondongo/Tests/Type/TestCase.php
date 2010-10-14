@@ -19,18 +19,17 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests;
+namespace Mondongo\Tests\Type;
 
-use Mondongo\Connection;
-
-class ConnectionTest extends TestCase
+class TestCase extends \PHPUnit_Framework_TestCase
 {
-    public function testConnection()
+    protected function getTypeFunction($string)
     {
-        $connection = new Connection($this->server, $this->dbName);
-        $mongoDB = $connection->getMongoDB();
+        eval('$function = function($from) { '.strtr($string, array(
+            '%from%' => '$from',
+            '%to%'   => '$to',
+        )).' return $to; };');
 
-        $this->assertInstanceOf('\MongoDB', $mongoDB);
-        $this->assertSame($this->dbName, $mongoDB->__toString());
+        return $function;
     }
 }

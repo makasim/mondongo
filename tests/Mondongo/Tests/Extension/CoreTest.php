@@ -21,7 +21,7 @@
 
 namespace Mondongo\Tests\Extension;
 
-use Mondongo\Tests\PHPUnit\TestCase;
+use Mondongo\Tests\TestCase;
 use Mondongo\Container;
 use Mondongo\Group;
 use Mondongo\Mondongo;

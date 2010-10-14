@@ -21,7 +21,6 @@
 
 namespace Mondongo\Tests;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Connection;
 use Mondongo\Mondongo;
 use Mondongo\Repository as RepositoryBase;

@@ -21,10 +21,9 @@
 
 namespace Mondongo\Tests\Mondator\Definition;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Mondator\Definition\Method;
 
-class MethodTest extends TestCase
+class MethodTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {

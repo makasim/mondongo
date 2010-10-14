@@ -21,12 +21,11 @@
 
 namespace Mondongo\Tests\Mondator;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Mondator\Extension;
 use Mondongo\Mondator\Mondator;
 use Mondongo\Mondator\Output;
 
-class MondatorTest extends TestCase
+class MondatorTest extends \PHPUnit_Framework_TestCase
 {
     public function testConfigClasses()
     {

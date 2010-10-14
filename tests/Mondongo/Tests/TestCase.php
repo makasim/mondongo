@@ -19,7 +19,7 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\PHPUnit;
+namespace Mondongo\Tests;
 
 use Mondongo\Container;
 use Mondongo\Connection;
@@ -29,6 +29,10 @@ use Model\Document\Article;
 
 class TestCase extends \PHPUnit_Framework_TestCase
 {
+    protected $server = 'mongodb://localhost';
+
+    protected $dbName = 'mondongo_tests';
+
     protected $mongo;
 
     protected $db;
@@ -42,9 +46,9 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
         TypeContainer::resetTypes();
 
-        $this->mongo = new \Mongo();
+        $this->mongo = new \Mongo($this->server);
 
-        $this->db = $this->mongo->selectDB('mondongo_tests');
+        $this->db = $this->mongo->selectDB($this->dbName);
 
         foreach (array(
             'author',
@@ -55,8 +59,16 @@ class TestCase extends \PHPUnit_Framework_TestCase
             'summary',
             'user',
         ) as $collectionName) {
-            if ($this->db->selectCollection($collectionName)->find()->count()) {
-                $this->db->dropCollection($collectionName);
+            $collection = $this->db->selectCollection($collectionName);
+
+            // documents
+            if ($collection->find()->count()) {
+                $collection->drop();
+            }
+
+            // indexes
+            if ($collection->getIndexInfo()) {
+                $collection->deleteIndexes();
             }
         }
 
@@ -77,15 +89,5 @@ class TestCase extends \PHPUnit_Framework_TestCase
         $this->mondongo->getRepository('Model\Document\Article')->save($articles);
 
         return $articles;
-    }
-
-    protected function getTypeFunction($string)
-    {
-        eval('$function = function($from) { '.strtr($string, array(
-            '%from%' => '$from',
-            '%to%'   => '$to',
-        )).' return $to; };');
-
-        return $function;
     }
 }

@@ -21,11 +21,10 @@
 
 namespace Mondongo\Tests;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Container;
 use Mondongo\Mondongo;
 
-class ContainerTest extends TestCase
+class ContainerTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {

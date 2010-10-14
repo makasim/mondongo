@@ -21,7 +21,6 @@
 
 namespace Mondongo\Tests\Type;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Type\DateType;
 
 class DateTypeTest extends TestCase

@@ -21,7 +21,6 @@
 
 namespace Mondongo\Tests\Type;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Type\ArrayType;
 
 class ArrayTypeTest extends TestCase

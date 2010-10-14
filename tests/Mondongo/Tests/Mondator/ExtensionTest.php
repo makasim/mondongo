@@ -21,7 +21,6 @@
 
 namespace Mondongo\Tests\Mondator;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Mondator\Definition\Container;
 use Mondongo\Mondator\Extension;
 
@@ -37,7 +36,7 @@ class ExtensionTesting extends Extension
     }
 }
 
-class ExtensionTest extends TestCase
+class ExtensionTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructorOptions()
     {

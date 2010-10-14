@@ -21,10 +21,9 @@
 
 namespace Mondongo\Tests\Mondator;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Mondator\Output;
 
-class OutputTest extends TestCase
+class OutputTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {

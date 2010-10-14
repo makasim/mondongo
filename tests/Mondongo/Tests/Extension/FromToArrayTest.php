@@ -21,7 +21,7 @@
 
 namespace Mondongo\Tests\Extension;
 
-use Mondongo\Tests\PHPUnit\TestCase;
+use Mondongo\Tests\TestCase;
 use Model\Document\Article;
 use Model\Document\Author;
 use Model\Document\Category;

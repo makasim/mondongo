@@ -21,11 +21,10 @@
 
 namespace Mondongo\Tests\Mondator\Definition;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Mondator\Definition\Container;
 use Mondongo\Mondator\Definition\Definition;
 
-class ContainerTest extends TestCase
+class ContainerTest extends \PHPUnit_Framework_TestCase
 {
     public function testDefinitions()
     {

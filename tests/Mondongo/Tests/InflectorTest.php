@@ -21,10 +21,9 @@
 
 namespace Mondongo\Tests;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Inflector;
 
-class InflectorTest extends TestCase
+class InflectorTest extends \PHPUnit_Framework_TestCase
 {
     public function testCamelize()
     {

@@ -21,11 +21,10 @@
 
 namespace Mondongo\Tests\Mondator;
 
-use Mondongo\Tests\PHPUnit\TestCase;
 use Mondongo\Mondator\Definition\Definition;
 use Mondongo\Mondator\Dumper;
 
-class DumperTest extends TestCase
+class DumperTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
