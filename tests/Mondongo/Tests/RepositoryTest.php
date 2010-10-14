@@ -84,12 +84,7 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
 
-        $results = $repository->find();
-
-        $this->assertSame(count($articles), count($results));
-        foreach ($articles as $article) {
-            $this->assertContainsOnly($article, $results);
-        }
+        $this->assertEquals($articles, $repository->find());
 
         $this->assertNull($repository->find(array('query' => array('_id' => new \MongoId('123')))));
     }
@@ -146,11 +141,9 @@ class RepositoryTest extends TestCase
         $articles   = $this->createArticles(10);
 
         $this->assertEquals(array($articles[8], $articles[9]), $repository->find(array(
-            'sort' => array('title' => 1),
             'skip' => 8,
         )));
         $this->assertEquals(array($articles[6], $articles[7], $articles[8], $articles[9]), $repository->find(array(
-            'sort' => array('title' => 1),
             'skip' => 6,
         )));
     }
@@ -169,7 +162,7 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals($articles[0], $repository->findOne(array('sort' => array('title' => 1))));
+        $this->assertEquals($articles[0], $repository->findOne());
         $this->assertEquals($articles[3], $repository->findOne(array('query' => array('_id' => $articles[3]->getId()))));
 
         $this->assertNull($repository->findOne(array('query' => array('_id' => new \MongoId('123')))));
