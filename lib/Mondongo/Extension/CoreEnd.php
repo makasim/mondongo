@@ -58,14 +58,14 @@ class CoreEnd extends Extension
         $this->processDocumentFields();
         $this->processDocumentReferences();
         $this->processDocumentEmbeds();
-        if (!$this->classData['embed']) {
+        if (!$this->configClass['embed']) {
             $this->processDocumentRelations();
         }
 
         $this->processDocumentExtensionsEventsMethods();
 
         // repository
-        if (!$this->classData['embed']) {
+        if (!$this->configClass['embed']) {
             $this->processRepositoryDocumentClassProperty();
             $this->processRepositoryConnectionNameProperty();
             $this->processRepositoryCollectionNameProperty();
@@ -78,7 +78,7 @@ class CoreEnd extends Extension
      */
     protected function processParseFields()
     {
-        foreach ($this->classData['fields'] as &$field) {
+        foreach ($this->configClass['fields'] as &$field) {
             if (is_string($field)) {
                 $field = array('type' => $field);
             }
@@ -93,22 +93,22 @@ class CoreEnd extends Extension
         $data = array();
 
         // fields
-        foreach ($this->classData['fields'] as $name => $field) {
+        foreach ($this->configClass['fields'] as $name => $field) {
             $data['fields'][$name] = isset($field['default']) ? $field['default'] : null;
         }
 
         // references
-        foreach ($this->classData['references'] as $name => $reference) {
+        foreach ($this->configClass['references'] as $name => $reference) {
             $data['references'][$name] = null;
         }
 
         // embeds
-        foreach ($this->classData['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeds'] as $name => $embed) {
             $data['embeds'][$name] = null;
         }
 
         // relations
-        foreach ($this->classData['relations'] as $name => $relation) {
+        foreach ($this->configClass['relations'] as $name => $relation) {
             $data['relations'][$name] = null;
         }
 
@@ -123,7 +123,7 @@ class CoreEnd extends Extension
     protected function processDocumentFieldsModifiedsProperty()
     {
         $this->fieldsModified = array();
-        foreach ($this->classData['fields'] as $name => $field) {
+        foreach ($this->configClass['fields'] as $name => $field) {
             if (isset($field['default'])) {
                 $this->fieldsModified[$name] = null;
             }
@@ -142,22 +142,22 @@ class CoreEnd extends Extension
         $map = array();
 
         // fields
-        foreach ($this->classData['fields'] as $name => $field) {
+        foreach ($this->configClass['fields'] as $name => $field) {
             $map[$name] = Inflector::camelize($name);
         }
 
         // references
-        foreach ($this->classData['references'] as $name => $reference) {
+        foreach ($this->configClass['references'] as $name => $reference) {
             $map[$name] = Inflector::camelize($name);
         }
 
         // embeds
-        foreach ($this->classData['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeds'] as $name => $embed) {
             $map[$name] = Inflector::camelize($name);
         }
 
         // relations
-        foreach ($this->classData['relations'] as $name => $relation) {
+        foreach ($this->configClass['relations'] as $name => $relation) {
             $map[$name] = Inflector::camelize($name);
         }
 
@@ -199,13 +199,13 @@ EOF
         \$this->id = \$data['_id'];
 
 EOF;
-        if ($this->classData['embed']) {
+        if ($this->configClass['embed']) {
             $idCode = '';
         }
 
         // fields
         $fieldsCode = '';
-        foreach ($this->classData['fields'] as $name => $field) {
+        foreach ($this->configClass['fields'] as $name => $field) {
             $typeCode = strtr(TypeContainer::getType($field['type'])->toPHPInString(), array(
                 '%from%' => "\$data['$name']",
                 '%to%'   => "\$this->data['fields']['$name']",
@@ -221,7 +221,7 @@ EOF;
 
         // embeds
         $embedsCode = '';
-        foreach ($this->classData['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeds'] as $name => $embed) {
             $embedSetter = 'set'.Inflector::camelize($name);
             // one
             if ('one' == $embed['type']) {
@@ -278,7 +278,7 @@ EOF
     public function processDocumentFieldsToMongoMethod()
     {
         $fieldsCode = '';
-        foreach ($this->classData['fields'] as $name => $field) {
+        foreach ($this->configClass['fields'] as $name => $field) {
             $typeCode = strtr(TypeContainer::getType($field['type'])->toMongoInString(), array(
                 '%from%' => "\$fields['$name']",
                 '%to%'   => "\$fields['$name']",
@@ -317,7 +317,7 @@ EOF
      */
     protected function processDocumentFields()
     {
-        foreach ($this->classData['fields'] as $name => $field) {
+        foreach ($this->configClass['fields'] as $name => $field) {
             // set method
             $method = new Method(
                 'public',
@@ -374,7 +374,7 @@ EOF
      */
     protected function processDocumentReferences()
     {
-        foreach ($this->classData['references'] as $name => $reference) {
+        foreach ($this->configClass['references'] as $name => $reference) {
             $fieldSetter = 'set'.Inflector::camelize($reference['field']);
             $fieldGetter = 'get'.Inflector::camelize($reference['field']);
 
@@ -539,7 +539,7 @@ EOF;
      */
     protected function processDocumentEmbeds()
     {
-        foreach ($this->classData['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeds'] as $name => $embed) {
             /*
              * one
              */
@@ -631,7 +631,7 @@ EOF;
      */
     protected function processDocumentRelations()
     {
-        foreach ($this->classData['relations'] as $name => $relation) {
+        foreach ($this->configClass['relations'] as $name => $relation) {
             /*
              * one
              */
@@ -693,7 +693,7 @@ EOF;
             'preDelete', 'postDelete',
         ) as $event) {
             $code = '';
-            foreach ($this->classData['extensions_events'][$event] as $method) {
+            foreach ($this->configClass['extensions_events'][$event] as $method) {
                 $code .= "        \$this->$method();\n";
             }
             $this->definitions['document_base']->addMethod(new Method('public', $event.'Extensions', '', $code));
@@ -715,7 +715,7 @@ EOF;
      */
     protected function processRepositoryConnectionNameProperty()
     {
-        $property = new Property('protected', 'connectionName', $this->classData['connection']);
+        $property = new Property('protected', 'connectionName', $this->configClass['connection']);
 
         $this->definitions['repository_base']->addProperty($property);
     }
@@ -725,7 +725,7 @@ EOF;
      */
     protected function processRepositoryCollectionNameProperty()
     {
-        $property = new Property('protected', 'collectionName', $this->classData['collection']);
+        $property = new Property('protected', 'collectionName', $this->configClass['collection']);
 
         $this->definitions['repository_base']->addProperty($property);
     }
@@ -736,7 +736,7 @@ EOF;
     protected function processRepositoryEnsureIndexesMethod()
     {
         $code = '';
-        foreach ($this->classData['indexes'] as $key => $index) {
+        foreach ($this->configClass['indexes'] as $key => $index) {
             $keys    = var_export($index['keys'], true);
             $options = var_export(array_merge(isset($index['options']) ? $index['options'] : array(), array('safe' => true)), true);
 

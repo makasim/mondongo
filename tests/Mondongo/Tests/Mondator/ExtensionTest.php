@@ -107,7 +107,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
 
         $container = new Container();
         $className = 'Article';
-        $classData = new \ArrayObject(array(
+        $configClass = new \ArrayObject(array(
             'extensions' => array(
                 array(
                     'class'   => 'Mondongo\Tests\Mondator\Fixtures\Extension\InitDefinition',
@@ -128,7 +128,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
             ),
         ));
 
-        $extension->process($container, $className, $classData);
+        $extension->process($container, $className, $configClass);
 
         $definitions = $container->getDefinitions();
 

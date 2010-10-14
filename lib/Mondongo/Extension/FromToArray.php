@@ -50,7 +50,7 @@ class FromToArray extends Extension
         $code = '';
 
         // fields
-        foreach ($this->classData['fields'] as $name => $field) {
+        foreach ($this->configClass['fields'] as $name => $field) {
             $setter = 'set'.Inflector::camelize($name);
             $code .= <<<EOF
         if (isset(\$array['$name'])) {
@@ -61,7 +61,7 @@ EOF;
         }
 
         // references
-        foreach ($this->classData['references'] as $name => $reference) {
+        foreach ($this->configClass['references'] as $name => $reference) {
             $setter = 'set'.Inflector::camelize($name);
 
             if ('one' == $reference['type']) {
@@ -86,7 +86,7 @@ EOF;
         }
 
         // embeds
-        foreach ($this->classData['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeds'] as $name => $embed) {
             $setter = 'set'.Inflector::camelize($name);
             $getter = 'get'.Inflector::camelize($name);
 
@@ -143,7 +143,7 @@ EOF
     {
         // fields
         $fieldsCode = '';
-        foreach ($this->classData['fields'] as $name => $field) {
+        foreach ($this->configClass['fields'] as $name => $field) {
             $fieldsCode .= <<<EOF
         if (null !== \$this->data['fields']['$name']) {
             \$array['$name'] = \$this->data['fields']['$name'];
@@ -154,7 +154,7 @@ EOF;
 
         // embeds
         $embedsCode = '';
-        foreach ($this->classData['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeds'] as $name => $embed) {
             if ('one' == $embed['type']) {
                 $typeCode = <<<EOF
                 \$array['$name'] = \$this->data['embeds']['$name']->toArray();

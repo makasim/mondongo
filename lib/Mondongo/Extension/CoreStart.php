@@ -50,7 +50,7 @@ class CoreStart extends Extension
     {
         $this->processInitDefinitionsAndOutputs();
 
-        if (!$this->classData['embed']) {
+        if (!$this->configClass['embed']) {
             $this->processDocumentGetMondongoMethod();
             $this->processDocumentGetRepositoryMethod();
             $this->processInitConnectionName();
@@ -62,14 +62,14 @@ class CoreStart extends Extension
         $this->processInitReferences();
         $this->processInitEmbeds();
 
-        if (!$this->classData['embeds']) {
+        if (!$this->configClass['embeds']) {
             $this->processInitRelations();
         }
 
         $this->processInitExtensionsEvents();
 
-        if (isset($this->classData['extensions'])) {
-            $this->processExtensionsFromArray($this->classData['extensions']);
+        if (isset($this->configClass['extensions'])) {
+            $this->processExtensionsFromArray($this->configClass['extensions']);
         }
     }
 
@@ -81,48 +81,48 @@ class CoreStart extends Extension
         /*
          * Embed
          */
-        $this->classData['embed'] = isset($this->classData['embed']) ? (bool) $this->classData['embed'] : false;
+        $this->configClass['embed'] = isset($this->configClass['embed']) ? (bool) $this->configClass['embed'] : false;
 
         /*
          * Namespaces
          */
         // init
-        if (!isset($this->classData['namespaces'])) {
-            $this->classData['namespaces'] = array('document' => null, 'repository' => null);
+        if (!isset($this->configClass['namespaces'])) {
+            $this->configClass['namespaces'] = array('document' => null, 'repository' => null);
         }
 
         // default
         if (
-          !isset($this->classData['namespaces']['document'])
+          !isset($this->configClass['namespaces']['document'])
           &&
           $defaultDocumentNamespace = $this->getOption('default_document_namespace')
         ) {
-            $this->classData['namespaces']['document'] = $defaultDocumentNamespace;
+            $this->configClass['namespaces']['document'] = $defaultDocumentNamespace;
         }
 
         if (
-          !isset($this->classData['namespaces']['repository'])
+          !isset($this->configClass['namespaces']['repository'])
           &&
           $defaultDocumentNamespace = $this->getOption('default_repository_namespace')
         ) {
-            $this->classData['namespaces']['repository'] = $defaultDocumentNamespace;
+            $this->configClass['namespaces']['repository'] = $defaultDocumentNamespace;
         }
 
         // document
-        if (isset($this->classData['namespaces']['document'])) {
-            $documentBaseClass = '\\'.$this->classData['namespaces']['document'].'\\Base\\'.$this->className;
+        if (isset($this->configClass['namespaces']['document'])) {
+            $documentBaseClass = '\\'.$this->configClass['namespaces']['document'].'\\Base\\'.$this->className;
         } else {
-            $this->classData['namespaces']['document'] = null;
+            $this->configClass['namespaces']['document'] = null;
             $documentBaseClass = 'Base'.$this->className;
         }
 
         // repository
-        if (!$this->classData['embed']) {
-            if (isset($this->classData['namespaces']['repository'])) {
+        if (!$this->configClass['embed']) {
+            if (isset($this->configClass['namespaces']['repository'])) {
                 $repositoryClass     = $this->className;
-                $repositoryBaseClass = '\\'.$this->classData['namespaces']['repository'].'\\Base\\'.$this->className;
+                $repositoryBaseClass = '\\'.$this->configClass['namespaces']['repository'].'\\Base\\'.$this->className;
             } else {
-                $this->classData['namespaces']['repository'] = null;
+                $this->configClass['namespaces']['repository'] = null;
 
                 $repositoryClass     = $this->className.'Repository';
                 $repositoryBaseClass = 'Base'.$this->className.'Repository';
@@ -135,7 +135,7 @@ class CoreStart extends Extension
 
         // document
         $this->definitions['document'] = $definition = new Definition($this->className);
-        $definition->setNamespace($this->classData['namespaces']['document']);
+        $definition->setNamespace($this->configClass['namespaces']['document']);
         $definition->setParentClass($documentBaseClass);
         $definition->setDocComment(<<<EOF
 /**
@@ -148,7 +148,7 @@ EOF
         $this->definitions['document_base'] = $definition = new Definition($this->getClassName($documentBaseClass));
         $definition->setNamespace($this->getNamespace($documentBaseClass));
         $definition->setIsAbstract(true);
-        if ($this->classData['embed']) {
+        if ($this->configClass['embed']) {
             $definition->setParentClass('\\Mondongo\\Document\\DocumentEmbed');
         } else {
             $definition->setParentClass('\\Mondongo\\Document\\Document');
@@ -160,10 +160,10 @@ EOF
 EOF
         );
 
-        if (!$this->classData['embed']) {
+        if (!$this->configClass['embed']) {
             // repository
             $this->definitions['repository'] = $definition = new Definition($repositoryClass);
-            $definition->setNamespace($this->classData['namespaces']['repository']);
+            $definition->setNamespace($this->configClass['namespaces']['repository']);
             $definition->setParentClass($repositoryBaseClass);
             $definition->setDocComment(<<<EOF
 /**
@@ -191,8 +191,8 @@ EOF
 
         // document
         $dir = $this->getOption('default_document_output');
-        if (isset($this->classData['document_output'])) {
-            $dir = $this->classData['document_output'];
+        if (isset($this->configClass['document_output'])) {
+            $dir = $this->configClass['document_output'];
         }
 
         $this->outputs['document'] = new Output($dir);
@@ -202,8 +202,8 @@ EOF
 
         // repository
         $dir = $this->getOption('default_repository_output');
-        if (isset($this->classData['repository_output'])) {
-            $dir = $this->classData['repository_output'];
+        if (isset($this->configClass['repository_output'])) {
+            $dir = $this->configClass['repository_output'];
         }
 
         $this->outputs['repository'] = new Output($dir);
@@ -259,8 +259,8 @@ EOF
      */
     protected function processInitConnectionName()
     {
-        if (!isset($this->classData['connection'])) {
-            $this->classData['connection'] = null;
+        if (!isset($this->configClass['connection'])) {
+            $this->configClass['connection'] = null;
         }
     }
 
@@ -269,8 +269,8 @@ EOF
      */
     protected function processInitCollectionName()
     {
-        if (!isset($this->classData['collection'])) {
-            $this->classData['collection'] = Inflector::underscore($this->className);
+        if (!isset($this->configClass['collection'])) {
+            $this->configClass['collection'] = Inflector::underscore($this->className);
         }
     }
 
@@ -279,8 +279,8 @@ EOF
      */
     protected function processInitIndexes()
     {
-        if (!isset($this->classData['indexes'])) {
-            $this->classData['indexes'] = array();
+        if (!isset($this->configClass['indexes'])) {
+            $this->configClass['indexes'] = array();
         }
     }
 
@@ -289,8 +289,8 @@ EOF
      */
     protected function processInitFields()
     {
-        if (!isset($this->classData['fields'])) {
-            $this->classData['fields'] = array();
+        if (!isset($this->configClass['fields'])) {
+            $this->configClass['fields'] = array();
         }
     }
 
@@ -299,8 +299,8 @@ EOF
      */
     protected function processInitReferences()
     {
-        if (!isset($this->classData['references'])) {
-            $this->classData['references'] = array();
+        if (!isset($this->configClass['references'])) {
+            $this->configClass['references'] = array();
         }
     }
 
@@ -309,8 +309,8 @@ EOF
      */
     protected function processInitEmbeds()
     {
-        if (!isset($this->classData['embeds'])) {
-            $this->classData['embeds'] = array();
+        if (!isset($this->configClass['embeds'])) {
+            $this->configClass['embeds'] = array();
         }
     }
 
@@ -319,8 +319,8 @@ EOF
      */
     protected function processInitRelations()
     {
-        if (!isset($this->classData['relations'])) {
-            $this->classData['relations'] = array();
+        if (!isset($this->configClass['relations'])) {
+            $this->configClass['relations'] = array();
         }
     }
 
@@ -329,7 +329,7 @@ EOF
      */
     protected function processInitExtensionsEvents()
     {
-        $this->classData['extensions_events'] = array(
+        $this->configClass['extensions_events'] = array(
             'preInsert'  => array(),
             'postInsert' => array(),
             'preUpdate'  => array(),

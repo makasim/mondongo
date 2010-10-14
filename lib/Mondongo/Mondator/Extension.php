@@ -33,7 +33,7 @@ abstract class Extension
 
     protected $container;
     protected $className;
-    protected $classData;
+    protected $configClass;
 
     protected $definitions;
     protected $outputs;
@@ -114,26 +114,26 @@ abstract class Extension
     /**
      * Process the extension.
      *
-     * @param Mondongo\Mondator\Container $container The container.
-     * @param string                      $className The class name.
-     * @param \ArrayObject                $classData The class data.
+     * @param Mondongo\Mondator\Container $container   The container.
+     * @param string                      $className   The class name.
+     * @param \ArrayObject                $configClass The class data.
      *
      * @return void
      */
-    public function process(Container $container, $className, \ArrayObject $classData)
+    public function process(Container $container, $className, \ArrayObject $configClass)
     {
-        $this->container = $container;
-        $this->className = $className;
-        $this->classData = $classData;
+        $this->container   = $container;
+        $this->className   = $className;
+        $this->configClass = $configClass;
 
         $this->definitions = $container->getDefinitions();
         $this->outputs     = $container->getOutputs();
 
         $this->doProcess();
 
-        $this->container = null;
-        $this->className = null;
-        $this->classData = null;
+        $this->container   = null;
+        $this->className   = null;
+        $this->configClass = null;
 
         $this->definitions = null;
         $this->outputs     = null;
@@ -151,7 +151,7 @@ abstract class Extension
                 throw new \InvalidArgumentException(sprintf('The extension "%s" does not have class.'));
             }
             $extension = new $data['class'](isset($data['options']) ? $data['options'] : array());
-            $extension->process($this->container, $this->className, $this->classData);
+            $extension->process($this->container, $this->className, $this->configClass);
         }
     }
 

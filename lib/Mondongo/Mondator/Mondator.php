@@ -151,16 +151,16 @@ class Mondator
 
         // classes
         $classes = array();
-        foreach ($this->getConfigClasses() as $className => $classData) {
-            $classes[$className] = new \ArrayObject($classData);
+        foreach ($this->getConfigClasses() as $className => $configClass) {
+            $classes[$className] = new \ArrayObject($configClass);
         }
 
         // extensions
-        foreach ($classes as $className => $classData) {
+        foreach ($classes as $className => $configClass) {
             $containers[$className] = $container = new Container();
 
             foreach ($this->getExtensions() as $extension) {
-                $extension->process($container, $className, $classData);
+                $extension->process($container, $className, $configClass);
             }
         }
 

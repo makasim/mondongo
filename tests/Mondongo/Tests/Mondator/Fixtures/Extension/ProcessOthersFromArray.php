@@ -28,6 +28,6 @@ class ProcessOthersFromArray extends Extension
 {
     protected function doProcess()
     {
-        $this->processExtensionsFromArray($this->classData['extensions']);
+        $this->processExtensionsFromArray($this->configClass['extensions']);
     }
 }
