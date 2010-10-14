@@ -21,7 +21,7 @@
 
 namespace Mondongo\Tests\Mondator;
 
-use Mondongo\Mondator\Definition\Container;
+use Mondongo\Mondator\Container;
 use Mondongo\Mondator\Extension;
 
 class ExtensionTesting extends Extension
@@ -130,9 +130,11 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
 
         $extension->process($container, $className, $classData);
 
-        $this->assertSame(1, count($container->getDefinitions()));
-        $this->assertTrue(isset($container['mydefinition']));
-        $properties = $container['mydefinition']->getProperties();
+        $definitions = $container->getDefinitions();
+
+        $this->assertSame(1, count($definitions->getDefinitions()));
+        $this->assertTrue(isset($definitions['mydefinition']));
+        $properties = $definitions['mydefinition']->getProperties();
         $this->assertSame(1, count($properties));
         $this->assertSame('myVar', $properties[0]->getName());
     }

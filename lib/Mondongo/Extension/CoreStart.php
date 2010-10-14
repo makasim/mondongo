@@ -25,6 +25,7 @@ use Mondongo\Mondator\Definition\Container;
 use Mondongo\Mondator\Definition\Definition;
 use Mondongo\Mondator\Definition\Method;
 use Mondongo\Mondator\Extension;
+use Mondongo\Mondator\Output\Output;
 use Mondongo\Inflector;
 
 /**
@@ -38,6 +39,8 @@ class CoreStart extends Extension
     protected $options = array(
         'default_document_namespace'   => false,
         'default_repository_namespace' => false,
+        'default_document_output'      => null,
+        'default_repository_output'    => null,
     );
 
     /**
@@ -45,7 +48,7 @@ class CoreStart extends Extension
      */
     protected function doProcess()
     {
-        $this->processInitDefinitions();
+        $this->processInitDefinitionsAndOutputs();
 
         if (!$this->classData['embed']) {
             $this->processDocumentGetMondongoMethod();
@@ -71,9 +74,9 @@ class CoreStart extends Extension
     }
 
     /*
-     * Init Definitions.
+     * Init Definitions and Outputs.
      */
-    protected function processInitDefinitions()
+    protected function processInitDefinitionsAndOutputs()
     {
         /*
          * Embed
@@ -129,8 +132,9 @@ class CoreStart extends Extension
         /*
          * Definitions
          */
+
         // document
-        $this->container['document'] = $definition = new Definition($this->className);
+        $this->definitions['document'] = $definition = new Definition($this->className);
         $definition->setNamespace($this->classData['namespaces']['document']);
         $definition->setParentClass($documentBaseClass);
         $definition->setDocComment(<<<EOF
@@ -141,7 +145,7 @@ EOF
         );
 
         // document_base
-        $this->container['document_base'] = $definition = new Definition($this->getClassName($documentBaseClass));
+        $this->definitions['document_base'] = $definition = new Definition($this->getClassName($documentBaseClass));
         $definition->setNamespace($this->getNamespace($documentBaseClass));
         $definition->setIsAbstract(true);
         if ($this->classData['embed']) {
@@ -158,7 +162,7 @@ EOF
 
         if (!$this->classData['embed']) {
             // repository
-            $this->container['repository'] = $definition = new Definition($repositoryClass);
+            $this->definitions['repository'] = $definition = new Definition($repositoryClass);
             $definition->setNamespace($this->classData['namespaces']['repository']);
             $definition->setParentClass($repositoryBaseClass);
             $definition->setDocComment(<<<EOF
@@ -169,7 +173,7 @@ EOF
             );
 
             // repository_base
-            $this->container['repository_base'] = $definition = new Definition($this->getClassName($repositoryBaseClass));
+            $this->definitions['repository_base'] = $definition = new Definition($this->getClassName($repositoryBaseClass));
             $definition->setNamespace($this->getNamespace($repositoryBaseClass));
             $definition->setIsAbstract(true);
             $definition->setParentClass('\\Mondongo\\Repository');
@@ -180,6 +184,32 @@ EOF
 EOF
             );
         }
+
+        /*
+         * Outputs
+         */
+
+        // document
+        $dir = $this->getOption('default_document_output');
+        if (isset($this->classData['document_output'])) {
+            $dir = $this->classData['document_output'];
+        }
+
+        $this->outputs['document'] = new Output($dir);
+
+        // document_base
+        $this->outputs['document_base'] = new Output($this->outputs['document']->getDir().'/Base');
+
+        // repository
+        $dir = $this->getOption('default_repository_output');
+        if (isset($this->classData['repository_output'])) {
+            $dir = $this->classData['repository_output'];
+        }
+
+        $this->outputs['repository'] = new Output($dir);
+
+        // repository_base
+        $this->outputs['repository_base'] = new Output($this->outputs['repository']->getDir().'/Base');
     }
 
     /*
@@ -188,7 +218,7 @@ EOF
     public function processDocumentGetMondongoMethod()
     {
         $method = new Method('public', 'getMondongo', '', <<<EOF
-        return \Mondongo\Container::getForDocumentClass('{$this->container['document']->getFullClass()}');
+        return \Mondongo\Container::getForDocumentClass('{$this->definitions['document']->getFullClass()}');
 EOF
         );
         $method->setDocComment(<<<EOF
@@ -200,7 +230,7 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -209,7 +239,7 @@ EOF
     public function processDocumentGetRepositoryMethod()
     {
         $method = new Method('public', 'getRepository', '', <<<EOF
-        return \$this->getMondongo()->getRepository('{$this->container['document']->getFullClass()}');
+        return \$this->getMondongo()->getRepository('{$this->definitions['document']->getFullClass()}');
 EOF
         );
         $method->setDocComment(<<<EOF
@@ -221,7 +251,7 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*

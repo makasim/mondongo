@@ -19,7 +19,7 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Mondator;
+namespace Mondongo\Mondator\Output;
 
 /**
  * Represents a output for a definition type.
@@ -29,44 +29,44 @@ namespace Mondongo\Mondator;
  */
 class Output
 {
-    protected $directory;
+    protected $dir;
 
     protected $override;
 
     /**
      * Constructor.
      *
-     * @param string $dir      The directory.
+     * @param string $dir      The dir.
      * @param bool   $override The override. It indicate if override files (optional, false by).
      *
      * @return void
      */
-    public function __construct($directory, $override = false)
+    public function __construct($dir, $override = false)
     {
-        $this->setDirectory($directory);
+        $this->setDir($dir);
         $this->setOverride($override);
     }
 
     /**
-     * Set the directory.
+     * Set the dir.
      *
-     * @param $string $directory The directory.
+     * @param $string $dir The dir.
      *
      * @return void
      */
-    public function setDirectory($directory)
+    public function setDir($dir)
     {
-        $this->directory = $directory;
+        $this->dir = $dir;
     }
 
     /**
-     * Returns the directory.
+     * Returns the dir.
      *
-     * @return string The directory.
+     * @return string The dir.
      */
-    public function getDirectory()
+    public function getDir()
     {
-        return $this->directory;
+        return $this->dir;
     }
 
     /**
@@ -75,16 +75,10 @@ class Output
      * @param bool $override The override.
      *
      * @return void
-     *
-     * @throws \InvalidArgumentException If the override is not a bool.
      */
     public function setOverride($override)
     {
-        if (!is_bool($override)) {
-            throw new \InvalidArgumentException('The override is not a bool.');
-        }
-
-        $this->override = $override;
+        $this->override = (bool) $override;
     }
 
     /**

@@ -28,6 +28,6 @@ class Name extends Extension
 {
     protected function doProcess()
     {
-        $this->container['name'] = new Definition($this->classData['name']);
+        $this->definitions['name'] = new Definition($this->classData['name']);
     }
 }

@@ -38,6 +38,6 @@ class AddProperty extends Extension
     {
         $property = new Property($this->getOption('visibility'), $this->getOption('name'), $this->getOption('value'));
 
-        $this->container[$this->getOption('definition')]->addProperty($property);
+        $this->definitions[$this->getOption('definition')]->addProperty($property);
     }
 }

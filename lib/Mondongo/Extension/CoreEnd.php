@@ -114,7 +114,7 @@ class CoreEnd extends Extension
 
         $property = new Property('protected', 'data', $data);
 
-        $this->container['document_base']->addProperty($property);
+        $this->definitions['document_base']->addProperty($property);
     }
 
     /*
@@ -131,7 +131,7 @@ class CoreEnd extends Extension
 
         $property = new Property('protected', 'fieldsModified', $this->fieldsModified);
 
-        $this->container['document_base']->addProperty($property);
+        $this->definitions['document_base']->addProperty($property);
     }
 
     /*
@@ -164,7 +164,7 @@ class CoreEnd extends Extension
         $property = new Property('protected', 'map', $map);
         $property->setIsStatic(true);
 
-        $this->container['document_base']->addProperty($property);
+        $this->definitions['document_base']->addProperty($property);
     }
 
     /*
@@ -186,7 +186,7 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -269,7 +269,7 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -309,7 +309,7 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -336,7 +336,7 @@ EOF
 EOF
             );
 
-            $this->container['document_base']->addMethod($method);
+            $this->definitions['document_base']->addMethod($method);
 
             // get method
             $method = new Method(
@@ -354,7 +354,7 @@ EOF
 EOF
             );
 
-            $this->container['document_base']->addMethod($method);
+            $this->definitions['document_base']->addMethod($method);
         }
     }
 
@@ -492,12 +492,12 @@ EOF;
             // setter
             $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
             $method->setDocComment($setterDocComment);
-            $this->container['document_base']->addMethod($method);
+            $this->definitions['document_base']->addMethod($method);
 
             // getter
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
             $method->setDocComment($setterDocComment);
-            $this->container['document_base']->addMethod($method);
+            $this->definitions['document_base']->addMethod($method);
 
             // update
             if ('many' == $reference['type']) {
@@ -529,7 +529,7 @@ EOF;
 
                 $method = new Method('public', $updateMethodName, '', $updateCode);
                 $method->setDocComment($updateDocComment);
-                $this->container['document_base']->addMethod($method);
+                $this->definitions['document_base']->addMethod($method);
             }
         }
     }
@@ -617,12 +617,12 @@ EOF;
             // setter
             $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
             $method->setDocComment($setterDocComment);
-            $this->container['document_base']->addMethod($method);
+            $this->definitions['document_base']->addMethod($method);
 
             // getter
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
             $method->setDocComment($getterDocComment);
-            $this->container['document_base']->addMethod($method);
+            $this->definitions['document_base']->addMethod($method);
         }
     }
 
@@ -677,7 +677,7 @@ EOF;
 
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
             $method->setDocComment($getterDocComment);
-            $this->container['document_base']->addMethod($method);
+            $this->definitions['document_base']->addMethod($method);
         }
     }
 
@@ -696,7 +696,7 @@ EOF;
             foreach ($this->classData['extensions_events'][$event] as $method) {
                 $code .= "        \$this->$method();\n";
             }
-            $this->container['document_base']->addMethod(new Method('public', $event.'Extensions', '', $code));
+            $this->definitions['document_base']->addMethod(new Method('public', $event.'Extensions', '', $code));
         }
     }
 
@@ -705,9 +705,9 @@ EOF;
      */
     protected function processRepositoryDocumentClassProperty()
     {
-        $property = new Property('protected', 'documentClass', $this->container['document']->getFullClass());
+        $property = new Property('protected', 'documentClass', $this->definitions['document']->getFullClass());
 
-        $this->container['repository_base']->addProperty($property);
+        $this->definitions['repository_base']->addProperty($property);
     }
 
     /*
@@ -717,7 +717,7 @@ EOF;
     {
         $property = new Property('protected', 'connectionName', $this->classData['connection']);
 
-        $this->container['repository_base']->addProperty($property);
+        $this->definitions['repository_base']->addProperty($property);
     }
 
     /*
@@ -727,7 +727,7 @@ EOF;
     {
         $property = new Property('protected', 'collectionName', $this->classData['collection']);
 
-        $this->container['repository_base']->addProperty($property);
+        $this->definitions['repository_base']->addProperty($property);
     }
 
     /*
@@ -755,6 +755,6 @@ EOF;
 EOF
         );
 
-        $this->container['repository_base']->addMethod($method);
+        $this->definitions['repository_base']->addMethod($method);
     }
 }

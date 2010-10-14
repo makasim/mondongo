@@ -38,7 +38,7 @@ class ArrayAccess extends Extension
      */
     protected function doProcess()
     {
-        $this->container['document_base']->addInterface('\ArrayAccess');
+        $this->definitions['document_base']->addInterface('\ArrayAccess');
 
         $this->processOffsetExistsMethod();
         $this->processOffsetSetMethod();
@@ -64,7 +64,7 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -96,7 +96,7 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -127,7 +127,7 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -148,6 +148,6 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 }

@@ -33,6 +33,6 @@ class InitDefinition extends Extension
 
     protected function doProcess()
     {
-        $this->container[$this->getOption('definition_name')] = new Definition($this->getOption('class_name'));
+        $this->definitions[$this->getOption('definition_name')] = new Definition($this->getOption('class_name'));
     }
 }

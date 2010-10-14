@@ -19,33 +19,25 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\Mondator;
+namespace Mondongo\Tests\Mondator\Output;
 
-use Mondongo\Mondator\Output;
+use Mondongo\Mondator\Output\Output;
 
 class OutputTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
         $output = new Output('foo', true);
-        $this->assertEquals('foo', $output->getDirectory());
+        $this->assertEquals('foo', $output->getDir());
         $this->assertTrue($output->getOverride());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testConstructorOverrideNotBoolean()
-    {
-        new Output('foo', 1);
-    }
-
-    public function testDirectory()
+    public function testDir()
     {
         $output = new Output('foo');
-        $this->assertEquals('foo', $output->getDirectory());
-        $output->setDirectory('bar');
-        $this->assertEquals('bar', $output->getDirectory());
+        $this->assertEquals('foo', $output->getDir());
+        $output->setDir('bar');
+        $this->assertEquals('bar', $output->getDir());
     }
 
     public function testOverride()
@@ -54,14 +46,7 @@ class OutputTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($output->getOverride());
         $output->setOverride(true);
         $this->assertTrue($output->getOverride());
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testSetOverrideNotBoolean()
-    {
-        $output = new Output('foo');
         $output->setOverride(1);
+        $this->assertTrue($output->getOverride());
     }
 }

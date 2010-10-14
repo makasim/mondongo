@@ -21,8 +21,6 @@
 
 namespace Mondongo\Mondator;
 
-use Mondongo\Mondator\Definition\Container;
-
 /**
  * Mondator.
  *
@@ -143,75 +141,9 @@ class Mondator
     }
 
     /**
-     * Set a output.
+     * Generate the containers.
      *
-     * @param string                   $name   The name.
-     * @param Mondongo\Mondator\Output $output The output.
-     *
-     * @return void.
-     */
-    public function setOutput($name, Output $output)
-    {
-        $this->outputs[$name] = $output;
-    }
-
-    /**
-     * Set the outputs.
-     *
-     * @param array $outputs The outputs.
-     *
-     * @return void
-     */
-    public function setOutputs(array $outputs)
-    {
-        $this->outputs = array();
-        foreach ($outputs as $name => $output) {
-            $this->setOutput($name, $output);
-        }
-    }
-
-    /**
-     * Returns if exists a output by name.
-     *
-     * @param string $name The output name.
-     *
-     * @return bool Returns if exists the output.
-     */
-    public function hasOutput($name)
-    {
-        return isset($this->outputs[$name]);
-    }
-
-    /**
-     * Returns the outputs.
-     *
-     * @return array The outputs.
-     */
-    public function getOutputs()
-    {
-        return $this->outputs;
-    }
-
-    /**
-     * Return a output by name.
-     *
-     * @return Mondongo\Mondator\Output The output.
-     *
-     * @throws \InvalidArgumentException If the output does not exists.
-     */
-    public function getOutput($name)
-    {
-        if (!$this->hasOutput($name)) {
-            throw new \InvalidArgumentException(sprintf('The output "%s" does not exists.', $name));
-        }
-
-        return $this->outputs[$name];
-    }
-
-    /**
-     * Generate the definition containers of classes.
-     *
-     * @return array The array of containers.
+     * @return array The containers.
      */
     public function generateContainers()
     {
@@ -247,8 +179,8 @@ class Mondator
         // directories
         foreach ($containers as $container) {
             foreach ($container->getDefinitions() as $name => $definition) {
-                $output = $this->getOutput($name);
-                $dir    = $output->getDirectory();
+                $output = $container->getOutputs()->getOutput($name);
+                $dir    = $output->getDir();
 
                 if (!file_exists($dir) && false === @mkdir($dir, 0777, true)) {
                     throw new \RuntimeException(sprintf('Unable to create the %s directory (%s).', $name, $dir));
@@ -263,8 +195,8 @@ class Mondator
         // output
         foreach ($containers as $container) {
             foreach ($container->getDefinitions() as $name => $definition) {
-                $output = $this->getOutput($name);
-                $dir    = $output->getDirectory();
+                $output = $container->getOutputs()->getOutput($name);
+                $dir    = $output->getDir();
 
                 $file = $dir.DIRECTORY_SEPARATOR.$definition->getClassName().'.php';
 

@@ -121,7 +121,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($container['definition1']));
     }
 
-    public function testCount()
+    public function testCountableInterface()
     {
         $container = new Container();
         $container->setDefinitions(array(
@@ -131,5 +131,17 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertSame(2, $container->count());
         $this->assertSame(2, count($container));
+    }
+
+    public function testIteratorAggregateInterface()
+    {
+        $container = new Container();
+        $container->setDefinitions(array(
+            new Definition('Class1'),
+            new Definition('Class2'),
+        ));
+
+        $this->assertEquals(new \ArrayIterator($container->getDefinitions()), $container->getIterator());
+        $this->assertInstanceOf('\IteratorAggregate', $container);
     }
 }

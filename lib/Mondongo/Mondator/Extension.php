@@ -21,8 +21,6 @@
 
 namespace Mondongo\Mondator;
 
-use Mondongo\Mondator\Definition\Container;
-
 /**
  * Extension is the base class for extensions.
  *
@@ -36,6 +34,9 @@ abstract class Extension
     protected $container;
     protected $className;
     protected $classData;
+
+    protected $definitions;
+    protected $outputs;
 
     /**
      * Constructor.
@@ -113,9 +114,9 @@ abstract class Extension
     /**
      * Process the extension.
      *
-     * @param Mondongo\Mondator\Definition\Container $container The definition container.
-     * @param string                                 $className The class name.
-     * @param \ArrayObject                           $classData The class data.
+     * @param Mondongo\Mondator\Container $container The container.
+     * @param string                      $className The class name.
+     * @param \ArrayObject                $classData The class data.
      *
      * @return void
      */
@@ -125,11 +126,17 @@ abstract class Extension
         $this->className = $className;
         $this->classData = $classData;
 
+        $this->definitions = $container->getDefinitions();
+        $this->outputs     = $container->getOutputs();
+
         $this->doProcess();
 
         $this->container = null;
         $this->className = null;
         $this->classData = null;
+
+        $this->definitions = null;
+        $this->outputs     = null;
     }
 
     abstract protected function doProcess();

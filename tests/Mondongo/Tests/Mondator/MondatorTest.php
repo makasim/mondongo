@@ -23,7 +23,6 @@ namespace Mondongo\Tests\Mondator;
 
 use Mondongo\Mondator\Extension;
 use Mondongo\Mondator\Mondator;
-use Mondongo\Mondator\Output;
 
 class MondatorTest extends \PHPUnit_Framework_TestCase
 {
@@ -80,36 +79,6 @@ class MondatorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($extensions, $mondator->getExtensions());
     }
 
-    public function testOutputs()
-    {
-        $output1 = new Output('output');
-        $output2 = new Output('output');
-        $output3 = new Output('output');
-        $output4 = new Output('output');
-
-        $mondator = new Mondator();
-
-        $mondator->setOutput('output1', $output1);
-        $mondator->setOutput('output2', $output2);
-        $this->assertTrue($mondator->hasOutput('output1'));
-        $this->assertFalse($mondator->hasOutput('output3'));
-        $this->assertSame($output1, $mondator->getOutput('output1'));
-        $this->assertSame($output2, $mondator->getOutput('output2'));
-        $this->assertSame(array('output1' => $output1, 'output2' => $output2), $mondator->getOutputs());
-
-        $mondator->setOutputs($outputs = array('output3' => $output3, 'output4' => $output4));
-        $this->assertSame($outputs, $mondator->getOutputs());
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testGetOutputNotExists()
-    {
-        $mondator = new Mondator();
-        $mondator->getOutput('output1');
-    }
-
     public function testGenerateContainers()
     {
         $mondator = new Mondator();
@@ -140,17 +109,19 @@ class MondatorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(2, count($containers));
         $this->assertTrue(isset($containers['Article']));
         $this->assertTrue(isset($containers['Category']));
-        $this->assertInstanceOf('Mondongo\Mondator\Definition\Container', $containers['Article']);
-        $this->assertInstanceOf('Mondongo\Mondator\Definition\Container', $containers['Category']);
+        $this->assertInstanceOf('Mondongo\Mondator\Container', $containers['Article']);
+        $this->assertInstanceOf('Mondongo\Mondator\Container', $containers['Category']);
 
-        $this->assertSame(2, count($containers['Article']->getDefinitions()));
-        $this->assertTrue(isset($containers['Article']['name']));
-        $this->assertTrue(isset($containers['Article']['myclass']));
-        $this->assertSame('foo', $containers['Article']['name']->getClassName());
+        $definitions = $containers['Article']->getDefinitions();
+        $this->assertSame(2, count($definitions->getDefinitions()));
+        $this->assertTrue(isset($definitions['name']));
+        $this->assertTrue(isset($definitions['myclass']));
+        $this->assertSame('foo', $definitions['name']->getClassName());
 
-        $this->assertSame(2, count($containers['Category']->getDefinitions()));
-        $this->assertTrue(isset($containers['Category']['name']));
-        $this->assertTrue(isset($containers['Category']['myclass']));
-        $this->assertSame('bar', $containers['Category']['name']->getClassName());
+        $definitions = $containers['Category']->getDefinitions();
+        $this->assertSame(2, count($definitions->getDefinitions()));
+        $this->assertTrue(isset($definitions['name']));
+        $this->assertTrue(isset($definitions['myclass']));
+        $this->assertSame('bar', $definitions['name']->getClassName());
     }
 }

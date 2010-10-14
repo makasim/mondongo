@@ -27,7 +27,7 @@ namespace Mondongo\Mondator\Definition;
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class Container implements \ArrayAccess, \Countable
+class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 {
     protected $definitions = array();
 
@@ -158,5 +158,15 @@ class Container implements \ArrayAccess, \Countable
     public function count()
     {
         return count($this->definitions);
+    }
+
+    /**
+     * Returns an \ArrayIterator with the definitions (implements \IteratorAggregate interface).
+     *
+     * @return \ArrayIterator An \ArrayIterator with the definitions.
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->definitions);
     }
 }

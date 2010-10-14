@@ -133,7 +133,7 @@ EOF;
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -198,6 +198,6 @@ EOF
 EOF
         );
 
-        $this->container['document_base']->addMethod($method);
+        $this->definitions['document_base']->addMethod($method);
     }
 }

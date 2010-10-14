@@ -250,8 +250,10 @@ class Group implements \Countable, \IteratorAggregate
         return count($this->elements);
     }
 
-    /*
-     * \IteratorAggregate interface
+    /**
+     * Returns an \ArrayIterator with the elements (implements \IteratorAggregate interface).
+     *
+     * @return \ArrayIterator An \ArrayIterator with the elements.
      */
     public function getIterator()
     {

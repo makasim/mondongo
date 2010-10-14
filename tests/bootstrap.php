@@ -17,7 +17,7 @@ $loader->register();
  * Mondator
  */
 use \Mondongo\Mondator\Mondator;
-use \Mondongo\Mondator\Output;
+use \Mondongo\Mondator\Output\Output;
 
 // namespaced
 $configClasses = array(
@@ -141,16 +141,12 @@ $mondator->setExtensions(array(
     new Mondongo\Extension\CoreStart(array(
         'default_document_namespace'   => 'Model\Document',
         'default_repository_namespace' => 'Model\Repository',
+        'default_document_output'      => __DIR__.'/Model/Document',
+        'default_repository_output'    => __DIR__.'/Model/Repository',
     )),
     new Mondongo\Extension\FromToArray(),
     new Mondongo\Extension\ArrayAccess(),
     new Mondongo\Extension\CoreEnd(),
-));
-$mondator->setOutputs(array(
-    'document'        => new Output(__DIR__.'/Model/Document'),
-    'document_base'   => new Output(__DIR__.'/Model/Document/Base', true),
-    'repository'      => new Output(__DIR__.'/Model/Repository'),
-    'repository_base' => new Output(__DIR__.'/Model/Repository/Base', true),
 ));
 $mondator->process();
 
@@ -165,14 +161,11 @@ $mondator->setConfigClasses(array(
     ),
 ));
 $mondator->setExtensions(array(
-    new Mondongo\Extension\CoreStart(),
+    new Mondongo\Extension\CoreStart(array(
+        'default_document_output'   => __DIR__.'/model',
+        'default_repository_output' => __DIR__.'/model',
+    )),
     new Mondongo\Extension\CoreEnd(),
-));
-$mondator->setOutputs(array(
-    'document'        => new Output(__DIR__.'/model'),
-    'document_base'   => new Output(__DIR__.'/model/base', true),
-    'repository'      => new Output(__DIR__.'/model'),
-    'repository_base' => new Output(__DIR__.'/model/base', true),
 ));
 $mondator->process();
 
