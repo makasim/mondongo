@@ -45,6 +45,9 @@ $configClasses = array(
         'fields' => array(
             'name' => 'string',
         ),
+        'relations' => array(
+            'articles' => array('class' => 'Model\Document\Article', 'field' => 'category_ids', 'type' => 'many'),
+        ),
     ),
     'Comment' => array(
         'embed' => true,

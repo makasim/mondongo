@@ -432,7 +432,7 @@ class CoreTest extends TestCase
         $article->setComments(new Comment());
     }
 
-    public function testDocumentRelationsOne()
+    public function testDocumentRelationsOneOne()
     {
         $telephone = new AuthorTelephone();
         $telephone->setNumber('123');
@@ -453,7 +453,7 @@ class CoreTest extends TestCase
         $this->assertSame($result, $telephone->getAuthor());
     }
 
-    public function testDocumentRelationsMany()
+    public function testDocumentRelationsOneMany()
     {
         $author = new Author();
         $author->setName('Pablo');
@@ -473,6 +473,28 @@ class CoreTest extends TestCase
         $this->assertEquals($articles, $results = $author->getArticles());
 
         $this->assertSame($results, $author->getArticles());
+    }
+
+    public function testDocumentRelationsManyMany()
+    {
+        $category = new Category();
+        $category->setName('Mondongo');
+        $category->save();
+
+        $articles = array();
+        for ($i = 1; $i <= 10; $i++) {
+            $article = new Article();
+            if ($i % 2) {
+                $articles[] = $article;
+                $article->setCategoryIds(array($category->getId()));
+            }
+            $article->setTitle('Article '.$i);
+            $article->save();
+        }
+
+        $this->assertEquals($articles, $results = $category->getArticles());
+
+        $this->assertSame($results, $category->getArticles());
     }
 
     public function testDocumentSetDocumentDataMethod()
