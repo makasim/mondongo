@@ -149,22 +149,42 @@ class Mondator
     {
         $containers = array();
 
-        // classes
-        $classes = array();
+        // configClasses
+        $configClasses = new \ArrayObject();
         foreach ($this->getConfigClasses() as $className => $configClass) {
-            $classes[$className] = new \ArrayObject($configClass);
+            $configClasses[$className] = new \ArrayObject($configClass);
         }
 
-        // extensions
-        foreach ($classes as $className => $configClass) {
-            $containers[$className] = $container = new Container();
-
-            foreach ($this->getExtensions() as $extension) {
-                $extension->process($container, $className, $configClass);
-            }
-        }
+        // process
+        $this->processConfigClasses($containers, $configClasses);
 
         return $containers;
+    }
+
+    protected function processConfigClasses(&$containers, \ArrayObject $configClasses)
+    {
+        foreach ($configClasses as $className => $configClass) {
+            if (isset($containers[$className])) {
+                throw new \RuntimeException(sprintf('The class "%s" has several config class.', $classConfig));
+            }
+
+            $containers[$className] = $container = new Container();
+
+            $newConfigClasses = new \ArrayObject();
+
+            foreach ($this->getExtensions() as $extension) {
+                $extension->process($container, $className, $configClass, $newConfigClasses);
+
+                if ($newConfigClasses) {
+                    foreach ($newConfigClasses as &$newConfigClass) {
+                        if (is_array($newConfigClass)) {
+                            $newConfigClass = new \ArrayObject($newConfigClass);
+                        }
+                    }
+                    $this->processConfigClasses($containers, $newConfigClasses);
+                }
+            }
+        }
     }
 
     /**

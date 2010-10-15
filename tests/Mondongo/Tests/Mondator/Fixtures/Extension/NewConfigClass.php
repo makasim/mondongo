@@ -24,12 +24,40 @@ namespace Mondongo\Tests\Mondator\Fixtures\Extension;
 use Mondongo\Mondator\Definition\Definition;
 use Mondongo\Mondator\Extension;
 
-class ProcessOthersFromArray extends Extension
+class NewConfigClass extends Extension
 {
+    protected function setUp()
+    {
+        $this->addRequiredOptions(array(
+            'suffix',
+            'name',
+        ));
+
+        $this->addOptions(array(
+            'multiple'        => false,
+            'multiple_suffix' => null,
+            'multiple_name'   => null,
+        ));
+    }
+
     protected function doProcess()
     {
-        if (isset($this->configClass['extensions'])) {
-            $this->processExtensionsFromArray($this->configClass['extensions']);
+        $newClassName = $this->className.$this->getOption('suffix');
+
+        $configClass = array(
+            'name' => $this->getOption('name'),
+        );
+
+        if ($this->getOption('multiple')) {
+            $configClass['extensions'][] = array(
+                'class'   => 'Mondongo\Tests\Mondator\Fixtures\Extension\NewConfigClass',
+                'options' => array(
+                    'suffix' => $this->getOption('multiple_suffix'),
+                    'name'   => $this->getOption('multiple_name'),
+                ),
+            );
         }
+
+        $this->newConfigClasses[$newClassName] = $configClass;
     }
 }

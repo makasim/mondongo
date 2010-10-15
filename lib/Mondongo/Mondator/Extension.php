@@ -36,6 +36,8 @@ abstract class Extension
     protected $className;
     protected $configClass;
 
+    protected $newConfigClasses;
+
     protected $definitions;
     protected $outputs;
 
@@ -186,17 +188,20 @@ abstract class Extension
     /**
      * Process the extension.
      *
-     * @param Mondongo\Mondator\Container $container   The container.
-     * @param string                      $className   The class name.
-     * @param \ArrayObject                $configClass The class data.
+     * @param Mondongo\Mondator\Container $container        The container.
+     * @param string                      $className        The class name.
+     * @param \ArrayObject                $configClass      The config class.
+     * @param \ArrayObject                $newConfigClasses The new config classes.
      *
      * @return void
      */
-    public function process(Container $container, $className, \ArrayObject $configClass)
+    public function process(Container $container, $className, \ArrayObject $configClass, \ArrayObject $newConfigClasses)
     {
         $this->container   = $container;
         $this->className   = $className;
         $this->configClass = $configClass;
+
+        $this->newConfigClasses = $newConfigClasses;
 
         $this->definitions = $container->getDefinitions();
         $this->outputs     = $container->getOutputs();
@@ -206,6 +211,8 @@ abstract class Extension
         $this->container   = null;
         $this->className   = null;
         $this->configClass = null;
+
+        $this->newConfigClasses = null;
 
         $this->definitions = null;
         $this->outputs     = null;
@@ -223,7 +230,7 @@ abstract class Extension
                 throw new \InvalidArgumentException(sprintf('The extension "%s" does not have class.'));
             }
             $extension = new $data['class'](isset($data['options']) ? $data['options'] : array());
-            $extension->process($this->container, $this->className, $this->configClass);
+            $extension->process($this->container, $this->className, $this->configClass, $this->newConfigClasses);
         }
     }
 

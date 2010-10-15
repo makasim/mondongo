@@ -161,7 +161,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
             ),
         ));
 
-        $extension->process($container, $className, $configClass);
+        $extension->process($container, $className, $configClass, new \ArrayObject());
 
         $definitions = $container->getDefinitions();
 

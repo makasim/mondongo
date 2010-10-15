@@ -124,4 +124,41 @@ class MondatorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue(isset($definitions['myclass']));
         $this->assertSame('bar', $definitions['name']->getClassName());
     }
+
+    public function testGenerateContainersNewConfigClasses()
+    {
+        $mondator = new Mondator();
+        $mondator->setConfigClasses(array(
+            'Article' => array(
+                'name' => 'MyArticle',
+                'extensions' => array(
+                    array(
+                        'class'   => 'Mondongo\Tests\Mondator\Fixtures\Extension\NewConfigClass',
+                        'options' => array(
+                            'suffix'   => 'Translation',
+                            'name'     => 'translation',
+                            'multiple' => true,
+                            'multiple_suffix' => 'Multiple',
+                            'multiple_name'   => 'multiplex',
+                        ),
+                    ),
+                ),
+            ),
+            'Category' => array(
+                'name' => 'MyCategory',
+            ),
+        ));
+        $mondator->setExtensions(array(
+            new \Mondongo\Tests\Mondator\Fixtures\Extension\Name(),
+            new \Mondongo\Tests\Mondator\Fixtures\Extension\ProcessOthersFromArray(),
+        ));
+
+        $containers = $mondator->generateContainers();
+
+        $this->assertSame(4, count($containers));
+        $this->assertTrue(isset($containers['Article']));
+        $this->assertTrue(isset($containers['ArticleTranslation']));
+        $this->assertTrue(isset($containers['ArticleTranslationMultiple']));
+        $this->assertTrue(isset($containers['Category']));
+    }
 }
