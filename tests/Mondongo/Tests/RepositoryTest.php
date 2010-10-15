@@ -196,10 +196,10 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals($articles[2], $repository->findOneById($articles[2]->getId()));
-        $this->assertEquals($articles[5], $repository->findOneById($articles[5]->getId()));
+        $this->assertEquals($articles[2], $repository->findOneByMongoId($articles[2]->getId()));
+        $this->assertEquals($articles[5], $repository->findOneByMongoId($articles[5]->getId()));
 
-        $this->assertNull($repository->findOneById(new \MongoId('123')));
+        $this->assertNull($repository->findOneByMongoId(new \MongoId('123')));
     }
 
     public function testCount()

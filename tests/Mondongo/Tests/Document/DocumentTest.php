@@ -54,7 +54,7 @@ class DocumentTest extends TestCase
         $article = new Article();
         $article->setTitle('$document->save()');
         $article->save();
-        $this->assertEquals($article, $article->getRepository()->findOneById($article->getId()));
+        $this->assertEquals($article, $article->getRepository()->findOneByMongoId($article->getId()));
     }
 
     public function testDelete()
@@ -63,7 +63,7 @@ class DocumentTest extends TestCase
         $article->setTitle('$document->delete()');
         $article->save();
         $article->delete();
-        $this->assertNull($article->getRepository()->findOneById($article->getId()));
+        $this->assertNull($article->getRepository()->findOneByMongoId($article->getId()));
     }
 
     public function testQueryForSaveInsert()

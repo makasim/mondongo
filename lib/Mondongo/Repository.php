@@ -218,13 +218,13 @@ abstract class Repository
     }
 
     /**
-     * Find one document by id.
+     * Find one document by mongo id.
      *
      * @param \MongoId $id The document \MongoId.
      *
      * @return mixed The document or NULL if it does not exists.
      */
-    public function findOneById(\MongoId $id)
+    public function findOneByMongoId(\MongoId $id)
     {
         return $this->find(array('query' => array('_id' => $id), 'one' => true));
     }
