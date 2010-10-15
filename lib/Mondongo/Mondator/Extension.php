@@ -29,7 +29,8 @@ namespace Mondongo\Mondator;
  */
 abstract class Extension
 {
-    protected $options = array();
+    protected $options         = array();
+    protected $requiredOptions = array();
 
     protected $container;
     protected $className;
@@ -47,8 +48,79 @@ abstract class Extension
      */
     public function __construct(array $options = array())
     {
+        $this->setUp();
+
         foreach ($options as $name => $value) {
             $this->setOption($name, $value);
+        }
+
+        // required options
+        if ($diff = array_diff($this->requiredOptions, array_keys($options))) {
+            throw new \RuntimeException(sprintf('%s requires the options: "%s".', get_class($this), implode(', ', $diff)));
+        }
+    }
+
+    /**
+     * Set up the extension.
+     *
+     * @return void
+     */
+    protected function setUp()
+    {
+    }
+
+    /**
+     * Add an option.
+     *
+     * @param string $name         The option name.
+     * @param mixed  $defaultValue The default value (optional, null by default).
+     *
+     * @return void
+     */
+    protected function addOption($name, $defaultValue = null)
+    {
+        $this->options[$name] = $defaultValue;
+    }
+
+    /**
+     * Add options.
+     *
+     * @param array $options An array with options (name as key and default value as value).
+     *
+     * @return void
+     */
+    protected function addOptions(array $options)
+    {
+        foreach ($options as $name => $defaultValue) {
+            $this->addOption($name, $defaultValue);
+        }
+    }
+
+    /**
+     * Add a required option.
+     *
+     * @param string $name The option name.
+     *
+     * @return void
+     */
+    protected function addRequiredOption($name)
+    {
+        $this->addOption($name);
+
+        $this->requiredOptions[] = $name;
+    }
+
+    /**
+     * Add required options.
+     *
+     * @param array $options An array with the name of the required option as value.
+     *
+     * @return void
+     */
+    protected function addRequiredOptions(array $options)
+    {
+        foreach ($options as $name) {
+            $this->addRequiredOption($name);
         }
     }
 

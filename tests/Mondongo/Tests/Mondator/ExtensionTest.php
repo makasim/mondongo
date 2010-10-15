@@ -26,10 +26,18 @@ use Mondongo\Mondator\Extension;
 
 class ExtensionTesting extends Extension
 {
-    protected $options = array(
-        'foo' => 'bar',
-        'bar' => 'foo',
-    );
+    protected function setUp()
+    {
+        $this->addRequiredOptions(array(
+            'required',
+        ));
+
+        $this->addOptions(array(
+            'optional' => 'default_value',
+            'foo'      => null,
+            'bar'      => null,
+        ));
+    }
 
     protected function doProcess()
     {
@@ -40,56 +48,81 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructorOptions()
     {
-        $extension = new ExtensionTesting();
-        $this->assertSame(array('foo' => 'bar', 'bar' => 'foo'), $extension->getOptions());
+        $extension = new ExtensionTesting(array('required' => 'value'));
+        $this->assertSame(array(
+            'required' => 'value',
+            'optional' => 'default_value',
+            'foo'      => null,
+            'bar'      => null,
+        ), $extension->getOptions());
 
-        $extension = new ExtensionTesting(array('foo' => 'foobar'));
-        $this->assertSame(array('foo' => 'foobar', 'bar' => 'foo'), $extension->getOptions());
+        $extension = new ExtensionTesting(array('required' => 'barfoo', 'foo' => 'foobar'));
+        $this->assertSame(array(
+            'required' => 'barfoo',
+            'optional' => 'default_value',
+            'foo'      => 'foobar',
+            'bar'      => null,
+        ), $extension->getOptions());
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testConstructorOptionNotExists()
     {
         new ExtensionTesting(array('foobar' => 'barfoo'));
     }
 
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testConstructorNotSomeRequiredOption()
+    {
+        new ExtensionTesting(array('foo' => 'bar'));
+    }
+
     public function testHasOption()
     {
-        $extension = new ExtensionTesting();
+        $extension = new ExtensionTesting(array('required' => 'value'));
         $this->assertTrue($extension->hasOption('foo'));
         $this->assertFalse($extension->hasOption('foobar'));
     }
 
     public function testSetOption()
     {
-        $extension = new ExtensionTesting();
+        $extension = new ExtensionTesting(array('required' => 'value'));
         $extension->setOption('foo', 'barfoo');
-        $this->assertEquals('barfoo', $extension->getOption('foo'));
-        $this->assertEquals('foo', $extension->getOption('bar'));
+        $this->assertSame('barfoo', $extension->getOption('foo'));
+        $this->assertSame('value', $extension->getOption('required'));
+        $this->assertSame('default_value', $extension->getOption('optional'));
     }
 
     /**
-     * @expectedException InvalidArgumentException
+     * @expectedException \InvalidArgumentException
      */
     public function testSetOptionNotExists()
     {
-        $extension = new ExtensionTesting();
+        $extension = new ExtensionTesting(array('required' => 'value'));
         $extension->setOption('foobar', 'barfoo');
     }
 
     public function testGetOptions()
     {
-        $extension = new ExtensionTesting();
-        $this->assertSame(array('foo' => 'bar', 'bar' => 'foo'), $extension->getOptions());
+        $extension = new ExtensionTesting(array('required' => 'value'));
+        $this->assertSame(array(
+            'required' => 'value',
+            'optional' => 'default_value',
+            'foo'      => null,
+            'bar'      => null,
+        ), $extension->getOptions());
     }
 
     public function testGetOption()
     {
-        $extension = new ExtensionTesting();
-        $this->assertEquals('bar', $extension->getOption('foo'));
-        $this->assertEquals('foo', $extension->getOption('bar'));
+        $extension = new ExtensionTesting(array('required' => 'value'));
+        $this->assertSame('value', $extension->getOption('required'));
+        $this->assertSame('default_value', $extension->getOption('optional'));
+        $this->assertNull($extension->getOption('bar'));
     }
 
     /**
@@ -97,7 +130,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetOptionNotExists()
     {
-        $extension = new ExtensionTesting();
+        $extension = new ExtensionTesting(array('required' => 'value'));
         $extension->getOption('foobar');
     }
 

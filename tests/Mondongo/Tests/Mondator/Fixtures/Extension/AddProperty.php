@@ -34,6 +34,16 @@ class AddProperty extends Extension
         'value'      => null,
     );
 
+    protected function setUp()
+    {
+        $this->addRequiredOptions(array(
+            'definition',
+            'visibility',
+            'name',
+            'value',
+        ));
+    }
+
     protected function doProcess()
     {
         $property = new Property($this->getOption('visibility'), $this->getOption('name'), $this->getOption('value'));

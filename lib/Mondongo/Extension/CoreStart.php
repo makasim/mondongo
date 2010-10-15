@@ -36,12 +36,21 @@ use Mondongo\Inflector;
  */
 class CoreStart extends Extension
 {
-    protected $options = array(
-        'default_document_namespace'   => false,
-        'default_repository_namespace' => false,
-        'default_document_output'      => null,
-        'default_repository_output'    => null,
-    );
+    /**
+     * @inheritdoc
+     */
+    protected function setup()
+    {
+        $this->addRequiredOptions(array(
+            'default_document_output',
+            'default_repository_output',
+        ));
+
+        $this->addOptions(array(
+            'default_document_namespace'   => null,
+            'default_repository_namespace' => null,
+        ));
+    }
 
     /**
      * @inheritdoc

@@ -26,10 +26,13 @@ use Mondongo\Mondator\Extension;
 
 class InitDefinition extends Extension
 {
-    protected $options = array(
-        'definition_name' => null,
-        'class_name'      => null,
-    );
+    protected function setUp()
+    {
+        $this->addRequiredOptions(array(
+            'definition_name',
+            'class_name',
+        ));
+    }
 
     protected function doProcess()
     {

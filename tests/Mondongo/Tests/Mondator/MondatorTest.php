@@ -64,10 +64,10 @@ class MondatorTest extends \PHPUnit_Framework_TestCase
 
     public function testExtensions()
     {
-        $extension1 = new ExtensionTesting();
-        $extension2 = new ExtensionTesting();
-        $extension3 = new ExtensionTesting();
-        $extension4 = new ExtensionTesting();
+        $extension1 = new ExtensionTesting(array('required' => 'value'));
+        $extension2 = new ExtensionTesting(array('required' => 'value'));
+        $extension3 = new ExtensionTesting(array('required' => 'value'));
+        $extension4 = new ExtensionTesting(array('required' => 'value'));
 
         $mondator = new Mondator();
 
