@@ -44,6 +44,10 @@ class CoreEnd extends Extension
      */
     protected function doProcess()
     {
+        if (isset($this->configClass['extensions'])) {
+            $this->processExtensionsFromArray($this->configClass['extensions']);
+        }
+
         $this->processParseFields();
 
         // document
