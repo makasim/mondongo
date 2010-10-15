@@ -29,7 +29,35 @@ namespace Mondongo;
  */
 class LoggableMongoCollection extends \MongoCollection
 {
+    protected $mongo;
+
     protected $loggerCallable;
+
+    /**
+     * Constructor.
+     *
+     * @param \Mongo   $mongo          The mongo connection object.
+     * @param \MongoDB $db             The mongo database object.
+     * @param string   $collectionName The collection name.
+     *
+     * @return void
+     */
+    public function __construct(\Mongo $mongo, \MongoDB $db, $collectionName)
+    {
+        $this->mongo = $mongo;
+
+        parent::__construct($db, $collectionName);
+    }
+
+    /**
+     * Returns the mongo connection object.
+     *
+     * @return \Mongo The mongo connection object.
+     */
+    public function getMongo()
+    {
+        return $this->mongo;
+    }
 
     /**
      * Set the logger callable.
@@ -107,7 +135,10 @@ class LoggableMongoCollection extends \MongoCollection
             'fields' => $fields,
         ));
 
-        return parent::find($query, $fields);
+        $cursor = new LoggableMongoCursor($this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields);
+        $cursor->setLoggerCallable($this->loggerCallable);
+
+        return $cursor;
     }
 
     /*

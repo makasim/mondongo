@@ -21,17 +21,16 @@
 
 namespace Mondongo\Tests;
 
-use Mondongo\LoggableMongoCollection;
+use Mondongo\LoggableMongoCursor;
 
-class LoggableMongoCollectionTest extends TestCase
+class LoggableMongoCursorTest extends TestCase
 {
     public function testLoggerCallable()
     {
         $loggerCallable = function() {};
 
-        $collection = new LoggableMongoCollection($this->mongo, $this->db, 'article');
-        $this->assertSame($this->mongo, $collection->getMongo());
-        $collection->setLoggerCallable($loggerCallable);
-        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
+        $cursor = new LoggableMongoCursor($this->mongo, 'mondongo_tests.article');
+        $cursor->setLoggerCallable($loggerCallable);
+        $this->assertSame($loggerCallable, $cursor->getLoggerCallable());
     }
 }
