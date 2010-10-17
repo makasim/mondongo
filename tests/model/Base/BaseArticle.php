@@ -20,7 +20,7 @@ abstract class BaseArticle extends \Mondongo\Document\Document
 );
 
 
-    static protected $map = array (
+    static protected $dataMap = array (
   'title' => 'Title',
   'content' => 'Content',
 );
@@ -46,13 +46,13 @@ abstract class BaseArticle extends \Mondongo\Document\Document
     }
 
     /**
-     * Returns the fields map.
+     * Returns the data map.
      *
-     * @return array The fields map.
+     * @return array The data map.
      */
-    static public function getMap()
+    static public function getDataMap()
     {
-        return self::$map;
+        return self::$dataMap;
     }
 
     /**

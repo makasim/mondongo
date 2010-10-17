@@ -59,8 +59,8 @@ class CoreEnd extends Extension
         $this->processDocumentDataProperty();
         $this->processDocumentFieldsModifiedsProperty();
 
-        $this->processDocumentMapProperty();
-        $this->processDocumentGetMapMethod();
+        $this->processDocumentDataMapProperty();
+        $this->processDocumentGetDataMapMethod();
 
         $this->processDocumentSetDocumentDataMethod();
         $this->processDocumentFieldsToMongoMethod();
@@ -158,53 +158,53 @@ class CoreEnd extends Extension
     }
 
     /*
-     * Document "map" property.
+     * Document "dataMap" property.
      */
-    protected function processDocumentMapProperty()
+    protected function processDocumentDataMapProperty()
     {
-        $map = array();
+        $dataMap = array();
 
         // fields
         foreach ($this->configClass['fields'] as $name => $field) {
-            $map[$name] = Inflector::camelize($name);
+            $dataMap[$name] = Inflector::camelize($name);
         }
 
         // references
         foreach ($this->configClass['references'] as $name => $reference) {
-            $map[$name] = Inflector::camelize($name);
+            $dataMap[$name] = Inflector::camelize($name);
         }
 
         // embeds
         foreach ($this->configClass['embeddeds'] as $name => $embed) {
-            $map[$name] = Inflector::camelize($name);
+            $dataMap[$name] = Inflector::camelize($name);
         }
 
         // relations
         foreach ($this->configClass['relations'] as $name => $relation) {
-            $map[$name] = Inflector::camelize($name);
+            $dataMap[$name] = Inflector::camelize($name);
         }
 
-        $property = new Property('protected', 'map', $map);
+        $property = new Property('protected', 'dataMap', $dataMap);
         $property->setIsStatic(true);
 
         $this->definitions['document_base']->addProperty($property);
     }
 
     /*
-     * Document "getMap" method.
+     * Document "getDataMap" method.
      */
-    public function processDocumentGetMapMethod()
+    public function processDocumentGetDataMapMethod()
     {
-        $method = new Method('public', 'getMap', '', <<<EOF
-        return self::\$map;
+        $method = new Method('public', 'getDataMap', '', <<<EOF
+        return self::\$dataMap;
 EOF
         );
         $method->setIsStatic(true);
         $method->setDocComment(<<<EOF
     /**
-     * Returns the fields map.
+     * Returns the data map.
      *
-     * @return array The fields map.
+     * @return array The data map.
      */
 EOF
         );

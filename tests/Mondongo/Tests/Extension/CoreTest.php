@@ -138,7 +138,7 @@ class CoreTest extends TestCase
         $this->assertSame(array('is_active' => null), $user->getFieldsModified());
     }
 
-    public function testDocumentMap()
+    public function testDocumentDataMap()
     {
         $this->assertSame(array(
             'title'        => 'Title',
@@ -153,7 +153,7 @@ class CoreTest extends TestCase
             'comments'     => 'Comments',
             'summary'      => 'Summary',
             'news'         => 'News',
-        ), Article::getMap());
+        ), Article::getDataMap());
     }
 
     public function testDocumentFieldsSettersGettersMethods()
