@@ -125,7 +125,7 @@ class CoreEnd extends Extension
             $data['references'][$name] = null;
         }
 
-        // embeds
+        // embeddeds
         foreach ($this->configClass['embeddeds'] as $name => $embed) {
             $data['embeddeds'][$name] = null;
         }
@@ -174,7 +174,7 @@ class CoreEnd extends Extension
             $dataMap[$name] = Inflector::camelize($name);
         }
 
-        // embeds
+        // embeddeds
         foreach ($this->configClass['embeddeds'] as $name => $embed) {
             $dataMap[$name] = Inflector::camelize($name);
         }
@@ -242,13 +242,13 @@ EOF;
 EOF;
         }
 
-        // embeds
-        $embedsCode = '';
+        // embeddeds
+        $embeddedsCode = '';
         foreach ($this->configClass['embeddeds'] as $name => $embed) {
             $embedSetter = 'set'.Inflector::camelize($name);
             // one
             if ('one' == $embed['type']) {
-                $embedsCode .= <<<EOF
+                $embeddedsCode .= <<<EOF
         if (isset(\$data['$name'])) {
             \$embed = new \\{$embed['class']}();
             \$embed->setDocumentData(\$data['$name']);
@@ -258,7 +258,7 @@ EOF;
 EOF;
             // many
             } elseif ('many' == $embed['type']) {
-                $embedsCode .= <<<EOF
+                $embeddedsCode .= <<<EOF
         if (isset(\$data['$name'])) {
             \$elements = array();
             foreach (\$data['$name'] as \$datum) {
@@ -279,7 +279,7 @@ EOF;
         $method = new Method('public', 'setDocumentData', '$data', <<<EOF
 $idCode
 $fieldsCode
-$embedsCode
+$embeddedsCode
         $resetFieldsModified
 EOF
         );
@@ -558,7 +558,7 @@ EOF;
     }
 
     /*
-     * Document embeds.
+     * Document embeddeds.
      */
     protected function processEmbeddedDocuments()
     {

@@ -85,7 +85,7 @@ EOF;
             }
         }
 
-        // embeds
+        // embeddeds
         foreach ($this->configClass['embeddeds'] as $name => $embed) {
             $setter = 'set'.Inflector::camelize($name);
             $getter = 'get'.Inflector::camelize($name);
@@ -152,8 +152,8 @@ EOF
 EOF;
         }
 
-        // embeds
-        $embedsCode = '';
+        // embeddeds
+        $embeddedsCode = '';
         foreach ($this->configClass['embeddeds'] as $name => $embed) {
             if ('one' == $embed['type']) {
                 $typeCode = <<<EOF
@@ -167,7 +167,7 @@ EOF;
 EOF;
             }
 
-            $embedsCode .= <<<EOF
+            $embeddedsCode .= <<<EOF
             if (null !== \$this->data['embeddeds']['$name']) {
 $typeCode
             }
@@ -181,7 +181,7 @@ EOF;
 $fieldsCode
 
         if (\$withEmbeds) {
-$embedsCode
+$embeddedsCode
         }
 
         return \$array;
@@ -191,7 +191,7 @@ EOF
     /**
      * Export the document data to array.
      *
-     * @param bool \$withEmbeds If export embeds or not.
+     * @param bool \$withEmbeds If export embeddeds or not.
      *
      * @return array An array with the document data.
      */

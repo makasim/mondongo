@@ -144,7 +144,7 @@ abstract class Document extends EmbeddedDocument
             }
         }
 
-        // embeds
+        // embeddeds
         if (isset($data['embeddeds'])) {
             foreach ($this->data['embeddeds'] as $embedName => $embed) {
                 if (null !== $embed) {

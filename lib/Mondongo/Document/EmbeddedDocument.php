@@ -22,7 +22,7 @@
 namespace Mondongo\Document;
 
 /**
- * The base class for documents embeds.
+ * The base class for documents embeddeds.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
@@ -152,7 +152,7 @@ abstract class EmbeddedDocument
             $data = array_merge($data, $this->fieldsToMongo($fields));
         }
 
-        // embeds
+        // embeddeds
         if (isset($this->data['embeddeds'])) {
             foreach ($this->data['embeddeds'] as $name => $embed) {
                 if (null !== $embed) {
