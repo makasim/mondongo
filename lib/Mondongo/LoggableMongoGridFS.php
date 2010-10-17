@@ -107,7 +107,7 @@ class LoggableMongoGridFS extends \MongoGridFS
             'options'    => $options,
         ));
 
-        return parent::storeBytes($filename, $extra, $options);
+        return parent::storeBytes($bytes, $extra, $options);
     }
 
     /*

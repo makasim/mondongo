@@ -346,10 +346,10 @@ abstract class Repository
 
                     // file
                     if (file_exists($file)) {
-                        $id = $this->getCollection()->storeFile($file, $data);
+                        $id = $this->getCollection()->storeFile($file, $data, array('safe' => true));
                     // bytes
                     } else {
-                        $id = $this->getCollection()->storeBytes($file, $data);
+                        $id = $this->getCollection()->storeBytes($file, $data, array('safe' => true));
                     }
 
                     $result = $this->getCollection()->findOne(array('_id' => $id));
