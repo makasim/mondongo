@@ -26,6 +26,7 @@ use Mondongo\Mondongo;
 use Mondongo\Repository as RepositoryBase;
 use Model\Document\Article;
 use Model\Document\Events;
+use Model\Document\Image;
 
 class Repository extends RepositoryBase
 {
@@ -38,6 +39,48 @@ class Repository extends RepositoryBase
 
 class RepositoryTest extends TestCase
 {
+    public function testCreateCollectionNormalNoLoggable()
+    {
+        $collection = RepositoryBase::createCollection($this->connection, 'foo', false, null);
+
+        $this->assertSame('MongoCollection', get_class($collection));
+        $this->assertSame($this->connection->getMongoDB(), $collection->db);
+        $this->assertSame('foo', $collection->getName());
+    }
+
+    public function testCreateCollectionNormalLoggable()
+    {
+        $loggable = function() {};
+
+        $collection = RepositoryBase::createCollection($this->connection, 'bar', false, $loggable);
+
+        $this->assertSame('Mondongo\LoggableMongoCollection', get_class($collection));
+        $this->assertSame($this->connection->getMongoDB(), $collection->db);
+        $this->assertSame('bar', $collection->getName());
+        $this->assertSame($loggable, $collection->getLoggerCallable());
+    }
+
+    public function testCreateCollectionGridFSNoLoggable()
+    {
+        $collection = RepositoryBase::createCollection($this->connection, 'foobar', true, null);
+
+        $this->assertSame('MongoGridFS', get_class($collection));
+        $this->assertSame($this->connection->getMongoDB(), $collection->db);
+        $this->assertSame('foobar.files', $collection->getName());
+    }
+
+    public function testCreateCollectionGridFSLoggable()
+    {
+        $loggable = function() {};
+
+        $collection = RepositoryBase::createCollection($this->connection, 'barfoo', true, $loggable);
+
+        $this->assertSame('Mondongo\LoggableMongoGridFS', get_class($collection));
+        $this->assertSame($this->connection->getMongoDB(), $collection->db);
+        $this->assertSame('barfoo.files', $collection->getName());
+        $this->assertSame($loggable, $collection->getLoggerCallable());
+    }
+
     public function testGetMondongo()
     {
         $mondongo   = new Mondongo();
@@ -83,7 +126,7 @@ class RepositoryTest extends TestCase
     {
         $mondongo = new Mondongo();
         $mondongo->setConnection('default', $this->connection);
-        $collection = $mondongo->getRepository('\Model\Document\Article')->getCollection();
+        $collection = $mondongo->getRepository('Model\Document\Article')->getCollection();
 
         $this->assertSame('MongoCollection', get_class($collection));
         $this->assertSame('article', $collection->getName());
@@ -95,10 +138,33 @@ class RepositoryTest extends TestCase
 
         $mondongo = new Mondongo($loggerCallable);
         $mondongo->setConnection('default', $this->connection);
-        $collection = $mondongo->getRepository('\Model\Document\Article')->getCollection();
+        $collection = $mondongo->getRepository('Model\Document\Article')->getCollection();
 
         $this->assertSame('Mondongo\LoggableMongoCollection', get_class($collection));
         $this->assertSame('article', $collection->getName());
+        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
+    }
+
+    public function testCollectionGridFS()
+    {
+        $mondongo = new Mondongo();
+        $mondongo->setConnection('default', $this->connection);
+        $collection = $mondongo->getRepository('Model\Document\Image')->getCollection();
+
+        $this->assertSame('MongoGridFS', get_class($collection));
+        $this->assertSame('image.files', $collection->getName());
+    }
+
+    public function testCollectionGridFSLoggable()
+    {
+        $loggerCallable = function() {};
+
+        $mondongo = new Mondongo($loggerCallable);
+        $mondongo->setConnection('default', $this->connection);
+        $collection = $mondongo->getRepository('Model\Document\Image')->getCollection();
+
+        $this->assertSame('Mondongo\LoggableMongoGridFS', get_class($collection));
+        $this->assertSame('image.files', $collection->getName());
         $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }
 
@@ -110,6 +176,28 @@ class RepositoryTest extends TestCase
         $this->assertEquals($articles, $repository->find());
 
         $this->assertNull($repository->find(array('query' => array('_id' => new \MongoId('123')))));
+    }
+
+    public function testFindGridFS()
+    {
+        $file = __DIR__.'/MondongoTest.php';
+
+        $mondongo = new Mondongo();
+        $mondongo->setConnection('default', $this->connection);
+        $repository = $mondongo->getRepository('Model\Document\Image');
+
+        $image = new Image();
+        $image->setFile($file);
+        $image->setName('Mondongo');
+        $image->setDescription('Foobar');
+        $repository->save($image);
+
+        $image  = $repository->find(array('one' => true));
+        $result = $this->db->getGridFS('image')->findOne();
+
+        $this->assertEquals($result, $image->getFile());
+        $this->assertSame('Mondongo', $image->getName());
+        $this->assertSame('Foobar', $image->getDescription());
     }
 
     public function testFindOptionQuery()
@@ -251,7 +339,6 @@ class RepositoryTest extends TestCase
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');
 
-        // insert
         $article = new Article();
         $article->setTitle('Mondongo');
         $repository->save($article);
@@ -278,6 +365,70 @@ class RepositoryTest extends TestCase
         ), $this->db->article->findOne(array('_id' => $articles[4]->getId())));
 
         $this->assertSame(9, $this->db->article->find(array('title' => new \MongoRegex('/^Article/')))->count());
+    }
+
+    public function testSaveInsertGridFSSaveFile()
+    {
+        $file = __DIR__.'/MondongoTest.php';
+
+        $repository = $this->mondongo->getRepository('Model\Document\Image');
+
+        $image = new Image();
+        $image->setFile($file);
+        $image->setName('Mondongo');
+        $image->setDescription('Foobar');
+        $repository->save($image);
+
+        $result = $this->db->getGridFS('image')->findOne();
+
+        $this->assertEquals($result->file['_id'], $image->getId());
+        $this->assertSame(file_get_contents($file), $result->getBytes());
+        $this->assertSame('Mondongo', $result->file['name']);
+        $this->assertSame('Foobar', $result->file['description']);
+    }
+
+    public function testSaveInsertGridFSSaveBytes()
+    {
+        $bytes = file_get_contents(__DIR__.'/MondongoTest.php');
+
+        $repository = $this->mondongo->getRepository('Model\Document\Image');
+
+        $image = new Image();
+        $image->setFile($bytes);
+        $image->setName('Mondongo');
+        $image->setDescription('Foobar');
+        $repository->save($image);
+
+        $result = $this->db->getGridFS('image')->findOne();
+
+        $this->assertEquals($result->file['_id'], $image->getId());
+        $this->assertSame($bytes, $result->getBytes());
+        $this->assertEquals('Mondongo', $image->getName());
+        $this->assertEquals('Foobar', $image->getDescription());
+    }
+
+    public function testSaveUpdate()
+    {
+        $file = __DIR__.'/MondongoTest.php';
+
+        $repository = $this->mondongo->getRepository('Model\Document\Image');
+
+        $image = new Image();
+        $image->setFile($file);
+        $image->setName('Mondongo');
+        $image->setDescription('Foobar');
+        $repository->save($image);
+
+        $image->setName('GridFS');
+        $image->setDescription('Rocks');
+        $repository->save($image);
+
+        $result = $this->db->getGridFS('image')->findOne();
+
+        $this->assertEquals($result->file['_id'], $image->getId());
+        $this->assertSame(file_get_contents($file), $result->getBytes());
+        $this->assertEquals('GridFS', $image->getName());
+        $this->assertEquals('Rocks', $image->getDescription());
     }
 
     public function testSaveEvents()
@@ -315,7 +466,7 @@ class RepositoryTest extends TestCase
         ), $document->getEvents());
     }
 
-    public function testRemoveUnique()
+    public function testDeleteUnique()
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
@@ -325,7 +476,7 @@ class RepositoryTest extends TestCase
         $this->assertSame(0, $this->db->article->find(array('_id' => $articles[3]->getId()))->count());
     }
 
-    public function testRemoveMultiple()
+    public function testDeleteMultiple()
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
@@ -337,7 +488,7 @@ class RepositoryTest extends TestCase
         ))->count());
     }
 
-    public function testRemoveEvents()
+    public function testDeleteEvents()
     {
         $repository = $this->mondongo->getRepository('Model\Document\Events');
 

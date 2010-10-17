@@ -119,6 +119,13 @@ $configClasses = array(
             'is_active' => array('type' => 'boolean', 'default' => true),
         ),
     ),
+    'Image' => array(
+        'is_file' => true,
+        'fields'  => array(
+            'name'        => 'string',
+            'description' => 'string',
+        ),
+    ),
     'ConnectionGlobal' => array(
         'connection' => 'global',
     ),

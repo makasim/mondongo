@@ -15,6 +15,9 @@ abstract class BaseArticleRepository extends \Mondongo\Repository
 
     protected $collectionName = 'article';
 
+
+    protected $isFile = false;
+
     /**
      * Ensure indexes.
      *

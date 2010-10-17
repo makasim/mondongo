@@ -35,6 +35,7 @@ abstract class Repository
      * protected $documentClass;
      * protected $connectionName;
      * protected $collectionName;
+     * protected $isFile;
      */
 
     protected $mondongo;
@@ -86,6 +87,16 @@ abstract class Repository
     }
 
     /**
+     * Returns if the document is a file (if it use GridFS).
+     *
+     * @return bool If the document is a file.
+     */
+    public function isFile()
+    {
+        return $this->isFile;
+    }
+
+    /**
      * Returns the Mondongo.
      *
      * @return Mondongo\Mondongo The Mondongo.
@@ -121,18 +132,45 @@ abstract class Repository
     public function getCollection()
     {
         if (!$this->collection) {
-            $connection = $this->getConnection();
-            // loggable
-            if ($loggerCallable = $this->mondongo->getLoggerCallable()) {
-                $this->collection = new LoggableMongoCollection($connection->getMongo(), $connection->getMongoDB(), $this->collectionName);
-                $this->collection->setLoggerCallable($loggerCallable);
-            // normal
-            } else {
-                $this->collection = new \MongoCollection($connection->getMongoDB(), $this->collectionName);
-            }
+            $this->collection = self::createCollection($this->getConnection(), $this->collectionName, $this->isFile, $this->mondongo->getLoggerCallable());
         }
 
         return $this->collection;
+    }
+
+    /**
+     * Create a collection.
+     *
+     * @param Mondongo\Connection $connection     A mondongo connection.
+     * @param string              $collectionName The name of the collection.
+     * @param bool                $isFile         If the collection is GridFS.
+     * @param mixed               $loggerCallable The logger callable if the collection is loggable, null otherwise.
+     *
+     * @return mixed The collection.
+     */
+    static public function createCollection(Connection $connection, $collectionName, $isFile, $loggerCallable)
+    {
+        $db = $connection->getMongoDB();
+
+        // gridfs
+        if ($isFile) {
+            if ($loggerCallable) {
+                $collection = new LoggableMongoGridFS($connection->getMongo(), $db, $collectionName);
+                $collection->setLoggerCallable($loggerCallable);
+            } else {
+                $collection = new \MongoGridFS($db, $collectionName);
+            }
+        // normal
+        } else {
+            if ($loggerCallable) {
+                $collection = new LoggableMongoCollection($connection->getMongo(), $db, $collectionName);
+                $collection->setLoggerCallable($loggerCallable);
+            } else {
+                $collection = new \MongoCollection($db, $collectionName);
+            }
+        }
+
+        return $collection;
     }
 
     /**
@@ -186,9 +224,14 @@ abstract class Repository
 
         // results
         $results = array();
-        foreach ($cursor as $c) {
-            $results[] = $d = new $this->documentClass();
-            $d->setDocumentData($c);
+        foreach ($cursor as $data) {
+            $results[] = $document = new $this->documentClass();
+            if ($this->isFile) {
+                $file = $data;
+                $data = $file->file;
+                $data['file'] = $file;
+            }
+            $document->setDocumentData($data);
         }
 
         if ($results) {
@@ -292,7 +335,32 @@ abstract class Repository
                 $a[$oid] = $document->getQueryForSave();
             }
 
-            $this->getCollection()->batchInsert($a, array('safe' => true));
+            // GridFS
+            if ($this->isFile) {
+                foreach ($a as &$data) {
+                    if (!isset($data['file'])) {
+                        throw new \RuntimeException('The document has not file.');
+                    }
+                    $file = $data['file'];
+                    unset($data['file']);
+
+                    // file
+                    if (file_exists($file)) {
+                        $id = $this->getCollection()->storeFile($file, $data);
+                    // bytes
+                    } else {
+                        $id = $this->getCollection()->storeBytes($file, $data);
+                    }
+
+                    $result = $this->getCollection()->findOne(array('_id' => $id));
+
+                    $data = $result->file;
+                    $data['file'] = $result;
+                }
+            // normal
+            } else {
+                $this->getCollection()->batchInsert($a, array('safe' => true));
+            }
 
             foreach ($a as $oid => $data) {
                 $inserts[$oid]->setId($data['_id']);

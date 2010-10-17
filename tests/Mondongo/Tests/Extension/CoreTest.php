@@ -581,6 +581,12 @@ class CoreTest extends TestCase
         $this->assertSame('my_name', $this->mondongo->getRepository('Model\Document\CollectionName')->getCollectionName());
     }
 
+    public function testRepositoryIsFileProperty()
+    {
+        $this->assertTrue($this->mondongo->getRepository('Model\Document\Image')->isFile());
+        $this->assertFalse($this->mondongo->getRepository('Model\Document\Article')->isFile());
+    }
+
     public function testRepositoryEnsureIndexesMethod()
     {
         $this->mondongo->getRepository('Model\Document\Article')->ensureIndexes();

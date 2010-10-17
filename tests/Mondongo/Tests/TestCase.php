@@ -60,6 +60,8 @@ class TestCase extends \PHPUnit_Framework_TestCase
             'news',
             'summary',
             'user',
+            'image.files',
+            'image.chunks',
         ) as $collectionName) {
             $collection = $this->db->selectCollection($collectionName);
 

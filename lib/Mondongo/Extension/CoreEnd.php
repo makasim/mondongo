@@ -44,10 +44,15 @@ class CoreEnd extends Extension
      */
     protected function doProcess()
     {
+        // extensions
         if (isset($this->configClass['extensions'])) {
             $this->processExtensionsFromArray($this->configClass['extensions']);
         }
 
+        // is_file
+        $this->processIsFile();
+
+        // parse fields
         $this->processParseFields();
 
         // document
@@ -73,7 +78,21 @@ class CoreEnd extends Extension
             $this->processRepositoryDocumentClassProperty();
             $this->processRepositoryConnectionNameProperty();
             $this->processRepositoryCollectionNameProperty();
+            $this->processRepositoryIsFileProperty();
             $this->processRepositoryEnsureIndexesMethod();
+        }
+    }
+
+    /*
+     * Is File.
+     */
+    protected function processIsFile()
+    {
+        if (isset($this->configClass['is_file']) && $this->configClass['is_file']) {
+            $this->configClass['is_file'] = true;
+            $this->configClass['fields']['file'] = 'raw';
+        } else {
+            $this->configClass['is_file'] = false;
         }
     }
 
@@ -730,6 +749,16 @@ EOF;
     protected function processRepositoryCollectionNameProperty()
     {
         $property = new Property('protected', 'collectionName', $this->configClass['collection']);
+
+        $this->definitions['repository_base']->addProperty($property);
+    }
+
+    /*
+     * Repository "isFile" property.
+     */
+    protected function processRepositoryIsFileProperty()
+    {
+        $property = new Property('protected', 'isFile', $this->configClass['is_file']);
 
         $this->definitions['repository_base']->addProperty($property);
     }
