@@ -157,6 +157,7 @@ $mondator->setExtensions(array(
     new Mondongo\Extension\CoreEnd(),
     new Mondongo\Extension\FromToArray(),
     new Mondongo\Extension\ArrayAccess(),
+    new Mondongo\Extension\PropertyOverloading(),
 ));
 $mondator->process();
 
