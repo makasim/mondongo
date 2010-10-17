@@ -96,6 +96,36 @@ class LoggableMongoGridFS extends \MongoGridFS
     }
 
     /*
+     * storeBytes.
+     */
+    public function storeBytes($bytes, array $extra, array $options = array())
+    {
+        $this->log(array(
+            'storeBytes' => 1,
+            'bytes_sha1' => sha1($bytes),
+            'extra'      => $extra,
+            'options'    => $options,
+        ));
+
+        return parent::storeBytes($filename, $extra, $options);
+    }
+
+    /*
+     * storeFile.
+     */
+    public function storeFile($filename, array $extra, array $options = array())
+    {
+        $this->log(array(
+            'storeFile' => 1,
+            'filename'  => $filename,
+            'extra'     => $extra,
+            'options'   => $options,
+        ));
+
+        return parent::storeFile($filename, $extra, $options);
+    }
+
+    /*
      * count.
      */
     public function count(array $query = array(), $limit = 0, $skip = 0)
