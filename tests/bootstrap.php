@@ -154,9 +154,9 @@ $mondator->setExtensions(array(
         'default_document_output'      => __DIR__.'/Model/Document',
         'default_repository_output'    => __DIR__.'/Model/Repository',
     )),
+    new Mondongo\Extension\CoreEnd(),
     new Mondongo\Extension\FromToArray(),
     new Mondongo\Extension\ArrayAccess(),
-    new Mondongo\Extension\CoreEnd(),
 ));
 $mondator->process();
 
