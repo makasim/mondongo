@@ -27,7 +27,7 @@ namespace Mondongo\Document;
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-abstract class DocumentEmbed
+abstract class EmbeddedDocument
 {
     /**
      * Returns if the document is modified.
@@ -40,11 +40,11 @@ abstract class DocumentEmbed
             return true;
         }
 
-        if (isset($this->data['embeds'])) {
-            foreach ($this->data['embeds'] as $name => $embed) {
+        if (isset($this->data['embeddeds'])) {
+            foreach ($this->data['embeddeds'] as $name => $embed) {
                 if (null !== $embed) {
                     // one
-                    if ($embed instanceof DocumentEmbed) {
+                    if ($embed instanceof EmbeddedDocument) {
                         if ($embed->isModified()) {
                             return true;
                         }
@@ -105,11 +105,11 @@ abstract class DocumentEmbed
     {
         $this->clearFieldsModified();
 
-        if (isset($this->data['embeds'])) {
-            foreach ($this->data['embeds'] as $embed) {
+        if (isset($this->data['embeddeds'])) {
+            foreach ($this->data['embeddeds'] as $embed) {
                 if (null !== $embed) {
                     // one
-                    if ($embed instanceof DocumentEmbed) {
+                    if ($embed instanceof EmbeddedDocument) {
                         $embed->clearModified();
                     // many
                     } else {
@@ -153,11 +153,11 @@ abstract class DocumentEmbed
         }
 
         // embeds
-        if (isset($this->data['embeds'])) {
-            foreach ($this->data['embeds'] as $name => $embed) {
+        if (isset($this->data['embeddeds'])) {
+            foreach ($this->data['embeddeds'] as $name => $embed) {
                 if (null !== $embed) {
                     // one
-                    if ($embed instanceof DocumentEmbed) {
+                    if ($embed instanceof EmbeddedDocument) {
                         $data[$name] = $embed->dataToMongo();
                     // many
                     } else {

@@ -22,12 +22,12 @@
 namespace Mondongo\Tests\Document;
 
 use Mondongo\Tests\TestCase;
-use Mondongo\Document\DocumentEmbed as DocumentEmbedBase;
+use Mondongo\Document\EmbeddedDocument as EmbeddedDocumentBase;
 use Model\Document\Article;
 use Model\Document\Comment;
 use Model\Document\Source;
 
-class DocumentEmbed extends DocumentEmbedBase
+class EmbeddedDocument extends EmbeddedDocumentBase
 {
     protected $fieldsModified = array(
         'foo' => 'bar',
@@ -40,7 +40,7 @@ class DocumentEmbed extends DocumentEmbedBase
     );
 }
 
-class DocumentEmbedTest extends TestCase
+class EmbeddedDocumentTest extends TestCase
 {
     public function testIsModifiedFields()
     {
@@ -71,13 +71,13 @@ class DocumentEmbedTest extends TestCase
 
     public function testGetFieldsModified()
     {
-        $document = new DocumentEmbed();
+        $document = new EmbeddedDocument();
         $this->assertSame(array('foo' => 'bar'), $document->getFieldsModified());
     }
 
     public function testClearFieldsModified()
     {
-        $document = new DocumentEmbed();
+        $document = new EmbeddedDocument();
         $document->clearFieldsModified();
         $this->assertSame(array(), $document->getFieldsModified());
     }
@@ -136,7 +136,7 @@ class DocumentEmbedTest extends TestCase
 
     public function testGetDocumentData()
     {
-        $document = new DocumentEmbed();
+        $document = new EmbeddedDocument();
         $this->assertSame(array('fields' => array('title' => 'Mondongus')), $document->getDocumentData());
     }
 

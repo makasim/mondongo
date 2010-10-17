@@ -59,7 +59,7 @@ class CoreStart extends Extension
     {
         $this->processInitDefinitionsAndOutputs();
 
-        if (!$this->configClass['embed']) {
+        if (!$this->configClass['is_embedded']) {
             $this->processDocumentGetMondongoMethod();
             $this->processDocumentGetRepositoryMethod();
             $this->processInitConnectionName();
@@ -71,7 +71,7 @@ class CoreStart extends Extension
         $this->processInitReferences();
         $this->processInitEmbeds();
 
-        if (!$this->configClass['embeds']) {
+        if (!$this->configClass['embeddeds']) {
             $this->processInitRelations();
         }
 
@@ -86,7 +86,7 @@ class CoreStart extends Extension
         /*
          * Embed
          */
-        $this->configClass['embed'] = isset($this->configClass['embed']) ? (bool) $this->configClass['embed'] : false;
+        $this->configClass['is_embedded'] = isset($this->configClass['is_embedded']) ? (bool) $this->configClass['is_embedded'] : false;
 
         /*
          * Namespaces
@@ -122,7 +122,7 @@ class CoreStart extends Extension
         }
 
         // repository
-        if (!$this->configClass['embed']) {
+        if (!$this->configClass['is_embedded']) {
             if (isset($this->configClass['namespaces']['repository'])) {
                 $repositoryClass     = $this->className;
                 $repositoryBaseClass = '\\'.$this->configClass['namespaces']['repository'].'\\Base\\'.$this->className;
@@ -153,8 +153,8 @@ EOF
         $this->definitions['document_base'] = $definition = new Definition($this->getClassName($documentBaseClass));
         $definition->setNamespace($this->getNamespace($documentBaseClass));
         $definition->setIsAbstract(true);
-        if ($this->configClass['embed']) {
-            $definition->setParentClass('\\Mondongo\\Document\\DocumentEmbed');
+        if ($this->configClass['is_embedded']) {
+            $definition->setParentClass('\\Mondongo\\Document\\EmbeddedDocument');
         } else {
             $definition->setParentClass('\\Mondongo\\Document\\Document');
         }
@@ -165,7 +165,7 @@ EOF
 EOF
         );
 
-        if (!$this->configClass['embed']) {
+        if (!$this->configClass['is_embedded']) {
             // repository
             $this->definitions['repository'] = $definition = new Definition($repositoryClass);
             $definition->setNamespace($this->configClass['namespaces']['repository']);
@@ -314,8 +314,8 @@ EOF
      */
     protected function processInitEmbeds()
     {
-        if (!isset($this->configClass['embeds'])) {
-            $this->configClass['embeds'] = array();
+        if (!isset($this->configClass['embeddeds'])) {
+            $this->configClass['embeddeds'] = array();
         }
     }
 

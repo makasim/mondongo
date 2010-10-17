@@ -45,7 +45,7 @@ class CoreTest extends TestCase
         $this->assertTrue($r->isSubclassOf('Mondongo\Document\Document'));
 
         $r = new \ReflectionClass('Model\Document\Comment');
-        $this->assertTrue($r->isSubclassOf('Mondongo\Document\DocumentEmbed'));
+        $this->assertTrue($r->isSubclassOf('Mondongo\Document\EmbeddedDocument'));
         $this->assertFalse($r->isSubclassOf('Mondongo\Document\Document'));
     }
 
@@ -121,7 +121,7 @@ class CoreTest extends TestCase
                 'author'     => null,
                 'categories' => null,
             ),
-            'embeds' => array(
+            'embeddeds' => array(
                 'source'   => null,
                 'comments' => null,
             ),
@@ -390,7 +390,7 @@ class CoreTest extends TestCase
         $article->updateCategories();
     }
 
-    public function testDocumentEmbedsOne()
+    public function testEmbeddedDocumentsOne()
     {
         $article = new Article();
 
@@ -405,13 +405,13 @@ class CoreTest extends TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testDocumentEmbedsOneSetterInvalidEmbedClass()
+    public function testEmbeddedDocumentsOneSetterInvalidEmbedClass()
     {
         $article = new Article();
         $article->setSource(new Comment());
     }
 
-    public function testDocumentEmbedsMany()
+    public function testEmbeddedDocumentsMany()
     {
         $article = new Article();
 
@@ -426,7 +426,7 @@ class CoreTest extends TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testDocumentEmbedsManySetterNotGroup()
+    public function testEmbeddedDocumentsManySetterNotGroup()
     {
         $article = new Article();
         $article->setComments(new Comment());

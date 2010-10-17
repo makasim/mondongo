@@ -86,7 +86,7 @@ EOF;
         }
 
         // embeds
-        foreach ($this->configClass['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeddeds'] as $name => $embed) {
             $setter = 'set'.Inflector::camelize($name);
             $getter = 'get'.Inflector::camelize($name);
 
@@ -154,21 +154,21 @@ EOF;
 
         // embeds
         $embedsCode = '';
-        foreach ($this->configClass['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeddeds'] as $name => $embed) {
             if ('one' == $embed['type']) {
                 $typeCode = <<<EOF
-                \$array['$name'] = \$this->data['embeds']['$name']->toArray();
+                \$array['$name'] = \$this->data['embeddeds']['$name']->toArray();
 EOF;
             } else {
                 $typeCode = <<<EOF
-                foreach (\$this->data['embeds']['$name'] as \$embed) {
+                foreach (\$this->data['embeddeds']['$name'] as \$embed) {
                     \$array['$name'][] = \$embed->toArray();
                 }
 EOF;
             }
 
             $embedsCode .= <<<EOF
-            if (null !== \$this->data['embeds']['$name']) {
+            if (null !== \$this->data['embeddeds']['$name']) {
 $typeCode
             }
 

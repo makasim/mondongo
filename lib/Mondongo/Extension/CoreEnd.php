@@ -66,15 +66,15 @@ class CoreEnd extends Extension
         $this->processDocumentFieldsToMongoMethod();
         $this->processDocumentFields();
         $this->processDocumentReferences();
-        $this->processDocumentEmbeds();
-        if (!$this->configClass['embed']) {
+        $this->processEmbeddedDocuments();
+        if (!$this->configClass['is_embedded']) {
             $this->processDocumentRelations();
         }
 
         $this->processDocumentExtensionsEventsMethods();
 
         // repository
-        if (!$this->configClass['embed']) {
+        if (!$this->configClass['is_embedded']) {
             $this->processRepositoryDocumentClassProperty();
             $this->processRepositoryConnectionNameProperty();
             $this->processRepositoryCollectionNameProperty();
@@ -126,8 +126,8 @@ class CoreEnd extends Extension
         }
 
         // embeds
-        foreach ($this->configClass['embeds'] as $name => $embed) {
-            $data['embeds'][$name] = null;
+        foreach ($this->configClass['embeddeds'] as $name => $embed) {
+            $data['embeddeds'][$name] = null;
         }
 
         // relations
@@ -175,7 +175,7 @@ class CoreEnd extends Extension
         }
 
         // embeds
-        foreach ($this->configClass['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeddeds'] as $name => $embed) {
             $map[$name] = Inflector::camelize($name);
         }
 
@@ -222,7 +222,7 @@ EOF
         \$this->id = \$data['_id'];
 
 EOF;
-        if ($this->configClass['embed']) {
+        if ($this->configClass['is_embedded']) {
             $idCode = '';
         }
 
@@ -244,7 +244,7 @@ EOF;
 
         // embeds
         $embedsCode = '';
-        foreach ($this->configClass['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeddeds'] as $name => $embed) {
             $embedSetter = 'set'.Inflector::camelize($name);
             // one
             if ('one' == $embed['type']) {
@@ -560,9 +560,9 @@ EOF;
     /*
      * Document embeds.
      */
-    protected function processDocumentEmbeds()
+    protected function processEmbeddedDocuments()
     {
-        foreach ($this->configClass['embeds'] as $name => $embed) {
+        foreach ($this->configClass['embeddeds'] as $name => $embed) {
             /*
              * one
              */
@@ -573,7 +573,7 @@ EOF;
             throw new \InvalidArgumentException('The embed "$name" is not an instance of "{$embed['class']}".');
         }
 
-        \$this->data['embeds']['$name'] = \$value;
+        \$this->data['embeddeds']['$name'] = \$value;
 EOF;
                 $setterDocComment = <<<EOF
     /**
@@ -586,11 +586,11 @@ EOF;
 EOF;
                 // getter
                 $getterCode = <<<EOF
-        if (null === \$this->data['embeds']['$name']) {
-            \$this->data['embeds']['$name'] = new \\{$embed['class']}();
+        if (null === \$this->data['embeddeds']['$name']) {
+            \$this->data['embeddeds']['$name'] = new \\{$embed['class']}();
         }
 
-        return \$this->data['embeds']['$name'];
+        return \$this->data['embeddeds']['$name'];
 EOF;
                 $getterDocComment = <<<EOF
     /**
@@ -609,7 +609,7 @@ EOF;
             throw new \InvalidArgumentException('The embed "$name" is not an instance of "Mondongo\Group".');
         }
 
-        \$this->data['embeds']['$name'] = \$value;
+        \$this->data['embeddeds']['$name'] = \$value;
 EOF;
                 $setterDocComment = <<<EOF
     /**
@@ -622,11 +622,11 @@ EOF;
 EOF;
                 // getter
                 $getterCode = <<<EOF
-        if (null === \$this->data['embeds']['$name']) {
-            \$this->data['embeds']['$name'] = new \\Mondongo\Group();
+        if (null === \$this->data['embeddeds']['$name']) {
+            \$this->data['embeddeds']['$name'] = new \\Mondongo\Group();
         }
 
-        return \$this->data['embeds']['$name'];
+        return \$this->data['embeddeds']['$name'];
 EOF;
                 $getterDocComment = <<<EOF
     /**

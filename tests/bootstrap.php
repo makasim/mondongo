@@ -50,14 +50,14 @@ $configClasses = array(
         ),
     ),
     'Comment' => array(
-        'embed' => true,
+        'is_embedded' => true,
         'fields' => array(
             'name' => 'string',
             'text' => 'string',
         ),
     ),
     'Source' => array(
-        'embed' => true,
+        'is_embedded' => true,
         'fields' => array(
             'name' => 'string',
             'url'  => 'string',
@@ -77,7 +77,7 @@ $configClasses = array(
             'author'     => array('class' => 'Model\Document\Author', 'field' => 'author_id', 'type' => 'one'),
             'categories' => array('class' => 'Model\Document\Category', 'field' => 'category_ids', 'type' => 'many'),
         ),
-        'embeds' => array(
+        'embeddeds' => array(
             'source'   => array('class' => 'Model\Document\Source', 'type' => 'one'),
             'comments' => array('class' => 'Model\Document\Comment', 'type' => 'many'),
         ),
@@ -138,7 +138,7 @@ $configClasses = array(
         ),
     ),
     'EmbedNot' => array(
-        'embed' => true,
+        'is_embedded' => true,
         'relations' => array(
             'article' => array('class' => 'Model\Document\Article', 'field' => 'embed_not_id', 'type' => 'one'),
         ),

@@ -27,7 +27,7 @@ namespace Mondongo\Document;
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-abstract class Document extends DocumentEmbed
+abstract class Document extends EmbeddedDocument
 {
     protected $id;
 
@@ -145,13 +145,13 @@ abstract class Document extends DocumentEmbed
         }
 
         // embeds
-        if (isset($data['embeds'])) {
-            foreach ($this->data['embeds'] as $embedName => $embed) {
+        if (isset($data['embeddeds'])) {
+            foreach ($this->data['embeddeds'] as $embedName => $embed) {
                 if (null !== $embed) {
                     $embedName = null !== $name ? array_merge($name, array($embedName)) : array($embedName);
 
                     // one
-                    if ($embed instanceof DocumentEmbed) {
+                    if ($embed instanceof EmbeddedDocument) {
                         $query = $this->queryDocument($query, $embed, $embedName);
                     // many
                     } else {
