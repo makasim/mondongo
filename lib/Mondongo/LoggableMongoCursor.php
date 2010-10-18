@@ -35,6 +35,8 @@ class LoggableMongoCursor extends \MongoCursor
 
     protected $loggerCallable;
 
+    protected $connectionName;
+
     /**
      * Constructor.
      */
@@ -67,6 +69,28 @@ class LoggableMongoCursor extends \MongoCursor
         return $this->loggerCallable;
     }
 
+    /**
+     * Set the connection name (for log).
+     *
+     * @param string $connectionName The connection name.
+     *
+     * @return void
+     */
+    public function setConnectionName($connectionName)
+    {
+        $this->connectionName = $connectionName;
+    }
+
+    /**
+     * Returns the connection name.
+     *
+     * @return string The connection name.
+     */
+    public function getConnectionName()
+    {
+        return $this->connectionName;
+    }
+
     /*
      * log.
      */
@@ -74,6 +98,7 @@ class LoggableMongoCursor extends \MongoCursor
     {
         if ($this->loggerCallable) {
             call_user_func($this->loggerCallable, array_merge(array(
+                'connection' => $this->connectionName,
                 'database'   => $this->dbName,
                 'collection' => $this->collectionName,
             ), $log));

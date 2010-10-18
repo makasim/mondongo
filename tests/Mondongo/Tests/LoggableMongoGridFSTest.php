@@ -34,4 +34,11 @@ class LoggableMongoGridFSTest extends TestCase
         $collection->setLoggerCallable($loggerCallable);
         $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }
+
+    public function testConnectionName()
+    {
+        $collection = new LoggableMongoGridFS($this->mongo, $this->db, 'image');
+        $collection->setConnectionName('foobar');
+        $this->assertSame('foobar', $collection->getConnectionName());
+    }
 }

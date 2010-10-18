@@ -33,6 +33,8 @@ class LoggableMongoGridFS extends \MongoGridFS
 
     protected $loggerCallable;
 
+    protected $connectionName;
+
     /**
      * Constructor.
      *
@@ -81,6 +83,28 @@ class LoggableMongoGridFS extends \MongoGridFS
         return $this->loggerCallable;
     }
 
+    /**
+     * Set the connection name (for log).
+     *
+     * @param string $connectionName The connection name.
+     *
+     * @return void
+     */
+    public function setConnectionName($connectionName)
+    {
+        $this->connectionName = $connectionName;
+    }
+
+    /**
+     * Returns the connection name.
+     *
+     * @return string The connection name.
+     */
+    public function getConnectionName()
+    {
+        return $this->connectionName;
+    }
+
     /*
      * log.
      */
@@ -88,6 +112,7 @@ class LoggableMongoGridFS extends \MongoGridFS
     {
         if ($this->loggerCallable) {
             call_user_func($this->loggerCallable, array_merge(array(
+                'connection' => $this->connectionName,
                 'database'   => $this->db->__toString(),
                 'collection' => $this->getName(),
                 'gridfs'     => 1,
@@ -153,6 +178,7 @@ class LoggableMongoGridFS extends \MongoGridFS
 
         $cursor = new LoggableMongoGridFSCursor($this, $this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields);
         $cursor->setLoggerCallable($this->loggerCallable);
+        $cursor->setConnectionName($this->connectionName);
 
         return $cursor;
     }

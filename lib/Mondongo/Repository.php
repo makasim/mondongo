@@ -132,7 +132,25 @@ abstract class Repository
     public function getCollection()
     {
         if (!$this->collection) {
-            $this->collection = self::createCollection($this->getConnection(), $this->collectionName, $this->isFile, $this->mondongo->getLoggerCallable());
+            // connection name
+            $connectionName = null;
+            if ($loggerCallable = $this->mondongo->getLoggerCallable()) {
+                if (!$connectionName = $this->connectionName && !$connectionName = $this->mondongo->getDefaultConnectionName) {
+                    $connections = $this->mondongo->getConnections();
+                    foreach ($connections as $name => $connection) {
+                        $connectionName = $name;
+                        break;
+                    }
+                }
+            }
+
+            $this->collection = self::createCollection(
+                $this->getConnection(),
+                $this->collectionName,
+                $this->isFile,
+                $loggerCallable,
+                $connectionName
+            );
         }
 
         return $this->collection;
@@ -145,10 +163,11 @@ abstract class Repository
      * @param string              $collectionName The name of the collection.
      * @param bool                $isFile         If the collection is GridFS.
      * @param mixed               $loggerCallable The logger callable if the collection is loggable, null otherwise.
+     * @param mixed               $connectionName The connection name.
      *
      * @return mixed The collection.
      */
-    static public function createCollection(Connection $connection, $collectionName, $isFile, $loggerCallable)
+    static public function createCollection(Connection $connection, $collectionName, $isFile, $loggerCallable, $connectionName)
     {
         $db = $connection->getMongoDB();
 
@@ -157,6 +176,7 @@ abstract class Repository
             if ($loggerCallable) {
                 $collection = new LoggableMongoGridFS($connection->getMongo(), $db, $collectionName);
                 $collection->setLoggerCallable($loggerCallable);
+                $collection->setConnectionName($connectionName);
             } else {
                 $collection = new \MongoGridFS($db, $collectionName);
             }
@@ -165,6 +185,7 @@ abstract class Repository
             if ($loggerCallable) {
                 $collection = new LoggableMongoCollection($connection->getMongo(), $db, $collectionName);
                 $collection->setLoggerCallable($loggerCallable);
+                $collection->setConnectionName($connectionName);
             } else {
                 $collection = new \MongoCollection($db, $collectionName);
             }

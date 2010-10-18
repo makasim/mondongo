@@ -33,6 +33,8 @@ class LoggableMongoCollection extends \MongoCollection
 
     protected $loggerCallable;
 
+    protected $connectionName;
+
     /**
      * Constructor.
      *
@@ -81,6 +83,28 @@ class LoggableMongoCollection extends \MongoCollection
         return $this->loggerCallable;
     }
 
+    /**
+     * Set the connection name (for log).
+     *
+     * @param string $connectionName The connection name.
+     *
+     * @return void
+     */
+    public function setConnectionName($connectionName)
+    {
+        $this->connectionName = $connectionName;
+    }
+
+    /**
+     * Returns the connection name.
+     *
+     * @return string The connection name.
+     */
+    public function getConnectionName()
+    {
+        return $this->connectionName;
+    }
+
     /*
      * log.
      */
@@ -88,6 +112,7 @@ class LoggableMongoCollection extends \MongoCollection
     {
         if ($this->loggerCallable) {
             call_user_func($this->loggerCallable, array_merge(array(
+                'connection' => $this->connectionName,
                 'database'   => $this->db->__toString(),
                 'collection' => $this->getName(),
             ), $log));
@@ -137,6 +162,7 @@ class LoggableMongoCollection extends \MongoCollection
 
         $cursor = new LoggableMongoCursor($this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields);
         $cursor->setLoggerCallable($this->loggerCallable);
+        $cursor->setConnectionName($this->connectionName);
 
         return $cursor;
     }

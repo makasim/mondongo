@@ -34,4 +34,11 @@ class LoggableMongoCollectionTest extends TestCase
         $collection->setLoggerCallable($loggerCallable);
         $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }
+
+    public function testConnectionName()
+    {
+        $collection = new LoggableMongoCollection($this->mongo, $this->db, 'article');
+        $collection->setConnectionName('foobar');
+        $this->assertSame('foobar', $collection->getConnectionName());
+    }
 }

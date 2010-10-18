@@ -41,7 +41,7 @@ class RepositoryTest extends TestCase
 {
     public function testCreateCollectionNormalNoLoggable()
     {
-        $collection = RepositoryBase::createCollection($this->connection, 'foo', false, null);
+        $collection = RepositoryBase::createCollection($this->connection, 'foo', false, null, null);
 
         $this->assertSame('MongoCollection', get_class($collection));
         $this->assertSame($this->connection->getMongoDB(), $collection->db);
@@ -52,17 +52,18 @@ class RepositoryTest extends TestCase
     {
         $loggable = function() {};
 
-        $collection = RepositoryBase::createCollection($this->connection, 'bar', false, $loggable);
+        $collection = RepositoryBase::createCollection($this->connection, 'bar', false, $loggable, 'barfoo');
 
         $this->assertSame('Mondongo\LoggableMongoCollection', get_class($collection));
         $this->assertSame($this->connection->getMongoDB(), $collection->db);
         $this->assertSame('bar', $collection->getName());
         $this->assertSame($loggable, $collection->getLoggerCallable());
+        $this->assertSame('barfoo', $collection->getConnectionName());
     }
 
     public function testCreateCollectionGridFSNoLoggable()
     {
-        $collection = RepositoryBase::createCollection($this->connection, 'foobar', true, null);
+        $collection = RepositoryBase::createCollection($this->connection, 'foobar', true, null, null);
 
         $this->assertSame('MongoGridFS', get_class($collection));
         $this->assertSame($this->connection->getMongoDB(), $collection->db);
@@ -73,12 +74,13 @@ class RepositoryTest extends TestCase
     {
         $loggable = function() {};
 
-        $collection = RepositoryBase::createCollection($this->connection, 'barfoo', true, $loggable);
+        $collection = RepositoryBase::createCollection($this->connection, 'barfoo', true, $loggable, 'foobar');
 
         $this->assertSame('Mondongo\LoggableMongoGridFS', get_class($collection));
         $this->assertSame($this->connection->getMongoDB(), $collection->db);
         $this->assertSame('barfoo.files', $collection->getName());
         $this->assertSame($loggable, $collection->getLoggerCallable());
+        $this->assertSame('foobar', $collection->getConnectionName());
     }
 
     public function testGetMondongo()

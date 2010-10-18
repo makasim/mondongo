@@ -33,4 +33,11 @@ class LoggableMongoCursorTest extends TestCase
         $cursor->setLoggerCallable($loggerCallable);
         $this->assertSame($loggerCallable, $cursor->getLoggerCallable());
     }
+
+    public function testConnectionName()
+    {
+        $cursor = new LoggableMongoCursor($this->mongo, 'mondongo_tests.article');
+        $cursor->setConnectionName('foobar');
+        $this->assertSame('foobar', $cursor->getConnectionName());
+    }
 }

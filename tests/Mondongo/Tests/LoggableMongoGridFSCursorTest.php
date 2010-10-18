@@ -33,4 +33,11 @@ class LoggableMongoGridFSCursorTest extends TestCase
         $cursor->setLoggerCallable($loggerCallable);
         $this->assertSame($loggerCallable, $cursor->getLoggerCallable());
     }
+
+    public function testConnectionName()
+    {
+        $cursor = new LoggableMongoGridFSCursor($this->db->getGridFS('image'), $this->mongo, 'mondongo_tests.article');
+        $cursor->setConnectionName('foobar');
+        $this->assertSame('foobar', $cursor->getConnectionName());
+    }
 }
