@@ -511,7 +511,7 @@ class CoreTest extends TestCase
         $this->assertSame(array(), $user->getFieldsModified());
     }
 
-    public function testDocumentSetDocumentDataMethodEmbeds()
+    public function testDocumentSetDocumentDataMethodEmbeddeds()
     {
         $article = new Article();
         $article->setDocumentData(array(

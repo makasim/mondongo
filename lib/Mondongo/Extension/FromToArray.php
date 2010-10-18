@@ -175,12 +175,12 @@ $typeCode
 EOF;
         }
 
-        $method = new Method('public', 'toArray', '$withEmbeds = true', <<<EOF
+        $method = new Method('public', 'toArray', '$withEmbeddeds = true', <<<EOF
         \$array = array();
 
 $fieldsCode
 
-        if (\$withEmbeds) {
+        if (\$withEmbeddeds) {
 $embeddedsCode
         }
 
@@ -191,7 +191,7 @@ EOF
     /**
      * Export the document data to array.
      *
-     * @param bool \$withEmbeds If export embeddeds or not.
+     * @param bool \$withEmbeddeds If export embeddeds or not.
      *
      * @return array An array with the document data.
      */

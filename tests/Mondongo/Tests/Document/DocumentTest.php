@@ -99,7 +99,7 @@ class DocumentTest extends TestCase
         ), $article->getQueryForSave());
     }
 
-    public function testQueryForSaveInsertEmbeds()
+    public function testQueryForSaveInsertEmbeddeds()
     {
         $article = new Article();
         $article->setTitle(123);
@@ -131,7 +131,7 @@ class DocumentTest extends TestCase
         ), $article->getQueryForSave());
     }
 
-    public function testQueryForSaveUpdateEmbeds()
+    public function testQueryForSaveUpdateEmbeddeds()
     {
         $article = new Article();
         $article->setId(new \MongoId('123'));
@@ -177,7 +177,7 @@ class DocumentTest extends TestCase
         ), $article->getQueryForSave());
     }
 
-    public function testQueryForSaveUpdateEmbedsPushAllPullAll()
+    public function testQueryForSaveUpdateEmbeddedsPushAllPullAll()
     {
         $article = new Article();
         $article->setId(new \MongoId('123'));

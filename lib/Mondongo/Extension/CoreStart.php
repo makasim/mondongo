@@ -69,7 +69,7 @@ class CoreStart extends Extension
 
         $this->processInitFields();
         $this->processInitReferences();
-        $this->processInitEmbeds();
+        $this->processInitEmbeddeds();
 
         if (!$this->configClass['embeddeds']) {
             $this->processInitRelations();
@@ -310,9 +310,9 @@ EOF
     }
 
     /*
-     * Init Embeds.
+     * Init Embeddeds.
      */
-    protected function processInitEmbeds()
+    protected function processInitEmbeddeds()
     {
         if (!isset($this->configClass['embeddeds'])) {
             $this->configClass['embeddeds'] = array();

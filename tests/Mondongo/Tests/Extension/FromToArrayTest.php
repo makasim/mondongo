@@ -103,7 +103,7 @@ class FromToArrayTest extends TestCase
         $this->assertSame($categories, $article->getCategories()->getElements());
     }
 
-    public function testFromArrayEmbedsOne()
+    public function testFromArrayEmbeddedsOne()
     {
         $source = new Source();
 
@@ -115,7 +115,7 @@ class FromToArrayTest extends TestCase
         $this->assertSame($source, $article->getSource());
     }
 
-    public function testFromArrayEmbedsMany()
+    public function testFromArrayEmbeddedsMany()
     {
         $comments = array();
         for ($i = 1; $i <= 10; $i++) {

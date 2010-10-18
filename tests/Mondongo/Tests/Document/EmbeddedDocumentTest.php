@@ -50,7 +50,7 @@ class EmbeddedDocumentTest extends TestCase
         $this->assertTrue($article->isModified());
     }
 
-    public function testIsModifiedEmbedsOne()
+    public function testIsModifiedEmbeddedsOne()
     {
         $article = new Article();
         $source = $article->getSource();
@@ -59,7 +59,7 @@ class EmbeddedDocumentTest extends TestCase
         $this->assertTrue($article->isModified());
     }
 
-    public function testIsModifiedEmbedsMany()
+    public function testIsModifiedEmbeddedsMany()
     {
         $article = new Article();
         $comments = $article->getComments();
@@ -106,7 +106,7 @@ class EmbeddedDocumentTest extends TestCase
         $this->assertFalse($article->isModified());
     }
 
-    public function testClearModifiedWithEmbeds()
+    public function testClearModifiedWithEmbeddeds()
     {
         $article = new Article();
 
@@ -152,7 +152,7 @@ class EmbeddedDocumentTest extends TestCase
         ), $article->dataToMongo());
     }
 
-    public function testDataToMongoWithEmbeds()
+    public function testDataToMongoWithEmbeddeds()
     {
         $article = new Article();
         $article->setTitle(123);
