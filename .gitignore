@@ -1,5 +1,5 @@
 package.xml
 phpunit.xml
-tests/model/base
+tests/model/Base
 tests/Model/Document/Base
 tests/Model/Repository/Base

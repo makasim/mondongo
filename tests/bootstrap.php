@@ -180,7 +180,7 @@ $mondator->setExtensions(array(
 ));
 $mondator->process();
 
-foreach (array(__DIR__.'/model/base', __DIR__.'/model') as $dir) {
+foreach (array(__DIR__.'/model/Base', __DIR__.'/model') as $dir) {
     foreach (new DirectoryIterator($dir) as $file) {
         if ($file->isFile()) {
             require_once($file->getPathname());
