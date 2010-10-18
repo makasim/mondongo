@@ -38,13 +38,13 @@ class Mondongo
     protected $defaultConnectionName;
 
     /**
-     * Constructor.
+     * Set the logger callable.
      *
-     * @param mixed $loggerCallable A PHP callable.
+     * @param mixed $logger A PHP callable.
      *
      * @return void
      */
-    public function __construct($loggerCallable = null)
+    public function setLoggerCallable($loggerCallable)
     {
         $this->loggerCallable = $loggerCallable;
     }

@@ -136,7 +136,8 @@ class RepositoryTest extends TestCase
     {
         $loggerCallable = function() {};
 
-        $mondongo = new Mondongo($loggerCallable);
+        $mondongo = new Mondongo();
+        $mondongo->setLoggerCallable($loggerCallable);
         $mondongo->setConnection('default', $this->connection);
         $collection = $mondongo->getRepository('Model\Document\Article')->getCollection();
 
@@ -159,7 +160,8 @@ class RepositoryTest extends TestCase
     {
         $loggerCallable = function() {};
 
-        $mondongo = new Mondongo($loggerCallable);
+        $mondongo = new Mondongo();
+        $mondongo->setLoggerCallable($loggerCallable);
         $mondongo->setConnection('default', $this->connection);
         $collection = $mondongo->getRepository('Model\Document\Image')->getCollection();
 

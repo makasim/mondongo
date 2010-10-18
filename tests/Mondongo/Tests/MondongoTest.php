@@ -27,13 +27,12 @@ use Model\Document\Article;
 
 class MondongoTest extends TestCase
 {
-    public function testConstructor()
+    public function testLoggerCallable()
     {
-        $loggerCallable = function()
-        {
-        };
+        $loggerCallable = function() {};
 
-        $mondongo = new Mondongo($loggerCallable);
+        $mondongo = new Mondongo();
+        $mondongo->setLoggerCallable($loggerCallable);
         $this->assertSame($loggerCallable, $mondongo->getLoggerCallable());
     }
 
