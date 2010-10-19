@@ -129,7 +129,7 @@ EOF;
 
         // interfaces
         if ($interfaces = $this->definition->getInterfaces()) {
-            $declaration .= ' implements'.implode(', ', $interfaces);
+            $declaration .= ' implements '.implode(', ', $interfaces);
         }
 
         return <<<EOF
