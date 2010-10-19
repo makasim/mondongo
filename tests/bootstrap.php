@@ -155,6 +155,7 @@ $mondator->setExtensions(array(
         'default_repository_output'    => __DIR__.'/Model/Repository',
     )),
     new Mondongo\Extension\CoreEnd(),
+    new Mondongo\Extension\DocumentDataCamelCaseMap(),
     new Mondongo\Extension\FromToArray(),
     new Mondongo\Extension\ArrayAccess(),
     new Mondongo\Extension\PropertyOverloading(),

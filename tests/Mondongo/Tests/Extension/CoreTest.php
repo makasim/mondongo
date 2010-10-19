@@ -165,24 +165,6 @@ class CoreTest extends TestCase
         $this->assertSame(array('is_active' => null), $user->getFieldsModified());
     }
 
-    public function testDocumentDataMap()
-    {
-        $this->assertSame(array(
-            'title'        => 'Title',
-            'slug'         => 'Slug',
-            'content'      => 'Content',
-            'is_active'    => 'IsActive',
-            'author_id'    => 'AuthorId',
-            'category_ids' => 'CategoryIds',
-            'author'       => 'Author',
-            'categories'   => 'Categories',
-            'source'       => 'Source',
-            'comments'     => 'Comments',
-            'summary'      => 'Summary',
-            'news'         => 'News',
-        ), Article::getDataMap());
-    }
-
     public function testDocumentFieldsSettersGettersMethods()
     {
         $article = new Article();

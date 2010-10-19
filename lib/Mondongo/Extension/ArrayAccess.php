@@ -73,11 +73,11 @@ EOF
     protected function processOffsetSetMethod()
     {
         $method = new Method('public', 'offsetSet', '$name, $value', <<<EOF
-        if (!isset(self::\$dataMap[\$name])) {
+        if (!isset(self::\$dataCamelCaseMap[\$name])) {
             throw new \InvalidArgumentException(sprintf('The name "%s" does not exists.', \$name));
         }
 
-        \$method = 'set'.self::\$dataMap[\$name];
+        \$method = 'set'.self::\$dataCamelCaseMap[\$name];
 
         \$this->\$method(\$value);
 EOF
@@ -105,11 +105,11 @@ EOF
     protected function processOffsetGetMethod()
     {
         $method = new Method('public', 'offsetGet', '$name', <<<EOF
-        if (!isset(self::\$dataMap[\$name])) {
+        if (!isset(self::\$dataCamelCaseMap[\$name])) {
             throw new \InvalidArgumentException(sprintf('The data "%s" does not exists.', \$name));
         }
 
-        \$method = 'get'.self::\$dataMap[\$name];
+        \$method = 'get'.self::\$dataCamelCaseMap[\$name];
 
         return \$this->\$method();
 EOF

@@ -67,9 +67,6 @@ class CoreEnd extends Extension
         $this->processDocumentDataProperty();
         $this->processDocumentFieldsModifiedsProperty();
 
-        $this->processDocumentDataMapProperty();
-        $this->processDocumentGetDataMapMethod();
-
         $this->processDocumentSetDocumentDataMethod();
         $this->processDocumentFieldsToMongoMethod();
 
@@ -237,63 +234,6 @@ class CoreEnd extends Extension
         $property = new Property('protected', 'fieldsModified', $this->fieldsModified);
 
         $this->definitions['document_base']->addProperty($property);
-    }
-
-    /*
-     * Document "dataMap" property.
-     */
-    protected function processDocumentDataMapProperty()
-    {
-        $dataMap = array();
-
-        // fields
-        foreach ($this->configClass['fields'] as $name => $field) {
-            $dataMap[$name] = Inflector::camelize($name);
-        }
-
-        // references
-        foreach ($this->configClass['references'] as $name => $reference) {
-            $dataMap[$name] = Inflector::camelize($name);
-        }
-
-        // embeddeds
-        foreach ($this->configClass['embeddeds'] as $name => $embed) {
-            $dataMap[$name] = Inflector::camelize($name);
-        }
-
-        // relations
-        if (!$this->configClass['is_embedded']) {
-            foreach ($this->configClass['relations'] as $name => $relation) {
-                $dataMap[$name] = Inflector::camelize($name);
-            }
-        }
-
-        $property = new Property('protected', 'dataMap', $dataMap);
-        $property->setIsStatic(true);
-
-        $this->definitions['document_base']->addProperty($property);
-    }
-
-    /*
-     * Document "getDataMap" method.
-     */
-    public function processDocumentGetDataMapMethod()
-    {
-        $method = new Method('public', 'getDataMap', '', <<<EOF
-        return self::\$dataMap;
-EOF
-        );
-        $method->setIsStatic(true);
-        $method->setDocComment(<<<EOF
-    /**
-     * Returns the data map.
-     *
-     * @return array The data map.
-     */
-EOF
-        );
-
-        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
