@@ -41,12 +41,9 @@ class CoreStart extends Extension
      */
     protected function setup()
     {
-        $this->addRequiredOptions(array(
-            'default_document_output',
-            'default_repository_output',
-        ));
-
         $this->addOptions(array(
+            'default_document_output'      => null,
+            'default_repository_output'    => null,
             'default_document_namespace'   => null,
             'default_repository_namespace' => null,
         ));
@@ -199,6 +196,9 @@ EOF
         if (isset($this->configClass['document_output'])) {
             $dir = $this->configClass['document_output'];
         }
+        if (!$dir) {
+            throw new \RuntimeException(sprintf('The document of the class "%s" does not have output.', $this->className));
+        }
 
         $this->outputs['document'] = new Output($dir);
 
@@ -209,6 +209,9 @@ EOF
         $dir = $this->getOption('default_repository_output');
         if (isset($this->configClass['repository_output'])) {
             $dir = $this->configClass['repository_output'];
+        }
+        if (!$dir) {
+            throw new \RuntimeException(sprintf('The repository of the class "%s" does not have output.', $this->className));
         }
 
         $this->outputs['repository'] = new Output($dir);

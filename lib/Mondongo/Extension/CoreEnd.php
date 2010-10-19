@@ -55,6 +55,14 @@ class CoreEnd extends Extension
         // parse fields
         $this->processParseFields();
 
+        // check
+        $this->checkFields();
+        $this->checkReferences();
+        $this->checkEmbeddeds();
+        if (!$this->configClass['is_embedded']) {
+            $this->checkRelations();
+        }
+
         // document
         $this->processDocumentDataProperty();
         $this->processDocumentFieldsModifiedsProperty();
@@ -64,6 +72,7 @@ class CoreEnd extends Extension
 
         $this->processDocumentSetDocumentDataMethod();
         $this->processDocumentFieldsToMongoMethod();
+
         $this->processDocumentFields();
         $this->processDocumentReferences();
         $this->processEmbeddedDocuments();
@@ -88,8 +97,10 @@ class CoreEnd extends Extension
      */
     protected function processIsFile()
     {
-        if (isset($this->configClass['is_file']) && $this->configClass['is_file']) {
-            $this->configClass['is_file'] = true;
+        if (isset($this->configClass['is_file'])) {
+            if (!is_bool($this->configClass['is_file'])) {
+                throw new \RuntimeException(sprintf('The "is_file" option of the class "%s" is not boolean.', $this->className));
+            }
             $this->configClass['fields']['file'] = 'raw';
         } else {
             $this->configClass['is_file'] = false;
@@ -101,9 +112,78 @@ class CoreEnd extends Extension
      */
     protected function processParseFields()
     {
-        foreach ($this->configClass['fields'] as &$field) {
+        foreach ($this->configClass['fields'] as $name => &$field) {
             if (is_string($field)) {
                 $field = array('type' => $field);
+            }
+        }
+    }
+
+    /*
+     * Check.
+     */
+    protected function checkFields()
+    {
+        foreach ($this->configClass['fields'] as $name => $field) {
+            if (!is_array($field)) {
+                throw new \RuntimeException(sprintf('The field "%s" of the class "%s" is not a string or array.', $name, $this->className));
+            }
+            if (!isset($field['type'])) {
+                throw new \RuntimeException(sprintf('The field "%s" of the class "%s" does not have type.', $name, $this->className));
+            }
+            if (!TypeContainer::hasType($field['type'])) {
+                throw new \RuntimeException(sprintf('The type "%s" of the field "%s" of the class "%s" does not exists.', $field['type'], $name, $this->className));
+            }
+        }
+    }
+
+    protected function checkReferences()
+    {
+        foreach ($this->configClass['references'] as $name => $reference) {
+            if (!isset($reference['class'])) {
+                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have class.', $name, $this->className));
+            }
+            if (!isset($reference['field'])) {
+                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have field.', $name, $this->className));
+            }
+            if (!isset($reference['type'])) {
+                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have type.', $name, $this->className));
+            }
+            if (!in_array($reference['type'], array('one', 'many'))) {
+                throw new \RuntimeException(sprintf('The type "%s" of the reference "%s" of the class "%s" is not valid.', $reference['type'], $name, $this->className));
+            }
+        }
+    }
+
+    protected function checkEmbeddeds()
+    {
+        foreach ($this->configClass['embeddeds'] as $name => $embedded) {
+            if (!isset($embedded['class'])) {
+                throw new \RuntimeException(sprintf('The embedded "%s" of the class "%s" does not have class.', $name, $this->className));
+            }
+            if (!isset($embedded['type'])) {
+                throw new \RuntimeException(sprintf('The embedded "%s" of the class "%s" does not have type.', $name, $this->className));
+            }
+            if (!in_array($embedded['type'], array('one', 'many'))) {
+                throw new \RuntimeException(sprintf('The type "%s" of the embedded "%s" of the class "%s" is not valid.', $embedded['type'], $name, $this->className));
+            }
+        }
+    }
+
+    protected function checkRelations()
+    {
+        foreach ($this->configClass['relations'] as $name => $relation) {
+            if (!isset($relation['class'])) {
+                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have class.', $name, $this->className));
+            }
+            if (!isset($relation['field'])) {
+                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have field.', $name, $this->className));
+            }
+            if (!isset($relation['type'])) {
+                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have type.', $name, $this->className));
+            }
+            if (!in_array($relation['type'], array('one', 'many'))) {
+                throw new \RuntimeException(sprintf('The type "%s" of the relation "%s" of the class "%s" is not valid.', $relation['type'], $name, $this->className));
             }
         }
     }

@@ -22,8 +22,10 @@
 namespace Mondongo\Tests\Extension;
 
 use Mondongo\Tests\TestCase;
-use Mondongo\Container;
+use Mondongo\Extension\CoreStart;
+use Mondongo\Extension\CoreEnd;
 use Mondongo\Group;
+use Mondongo\Mondator\Container;
 use Mondongo\Mondongo;
 use Model\Document\Article;
 use Model\Document\Author;
@@ -55,7 +57,7 @@ class CoreTest extends TestCase
         $this->assertSame($this->mondongo, $article->getMondongo());
 
         $mondongo = new Mondongo();
-        Container::setForDocumentClass('Model\Document\Article', $mondongo);
+        \Mondongo\Container::setForDocumentClass('Model\Document\Article', $mondongo);
         $this->assertSame($mondongo, $article->getMondongo());
     }
 
@@ -65,7 +67,7 @@ class CoreTest extends TestCase
         $this->assertSame($this->mondongo, $article->getMondongo());
 
         $mondongo = new Mondongo();
-        Container::setForDocumentClass('Article', $mondongo);
+        \Mondongo\Container::setForDocumentClass('Article', $mondongo);
         $this->assertSame($mondongo, $article->getMondongo());
     }
 
@@ -100,6 +102,31 @@ class CoreTest extends TestCase
     {
         $embedNot = new EmbedNot();
         $this->assertFalse(method_exists($embedNot, 'getRepository'));
+    }
+
+    /*
+     * CoreStart errors.
+     */
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testDocumentDoesNotHaveOutput()
+    {
+        $extension = new CoreStart(array(
+            'default_repository_output' => '/tmp',
+        ));
+        $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testRepositoryDoesNotHaveOutput()
+    {
+        $extension = new CoreStart(array(
+            'default_document_output' => '/tmp',
+        ));
+        $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
     }
 
     /*
@@ -597,5 +624,68 @@ class CoreTest extends TestCase
         $this->assertSame(true, $indexInfo[1]['unique']);
 
         $this->assertSame(array('author_id' => 1, 'is_active' => 1), $indexInfo[2]['key']);
+    }
+
+    /*
+     * CoreEnd errors.
+     */
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testIsFileNotBoolean()
+    {
+        $extension = new CoreEnd();
+        $extension->process(new Container(), 'Article', new \ArrayObject(array(
+            'is_file' => 1,
+        )), new \ArrayObject());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     * @dataProvider      providerFieldNotStringNorArray
+     */
+    public function testFieldNotStringNorArray($type)
+    {
+        $extension = new CoreEnd();
+        $extension->process(new Container(), 'Article', new \ArrayObject(array(
+            'fields' => array(
+                'field' => $type,
+            ),
+        )), new \ArrayObject());
+    }
+
+    public function providerFieldNotStringNorArray()
+    {
+        return array(
+            array(1),
+            array(1,1),
+            array(true),
+        );
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testFieldDoesNotHaveType()
+    {
+        $extension = new CoreEnd();
+        $extension->process(new Container(), 'Article', new \ArrayObject(array(
+            'fields' => array(
+                'field' => array('default' => 'default'),
+            ),
+        )), new \ArrayObject());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testFieldTypeDoesNotExists()
+    {
+        $extension = new CoreEnd();
+        $extension->process(new Container(), 'Article', new \ArrayObject(array(
+            'fields' => array(
+                'field' => array('type' => 'no'),
+            ),
+        )), new \ArrayObject());
     }
 }
