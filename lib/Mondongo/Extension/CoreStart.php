@@ -71,7 +71,7 @@ class CoreStart extends Extension
         $this->processInitReferences();
         $this->processInitEmbeddeds();
 
-        if (!$this->configClass['embeddeds']) {
+        if (!$this->configClass['is_embedded']) {
             $this->processInitRelations();
         }
 

@@ -131,8 +131,10 @@ class CoreEnd extends Extension
         }
 
         // relations
-        foreach ($this->configClass['relations'] as $name => $relation) {
-            $data['relations'][$name] = null;
+        if (!$this->configClass['is_embedded']) {
+            foreach ($this->configClass['relations'] as $name => $relation) {
+                $data['relations'][$name] = null;
+            }
         }
 
         $property = new Property('protected', 'data', $data);
@@ -180,8 +182,10 @@ class CoreEnd extends Extension
         }
 
         // relations
-        foreach ($this->configClass['relations'] as $name => $relation) {
-            $dataMap[$name] = Inflector::camelize($name);
+        if (!$this->configClass['is_embedded']) {
+            foreach ($this->configClass['relations'] as $name => $relation) {
+                $dataMap[$name] = Inflector::camelize($name);
+            }
         }
 
         $property = new Property('protected', 'dataMap', $dataMap);
