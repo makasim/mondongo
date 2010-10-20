@@ -26,12 +26,12 @@ use Mondongo\Mondator\Definition\Method;
 use Mondongo\Mondator\Extension;
 
 /**
- * The Mondongo ArrayAccess extension.
+ * The Mondongo DocumentArrayAccess extension.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class ArrayAccess extends Extension
+class DocumentArrayAccess extends Extension
 {
     /**
      * @inheritdoc

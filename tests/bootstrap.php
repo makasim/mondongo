@@ -156,9 +156,9 @@ $mondator->setExtensions(array(
     )),
     new Mondongo\Extension\CoreEnd(),
     new Mondongo\Extension\DocumentDataCamelCaseMap(),
-    new Mondongo\Extension\FromToArray(),
-    new Mondongo\Extension\ArrayAccess(),
-    new Mondongo\Extension\PropertyOverloading(),
+    new Mondongo\Extension\DocumentFromToArray(),
+    new Mondongo\Extension\DocumentArrayAccess(),
+    new Mondongo\Extension\DocumentPropertyOverloading(),
     new Mondongo\Extension\DocumentDataMap(),
 ));
 $mondator->process();
@@ -180,9 +180,9 @@ $mondator->setExtensions(array(
     )),
     new Mondongo\Extension\CoreEnd(),
     new Mondongo\Extension\DocumentDataCamelCaseMap(),
-    new Mondongo\Extension\FromToArray(),
-    new Mondongo\Extension\ArrayAccess(),
-    new Mondongo\Extension\PropertyOverloading(),
+    new Mondongo\Extension\DocumentFromToArray(),
+    new Mondongo\Extension\DocumentArrayAccess(),
+    new Mondongo\Extension\DocumentPropertyOverloading(),
     new Mondongo\Extension\DocumentDataMap(),
 ));
 $mondator->process();

@@ -28,7 +28,7 @@ use Model\Document\Category;
 use Model\Document\Comment;
 use Model\Document\Source;
 
-class FromToArrayTest extends TestCase
+class DocumentFromToArrayTest extends TestCase
 {
     public function testFromArray()
     {

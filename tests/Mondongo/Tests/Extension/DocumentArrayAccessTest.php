@@ -24,7 +24,7 @@ namespace Mondongo\Tests\Extension;
 use Mondongo\Tests\TestCase;
 use Model\Document\Article;
 
-class ArrayAccessTest extends TestCase
+class DocumentArrayAccessTest extends TestCase
 {
     /**
      * @expectedException \LogicException

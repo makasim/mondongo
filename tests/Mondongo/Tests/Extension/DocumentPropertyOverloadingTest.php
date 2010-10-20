@@ -24,7 +24,7 @@ namespace Mondongo\Tests\Extension;
 use Mondongo\Tests\TestCase;
 use Model\Document\Article;
 
-class PropertyOverloadingTest extends TestCase
+class DocumentPropertyOverloadingTest extends TestCase
 {
     public function test__set()
     {

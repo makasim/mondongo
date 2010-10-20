@@ -26,12 +26,12 @@ use Mondongo\Mondator\Definition\Method;
 use Mondongo\Mondator\Extension;
 
 /**
- * The Mondongo FromToArray extension.
+ * The Mondongo DocumentFromToArray extension.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class FromToArray extends Extension
+class DocumentFromToArray extends Extension
 {
     /**
      * @inheritdoc

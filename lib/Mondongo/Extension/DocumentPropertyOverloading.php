@@ -26,12 +26,12 @@ use Mondongo\Mondator\Definition\Method;
 use Mondongo\Mondator\Extension;
 
 /**
- * The Mondongo PropertyOverloading extension.
+ * The Mondongo DocumentPropertyOverloading extension.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class PropertyOverloading extends Extension
+class DocumentPropertyOverloading extends Extension
 {
     /**
      * @inheritdoc
