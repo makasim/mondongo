@@ -84,6 +84,33 @@ class Dumper
         ;
     }
 
+    /**
+     * Export an array.
+     *
+     * Based on Symfony\Component\DependencyInjection\Dumper\PhpDumper::exportParameters
+     * http://github.com/symfony/symfony
+     *
+     * @param array $array  The array.
+     * @param int   $indent The indent.
+     *
+     * @return string The array exported.
+     */
+    static public function exportArray(array $array, $indent)
+    {
+        $code = array();
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $value = self::exportArray($value, $indent + 4);
+            } else {
+                $value = null === $value ? 'null' : var_export($value, true);
+            }
+
+            $code[] = sprintf('%s%s => %s,', str_repeat(' ', $indent), var_export($key, true), $value);
+        }
+
+        return sprintf("array(\n%s\n%s)", implode("\n", $code), str_repeat(' ', $indent - 4));
+    }
+
     protected function startFile()
     {
         return <<<EOF
@@ -148,7 +175,7 @@ EOF;
         foreach ($this->definition->getProperties() as $property) {
             $docComment = $property->getDocComment();
             $isStatic   = $property->getIsStatic() ? 'static ' : '';
-            $value      = var_export($property->getValue(), true);
+            $value      = is_array($property->getValue()) ? self::exportArray($property->getValue(), 8) : var_export($property->getValue(), true);
 
             $code .= <<<EOF
 
