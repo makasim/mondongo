@@ -148,13 +148,12 @@ $configClasses = array(
 $mondator = new Mondator();
 $mondator->setConfigClasses($configClasses);
 $mondator->setExtensions(array(
-    new Mondongo\Extension\CoreStart(array(
+    new Mondongo\Extension\Core(array(
         'default_document_namespace'   => 'Model\Document',
         'default_repository_namespace' => 'Model\Repository',
         'default_document_output'      => __DIR__.'/Model/Document',
         'default_repository_output'    => __DIR__.'/Model/Repository',
     )),
-    new Mondongo\Extension\CoreEnd(),
     new Mondongo\Extension\DocumentDataCamelCaseMap(),
     new Mondongo\Extension\DocumentFromToArray(),
     new Mondongo\Extension\DocumentArrayAccess(),
@@ -174,11 +173,10 @@ $mondator->setConfigClasses(array(
     ),
 ));
 $mondator->setExtensions(array(
-    new Mondongo\Extension\CoreStart(array(
+    new Mondongo\Extension\Core(array(
         'default_document_output'   => __DIR__.'/model',
         'default_repository_output' => __DIR__.'/model',
     )),
-    new Mondongo\Extension\CoreEnd(),
     new Mondongo\Extension\DocumentDataCamelCaseMap(),
     new Mondongo\Extension\DocumentFromToArray(),
     new Mondongo\Extension\DocumentArrayAccess(),

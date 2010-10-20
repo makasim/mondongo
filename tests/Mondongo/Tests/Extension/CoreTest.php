@@ -22,8 +22,7 @@
 namespace Mondongo\Tests\Extension;
 
 use Mondongo\Tests\TestCase;
-use Mondongo\Extension\CoreStart;
-use Mondongo\Extension\CoreEnd;
+use Mondongo\Extension\Core;
 use Mondongo\Group;
 use Mondongo\Mondator\Container;
 use Mondongo\Mondongo;
@@ -38,9 +37,6 @@ use Model\Document\User;
 
 class CoreTest extends TestCase
 {
-    /*
-     * CoreStart.
-     */
     public function testDocumentMondongoParentClass()
     {
         $r = new \ReflectionClass('Model\Document\Article');
@@ -104,34 +100,6 @@ class CoreTest extends TestCase
         $this->assertFalse(method_exists($embedNot, 'getRepository'));
     }
 
-    /*
-     * CoreStart errors.
-     */
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testDocumentDoesNotHaveOutput()
-    {
-        $extension = new CoreStart(array(
-            'default_repository_output' => '/tmp',
-        ));
-        $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testRepositoryDoesNotHaveOutput()
-    {
-        $extension = new CoreStart(array(
-            'default_document_output' => '/tmp',
-        ));
-        $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
-    }
-
-    /*
-     * CoreEnd.
-     */
     public function testDocumentDataProperty()
     {
         $article = new Article();
@@ -609,14 +577,37 @@ class CoreTest extends TestCase
     }
 
     /*
-     * CoreEnd errors.
+     * Errors.
      */
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testDocumentDoesNotHaveOutput()
+    {
+        $extension = new Core(array(
+            'default_repository_output' => '/tmp',
+        ));
+        $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testRepositoryDoesNotHaveOutput()
+    {
+        $extension = new Core(array(
+            'default_document_output' => '/tmp',
+        ));
+        $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
+    }
+
     /**
      * @expectedException \RuntimeException
      */
     public function testIsFileNotBoolean()
     {
-        $extension = new CoreEnd();
+        $extension = new Core();
         $extension->process(new Container(), 'Article', new \ArrayObject(array(
             'is_file' => 1,
         )), new \ArrayObject());
@@ -628,7 +619,7 @@ class CoreTest extends TestCase
      */
     public function testFieldNotStringNorArray($type)
     {
-        $extension = new CoreEnd();
+        $extension = new Core();
         $extension->process(new Container(), 'Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => $type,
@@ -650,7 +641,7 @@ class CoreTest extends TestCase
      */
     public function testFieldDoesNotHaveType()
     {
-        $extension = new CoreEnd();
+        $extension = new Core();
         $extension->process(new Container(), 'Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => array('default' => 'default'),
@@ -663,7 +654,7 @@ class CoreTest extends TestCase
      */
     public function testFieldTypeDoesNotExists()
     {
-        $extension = new CoreEnd();
+        $extension = new Core();
         $extension->process(new Container(), 'Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => array('type' => 'no'),
