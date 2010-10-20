@@ -48,6 +48,7 @@ class Core extends Extension
             'default_repository_output'    => null,
             'default_document_namespace'   => null,
             'default_repository_namespace' => null,
+            'default_extensions'           => array(),
         ));
     }
 
@@ -80,6 +81,14 @@ class Core extends Extension
         }
 
         $this->processInitExtensionsEvents();
+
+        // default extensions
+        foreach ($this->getOption('default_extensions') as $extension) {
+            if ($this->configClass['is_embedded'] && isset($extension['not_with_embeddeds']) && $extension['not_with_embeddeds']) {
+                continue;
+            }
+            $this->processExtensionsFromArray(array($extension));
+        }
 
         // extensions
         if (isset($this->configClass['extensions'])) {
