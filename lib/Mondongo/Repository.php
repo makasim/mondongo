@@ -135,7 +135,7 @@ abstract class Repository
             // connection name
             $connectionName = null;
             if ($loggerCallable = $this->mondongo->getLoggerCallable()) {
-                if (!$connectionName = $this->connectionName && !$connectionName = $this->mondongo->getDefaultConnectionName) {
+                if (!$connectionName = $this->connectionName && !$connectionName = $this->mondongo->getDefaultConnectionName()) {
                     $connections = $this->mondongo->getConnections();
                     foreach ($connections as $name => $connection) {
                         $connectionName = $name;
