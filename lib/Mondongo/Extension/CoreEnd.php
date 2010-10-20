@@ -253,10 +253,10 @@ EOF;
         // fields
         $fieldsCode = '';
         foreach ($this->configClass['fields'] as $name => $field) {
-            $typeCode = strtr(TypeContainer::getType($field['type'])->toPHPInString(), array(
+            $typeCode = str_replace("\n", "\n            ", strtr(TypeContainer::getType($field['type'])->toPHPInString(), array(
                 '%from%' => "\$data['$name']",
                 '%to%'   => "\$this->data['fields']['$name']",
-            ));
+            )));
 
             $fieldsCode .= <<<EOF
         if (isset(\$data['$name'])) {
@@ -326,10 +326,10 @@ EOF
     {
         $fieldsCode = '';
         foreach ($this->configClass['fields'] as $name => $field) {
-            $typeCode = strtr(TypeContainer::getType($field['type'])->toMongoInString(), array(
+            $typeCode = str_replace("\n", "\n            ", strtr(TypeContainer::getType($field['type'])->toMongoInString(), array(
                 '%from%' => "\$fields['$name']",
                 '%to%'   => "\$fields['$name']",
-            ));
+            )));
 
             $fieldsCode .= <<<EOF
         if (isset(\$fields['$name'])) {
