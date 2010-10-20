@@ -115,7 +115,7 @@ class LoggableMongoCursor extends \MongoCursor
             'num'   => $num,
         ));
 
-        parent::limit($num);
+        return parent::limit($num);
     }
 
     /*
@@ -128,7 +128,7 @@ class LoggableMongoCursor extends \MongoCursor
             'num'  => $num,
         ));
 
-        parent::skip($num);
+        return parent::skip($num);
     }
 
     /*
@@ -141,6 +141,6 @@ class LoggableMongoCursor extends \MongoCursor
             'fields' => $fields,
         ));
 
-        parent::sort($fields);
+        return parent::sort($fields);
     }
 }

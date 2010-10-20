@@ -116,7 +116,7 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
             'num'   => $num,
         ));
 
-        parent::limit($num);
+        return parent::limit($num);
     }
 
     /*
@@ -129,7 +129,7 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
             'num'  => $num,
         ));
 
-        parent::skip($num);
+        return parent::skip($num);
     }
 
     /*
@@ -142,6 +142,6 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
             'fields' => $fields,
         ));
 
-        parent::sort($fields);
+        return parent::sort($fields);
     }
 }
