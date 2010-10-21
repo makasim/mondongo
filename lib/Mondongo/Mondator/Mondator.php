@@ -170,9 +170,9 @@ class Mondator
 
             $containers[$className] = $container = new Container();
 
-            $newConfigClasses = new \ArrayObject();
-
             foreach ($this->getExtensions() as $extension) {
+                $newConfigClasses = new \ArrayObject();
+
                 $extension->process($container, $className, $configClass, $newConfigClasses);
 
                 if ($newConfigClasses) {
