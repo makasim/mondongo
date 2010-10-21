@@ -44,11 +44,9 @@ class Core extends Extension
     protected function setup()
     {
         $this->addOptions(array(
-            'default_document_output'      => null,
-            'default_repository_output'    => null,
-            'default_document_namespace'   => null,
-            'default_repository_namespace' => null,
-            'default_extensions'           => array(),
+            'default_document_output'   => null,
+            'default_repository_output' => null,
+            'default_extensions'        => array(),
         ));
     }
 
@@ -141,49 +139,20 @@ class Core extends Extension
     protected function processInitDefinitionsAndOutputs()
     {
         /*
-         * Namespaces
+         * Classes.
          */
-        // init
-        if (!isset($this->configClass['namespaces'])) {
-            $this->configClass['namespaces'] = array('document' => null, 'repository' => null);
-        }
-
-        // default
-        if (
-          !isset($this->configClass['namespaces']['document'])
-          &&
-          $defaultDocumentNamespace = $this->getOption('default_document_namespace')
-        ) {
-            $this->configClass['namespaces']['document'] = $defaultDocumentNamespace;
-        }
-
-        if (
-          !isset($this->configClass['namespaces']['repository'])
-          &&
-          $defaultDocumentNamespace = $this->getOption('default_repository_namespace')
-        ) {
-            $this->configClass['namespaces']['repository'] = $defaultDocumentNamespace;
-        }
-
-        // document
-        if (isset($this->configClass['namespaces']['document'])) {
-            $documentBaseClass = '\\'.$this->configClass['namespaces']['document'].'\\Base\\'.$this->className;
+        $classes['document'] = $this->class;
+        if (false !== $pos = strrpos($classes['document'], '\\')) {
+            $documentNamespace   = substr($classes['document'], 0, $pos);
+            $documentClassName   = substr($classes['document'], $pos + 1);
+            $repositoryNamespace = substr($documentNamespace, 0, strrpos($documentNamespace, '\\'));
+            $classes['document_base']   = $documentNamespace.'\\Base\\'.$documentClassName;
+            $classes['repository']      = $repositoryNamespace.'\\Repository\\'.$documentClassName;
+            $classes['repository_base'] = $repositoryNamespace.'\\Repository\\Base\\'.$documentClassName;
         } else {
-            $this->configClass['namespaces']['document'] = null;
-            $documentBaseClass = 'Base'.$this->className;
-        }
-
-        // repository
-        if (!$this->configClass['is_embedded']) {
-            if (isset($this->configClass['namespaces']['repository'])) {
-                $repositoryClass     = $this->className;
-                $repositoryBaseClass = '\\'.$this->configClass['namespaces']['repository'].'\\Base\\'.$this->className;
-            } else {
-                $this->configClass['namespaces']['repository'] = null;
-
-                $repositoryClass     = $this->className.'Repository';
-                $repositoryBaseClass = 'Base'.$this->className.'Repository';
-            }
+            $classes['document_base']   = 'Base'.$classes['document'];
+            $classes['repository']      = $classes['document'].'Repository';
+            $classes['repository_base'] = 'Base'.$classes['document'].'Repository';
         }
 
         /*
@@ -191,52 +160,48 @@ class Core extends Extension
          */
 
         // document
-        $this->definitions['document'] = $definition = new Definition($this->className);
-        $definition->setNamespace($this->configClass['namespaces']['document']);
-        $definition->setParentClass($documentBaseClass);
+        $this->definitions['document'] = $definition = new Definition($classes['document']);
+        $definition->setParentClass($classes['document_base']);
         $definition->setDocComment(<<<EOF
 /**
- * {$this->className} document.
+ * {$this->class} document.
  */
 EOF
         );
 
         // document_base
-        $this->definitions['document_base'] = $definition = new Definition($this->getClassName($documentBaseClass));
-        $definition->setNamespace($this->getNamespace($documentBaseClass));
+        $this->definitions['document_base'] = $definition = new Definition($classes['document_base']);
         $definition->setIsAbstract(true);
         if ($this->configClass['is_embedded']) {
-            $definition->setParentClass('\\Mondongo\\Document\\EmbeddedDocument');
+            $definition->setParentClass('\Mondongo\Document\EmbeddedDocument');
         } else {
-            $definition->setParentClass('\\Mondongo\\Document\\Document');
+            $definition->setParentClass('\Mondongo\Document\Document');
         }
         $definition->setDocComment(<<<EOF
 /**
- * Base class of {$this->className} document.
+ * Base class of {$this->class} document.
  */
 EOF
         );
 
         if (!$this->configClass['is_embedded']) {
             // repository
-            $this->definitions['repository'] = $definition = new Definition($repositoryClass);
-            $definition->setNamespace($this->configClass['namespaces']['repository']);
-            $definition->setParentClass($repositoryBaseClass);
+            $this->definitions['repository'] = $definition = new Definition($classes['repository']);
+            $definition->setParentClass($classes['repository_base']);
             $definition->setDocComment(<<<EOF
 /**
- * Repository of {$this->className} document.
+ * Repository of {$this->class} document.
  */
 EOF
             );
 
             // repository_base
-            $this->definitions['repository_base'] = $definition = new Definition($this->getClassName($repositoryBaseClass));
-            $definition->setNamespace($this->getNamespace($repositoryBaseClass));
+            $this->definitions['repository_base'] = $definition = new Definition($classes['repository_base']);
             $definition->setIsAbstract(true);
             $definition->setParentClass('\\Mondongo\\Repository');
             $definition->setDocComment(<<<EOF
 /**
- * Base class of repository of {$this->className} document.
+ * Base class of repository of {$this->class} document.
  */
 EOF
             );
@@ -252,7 +217,7 @@ EOF
             $dir = $this->configClass['document_output'];
         }
         if (!$dir) {
-            throw new \RuntimeException(sprintf('The document of the class "%s" does not have output.', $this->className));
+            throw new \RuntimeException(sprintf('The document of the class "%s" does not have output.', $this->class));
         }
 
         $this->outputs['document'] = new Output($dir);
@@ -266,7 +231,7 @@ EOF
             $dir = $this->configClass['repository_output'];
         }
         if (!$dir) {
-            throw new \RuntimeException(sprintf('The repository of the class "%s" does not have output.', $this->className));
+            throw new \RuntimeException(sprintf('The repository of the class "%s" does not have output.', $this->class));
         }
 
         $this->outputs['repository'] = new Output($dir);
@@ -281,7 +246,7 @@ EOF
     public function processDocumentGetMondongoMethod()
     {
         $method = new Method('public', 'getMondongo', '', <<<EOF
-        return \Mondongo\Container::getForDocumentClass('{$this->definitions['document']->getFullClass()}');
+        return \Mondongo\Container::getForDocumentClass('{$this->definitions['document']->getClass()}');
 EOF
         );
         $method->setDocComment(<<<EOF
@@ -302,7 +267,7 @@ EOF
     public function processDocumentGetRepositoryMethod()
     {
         $method = new Method('public', 'getRepository', '', <<<EOF
-        return \$this->getMondongo()->getRepository('{$this->definitions['document']->getFullClass()}');
+        return \$this->getMondongo()->getRepository('{$this->definitions['document']->getClass()}');
 EOF
         );
         $method->setDocComment(<<<EOF
@@ -333,7 +298,7 @@ EOF
     protected function processInitCollectionName()
     {
         if (!isset($this->configClass['collection'])) {
-            $this->configClass['collection'] = Inflector::underscore($this->className);
+            $this->configClass['collection'] = str_replace('\\', '_', Inflector::underscore($this->class));
         }
     }
 
@@ -411,7 +376,7 @@ EOF
     {
         if (isset($this->configClass['is_file'])) {
             if (!is_bool($this->configClass['is_file'])) {
-                throw new \RuntimeException(sprintf('The "is_file" option of the class "%s" is not boolean.', $this->className));
+                throw new \RuntimeException(sprintf('The "is_file" option of the class "%s" is not boolean.', $this->class));
             }
             $this->configClass['fields']['file'] = 'raw';
         } else {
@@ -438,13 +403,13 @@ EOF
     {
         foreach ($this->configClass['fields'] as $name => $field) {
             if (!is_array($field)) {
-                throw new \RuntimeException(sprintf('The field "%s" of the class "%s" is not a string or array.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The field "%s" of the class "%s" is not a string or array.', $name, $this->class));
             }
             if (!isset($field['type'])) {
-                throw new \RuntimeException(sprintf('The field "%s" of the class "%s" does not have type.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The field "%s" of the class "%s" does not have type.', $name, $this->class));
             }
             if (!TypeContainer::hasType($field['type'])) {
-                throw new \RuntimeException(sprintf('The type "%s" of the field "%s" of the class "%s" does not exists.', $field['type'], $name, $this->className));
+                throw new \RuntimeException(sprintf('The type "%s" of the field "%s" of the class "%s" does not exists.', $field['type'], $name, $this->class));
             }
         }
     }
@@ -453,16 +418,16 @@ EOF
     {
         foreach ($this->configClass['references'] as $name => $reference) {
             if (!isset($reference['class'])) {
-                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have class.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have class.', $name, $this->class));
             }
             if (!isset($reference['field'])) {
-                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have field.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have field.', $name, $this->class));
             }
             if (!isset($reference['type'])) {
-                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have type.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have type.', $name, $this->class));
             }
             if (!in_array($reference['type'], array('one', 'many'))) {
-                throw new \RuntimeException(sprintf('The type "%s" of the reference "%s" of the class "%s" is not valid.', $reference['type'], $name, $this->className));
+                throw new \RuntimeException(sprintf('The type "%s" of the reference "%s" of the class "%s" is not valid.', $reference['type'], $name, $this->class));
             }
         }
     }
@@ -471,13 +436,13 @@ EOF
     {
         foreach ($this->configClass['embeddeds'] as $name => $embedded) {
             if (!isset($embedded['class'])) {
-                throw new \RuntimeException(sprintf('The embedded "%s" of the class "%s" does not have class.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The embedded "%s" of the class "%s" does not have class.', $name, $this->class));
             }
             if (!isset($embedded['type'])) {
-                throw new \RuntimeException(sprintf('The embedded "%s" of the class "%s" does not have type.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The embedded "%s" of the class "%s" does not have type.', $name, $this->class));
             }
             if (!in_array($embedded['type'], array('one', 'many'))) {
-                throw new \RuntimeException(sprintf('The type "%s" of the embedded "%s" of the class "%s" is not valid.', $embedded['type'], $name, $this->className));
+                throw new \RuntimeException(sprintf('The type "%s" of the embedded "%s" of the class "%s" is not valid.', $embedded['type'], $name, $this->class));
             }
         }
     }
@@ -486,16 +451,16 @@ EOF
     {
         foreach ($this->configClass['relations'] as $name => $relation) {
             if (!isset($relation['class'])) {
-                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have class.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have class.', $name, $this->class));
             }
             if (!isset($relation['field'])) {
-                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have field.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have field.', $name, $this->class));
             }
             if (!isset($relation['type'])) {
-                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have type.', $name, $this->className));
+                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have type.', $name, $this->class));
             }
             if (!in_array($relation['type'], array('one', 'many'))) {
-                throw new \RuntimeException(sprintf('The type "%s" of the relation "%s" of the class "%s" is not valid.', $relation['type'], $name, $this->className));
+                throw new \RuntimeException(sprintf('The type "%s" of the relation "%s" of the class "%s" is not valid.', $relation['type'], $name, $this->class));
             }
         }
     }
@@ -1067,7 +1032,7 @@ EOF;
      */
     protected function processRepositoryDocumentClassProperty()
     {
-        $property = new Property('protected', 'documentClass', $this->definitions['document']->getFullClass());
+        $property = new Property('protected', 'documentClass', $this->definitions['document']->getClass());
 
         $this->definitions['repository_base']->addProperty($property);
     }

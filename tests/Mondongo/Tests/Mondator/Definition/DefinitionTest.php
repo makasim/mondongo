@@ -29,32 +29,28 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
-        $definition = new Definition('Class1');
-        $this->assertSame('Class1', $definition->getClassName());
+        $definition = new Definition('Namespace\\Class1');
+        $this->assertSame('Namespace\\Class1', $definition->getClass());
+    }
+
+    public function testClass()
+    {
+        $definition = new Definition('Namespace\\Class1');
+        $this->assertSame('Namespace\\Class1', $definition->getClass());
+        $definition->setClass('My\\Other\\Namespace\\MyOtherClass');
+        $this->assertSame('My\\Other\\Namespace\\MyOtherClass', $definition->getClass());
     }
 
     public function testNamespace()
     {
-        $definition = new Definition('Class1');
-        $definition->setNamespace('\Mondongo\Mondator\Definition');
-        $this->assertSame('\Mondongo\Mondator\Definition', $definition->getNamespace());
+        $definition = new Definition('Namespace\\Class1');
+        $this->assertSame('Namespace', $definition->getNamespace());
     }
 
     public function testClassName()
     {
-        $definition = new Definition('Class1');
-        $definition->setClassName('FooBar');
-        $this->assertSame('FooBar', $definition->getClassName());
-    }
-
-    public function testGetFullClass()
-    {
-        $definition = new Definition('Class1');
-        $definition->setClassName('Document');
-        $this->assertSame('Document', $definition->getFullClass());
-
-        $definition->setNamespace('Model\\Documents');
-        $this->assertSame('Model\\Documents\\Document', $definition->getFullClass());
+        $definition = new Definition('Namespace\\Class1');
+        $this->assertSame('Class1', $definition->getClassName());
     }
 
     public function testParentClass()

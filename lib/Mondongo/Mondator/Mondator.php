@@ -38,41 +38,41 @@ class Mondator
     /**
      * Set a config class.
      *
-     * @param string $className   The class name.
+     * @param string $class       The class.
      * @param array  $configClass The config class.
      *
      * @return void
      */
-    public function setConfigClass($className, array $configClass)
+    public function setConfigClass($class, array $configClass)
     {
-        $this->configClasses[$className] = $configClass;
+        $this->configClasses[$class] = $configClass;
     }
 
     /**
      * Set the config classes.
      *
-     * @param array $configClasses An array of config classes (class name as key and config class as value).
+     * @param array $configClasses An array of config classes (class as key and config class as value).
      *
      * @return void
      */
     public function setConfigClasses(array $configClasses)
     {
         $this->configClasses = array();
-        foreach ($configClasses as $className => $configClass) {
-            $this->setConfigClass($className, $configClass);
+        foreach ($configClasses as $class => $configClass) {
+            $this->setConfigClass($class, $configClass);
         }
     }
 
     /**
      * Returns if a config class exists.
      *
-     * @param string $className The class name.
+     * @param string $class The class.
      *
      * @return bool Returns if the config class exists.
      */
-    public function hasConfigClass($className)
+    public function hasConfigClass($class)
     {
-        return array_key_exists($className, $this->configClasses);
+        return array_key_exists($class, $this->configClasses);
     }
 
     /**
@@ -88,19 +88,19 @@ class Mondator
     /**
      * Returns a config class.
      *
-     * @param string $className The class name.
+     * @param string $class The class.
      *
      * @return array The config class.
      *
      * @throws \InvalidArgumentException If the config class does not exists.
      */
-    public function getConfigClass($className)
+    public function getConfigClass($class)
     {
-        if (!$this->hasConfigClass($className)) {
-            throw new \InvalidArgumentException(sprintf('The config class "%s" does not exists.', $className));
+        if (!$this->hasConfigClass($class)) {
+            throw new \InvalidArgumentException(sprintf('The config class "%s" does not exists.', $class));
         }
 
-        return $this->configClasses[$className];
+        return $this->configClasses[$class];
     }
 
     /**
@@ -151,8 +151,8 @@ class Mondator
 
         // configClasses
         $configClasses = new \ArrayObject();
-        foreach ($this->getConfigClasses() as $className => $configClass) {
-            $configClasses[$className] = new \ArrayObject($configClass);
+        foreach ($this->getConfigClasses() as $class => $configClass) {
+            $configClasses[$class] = new \ArrayObject($configClass);
         }
 
         // process
@@ -163,17 +163,17 @@ class Mondator
 
     protected function processConfigClasses(&$containers, \ArrayObject $configClasses)
     {
-        foreach ($configClasses as $className => $configClass) {
-            if (isset($containers[$className])) {
-                throw new \RuntimeException(sprintf('The class "%s" has several config class.', $className));
+        foreach ($configClasses as $class => $configClass) {
+            if (isset($containers[$class])) {
+                throw new \RuntimeException(sprintf('The class "%s" has several config class.', $class));
             }
 
-            $containers[$className] = $container = new Container();
+            $containers[$class] = $container = new Container();
 
             foreach ($this->getExtensions() as $extension) {
                 $newConfigClasses = new \ArrayObject();
 
-                $extension->process($container, $className, $configClass, $newConfigClasses);
+                $extension->process($container, $class, $configClass, $newConfigClasses);
 
                 if ($newConfigClasses) {
                     foreach ($newConfigClasses as &$newConfigClass) {

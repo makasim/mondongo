@@ -33,7 +33,7 @@ abstract class Extension
     protected $requiredOptions = array();
 
     protected $container;
-    protected $className;
+    protected $class;
     protected $configClass;
 
     protected $newConfigClasses;
@@ -189,16 +189,16 @@ abstract class Extension
      * Process the extension.
      *
      * @param Mondongo\Mondator\Container $container        The container.
-     * @param string                      $className        The class name.
+     * @param string                      $class            The class.
      * @param \ArrayObject                $configClass      The config class.
      * @param \ArrayObject                $newConfigClasses The new config classes.
      *
      * @return void
      */
-    public function process(Container $container, $className, \ArrayObject $configClass, \ArrayObject $newConfigClasses)
+    public function process(Container $container, $class, \ArrayObject $configClass, \ArrayObject $newConfigClasses)
     {
         $this->container   = $container;
-        $this->className   = $className;
+        $this->class       = $class;
         $this->configClass = $configClass;
 
         $this->newConfigClasses = $newConfigClasses;
@@ -209,7 +209,7 @@ abstract class Extension
         $this->doProcess();
 
         $this->container   = null;
-        $this->className   = null;
+        $this->class       = null;
         $this->configClass = null;
 
         $this->newConfigClasses = null;
@@ -230,7 +230,7 @@ abstract class Extension
                 throw new \InvalidArgumentException(sprintf('The extension "%s" does not have class.', $data['class']));
             }
             $extension = new $data['class'](isset($data['options']) ? $data['options'] : array());
-            $extension->process($this->container, $this->className, $this->configClass, $this->newConfigClasses);
+            $extension->process($this->container, $this->class, $this->configClass, $this->newConfigClasses);
         }
     }
 

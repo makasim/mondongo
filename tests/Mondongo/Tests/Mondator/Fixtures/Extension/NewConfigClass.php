@@ -42,7 +42,7 @@ class NewConfigClass extends Extension
 
     protected function doProcess()
     {
-        $newClassName = $this->className.$this->getOption('suffix');
+        $newClassName = $this->class.$this->getOption('suffix');
 
         $configClass = array(
             'name' => $this->getOption('name'),

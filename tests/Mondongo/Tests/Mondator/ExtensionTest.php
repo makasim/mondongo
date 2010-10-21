@@ -138,8 +138,8 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $extension = new \Mondongo\Tests\Mondator\Fixtures\Extension\ProcessOthersFromArray();
 
-        $container = new Container();
-        $className = 'Article';
+        $container   = new Container();
+        $class       = 'Article';
         $configClass = new \ArrayObject(array(
             'extensions' => array(
                 array(
@@ -161,7 +161,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
             ),
         ));
 
-        $extension->process($container, $className, $configClass, new \ArrayObject());
+        $extension->process($container, $class, $configClass, new \ArrayObject());
 
         $definitions = $container->getDefinitions();
 

@@ -29,9 +29,7 @@ namespace Mondongo\Mondator\Definition;
  */
 class Definition
 {
-    protected $namespace;
-
-    protected $className;
+    protected $class;
 
     protected $parentClass;
 
@@ -50,67 +48,63 @@ class Definition
     /**
      * Constructor.
      *
-     * @param string $className The class name.
+     * @param string $class The class.
      *
      * @return void
      */
-    public function __construct($className)
+    public function __construct($class)
     {
-        $this->setClassName($className);
+        $this->setClass($class);
     }
 
     /**
-     * Set the namespace.
+     * Set the class.
      *
-     * @param string $namespace The namespace.
+     * @param string $class The class.
      *
      * @return void
      */
-    public function setNamespace($namespace)
+    public function setClass($class)
     {
-        $this->namespace = $namespace;
+        $this->class = $class;
+    }
+
+    /**
+     * Returns the class.
+     *
+     * @return string The class.
+     */
+    public function getClass()
+    {
+        return $this->class;
     }
 
     /**
      * Returns the namespace.
      *
-     * @return string The namespace.
+     * @return string|null The namespace.
      */
     public function getNamespace()
     {
-        return $this->namespace;
-    }
+        if (false !== $pos = strrpos($this->class, '\\')) {
+            return substr($this->class, 0, $pos);
+        }
 
-    /**
-     * Set the class name.
-     *
-     * @param string $className The class name.
-     *
-     * @return void
-     */
-    public function setClassName($className)
-    {
-        $this->className = $className;
+        return null;
     }
 
     /**
      * Returns the class name.
      *
-     * @return string The class name.
+     * @return string|null The class name.
      */
     public function getClassName()
     {
-        return $this->className;
-    }
+        if (false !== $pos = strrpos($this->class, '\\')) {
+            return substr($this->class, $pos + 1);
+        }
 
-    /**
-     * Returns the class name with namespace.
-     *
-     * @return string The class name with namespace.
-     */
-    public function getFullClass()
-    {
-        return ($this->namespace ? $this->namespace.'\\' : '').$this->className;
+        return $this->class;
     }
 
     /**
