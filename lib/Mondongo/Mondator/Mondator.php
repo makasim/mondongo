@@ -165,7 +165,7 @@ class Mondator
     {
         foreach ($configClasses as $className => $configClass) {
             if (isset($containers[$className])) {
-                throw new \RuntimeException(sprintf('The class "%s" has several config class.', $classConfig));
+                throw new \RuntimeException(sprintf('The class "%s" has several config class.', $className));
             }
 
             $containers[$className] = $container = new Container();
