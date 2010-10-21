@@ -227,7 +227,7 @@ abstract class Extension
     {
         foreach ($extensions as $key => $data) {
             if (!isset($data['class'])) {
-                throw new \InvalidArgumentException(sprintf('The extension "%s" does not have class.'));
+                throw new \InvalidArgumentException(sprintf('The extension "%s" does not have class.', $data['class']));
             }
             $extension = new $data['class'](isset($data['options']) ? $data['options'] : array());
             $extension->process($this->container, $this->className, $this->configClass, $this->newConfigClasses);
