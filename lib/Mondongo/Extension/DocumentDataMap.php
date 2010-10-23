@@ -38,15 +38,6 @@ class DocumentDataMap extends Extension
      */
     protected function doProcess()
     {
-        $this->processDocumentDataMapProperty();
-        $this->processDocumentGetDataMapMethod();
-    }
-
-    /*
-     * DocumentMap "dataMap" property.
-     */
-    protected function processDocumentDataMapProperty()
-    {
         $dataMap = array();
 
         // fields
@@ -63,19 +54,10 @@ class DocumentDataMap extends Extension
             $dataMap['relations'] = $this->configClass['relations'];
         }
 
-        $property = new Property('protected', 'dataMap', $dataMap);
-        $property->setIsStatic(true);
+        $dataMap = \Mondongo\Mondator\Dumper::exportArray($dataMap, 12);
 
-        $this->definitions['document_base']->addProperty($property);
-    }
-
-    /*
-     * DocumentMap "getDataMap" method.
-     */
-    protected function processDocumentGetDataMapMethod()
-    {
         $method = new Method('public', 'getDataMap', '', <<<EOF
-        return self::\$dataMap;
+        return $dataMap;
 EOF
         );
         $method->setIsStatic(true);
