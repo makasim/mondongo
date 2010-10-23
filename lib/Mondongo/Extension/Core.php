@@ -1074,11 +1074,12 @@ EOF;
     {
         $code = '';
         foreach ($this->configClass['indexes'] as $key => $index) {
-            $keys    = var_export($index['keys'], true);
-            $options = var_export(array_merge(isset($index['options']) ? $index['options'] : array(), array('safe' => true)), true);
+            $keys    = \Mondongo\Mondator\Dumper::exportArray($index['keys'], 12);
+            $options = \Mondongo\Mondator\Dumper::exportArray(array_merge(isset($index['options']) ? $index['options'] : array(), array('safe' => true)), 12);
 
             $code .= <<<EOF
         \$this->getCollection()->ensureIndex($keys, $options);
+
 EOF;
         }
 
