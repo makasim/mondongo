@@ -161,7 +161,7 @@ class Core extends Extension
 
         // document
         $this->definitions['document'] = $definition = new Definition($classes['document']);
-        $definition->setParentClass($classes['document_base']);
+        $definition->setParentClass('\\'.$classes['document_base']);
         $definition->setDocComment(<<<EOF
 /**
  * {$this->class} document.
@@ -187,7 +187,7 @@ EOF
         if (!$this->configClass['is_embedded']) {
             // repository
             $this->definitions['repository'] = $definition = new Definition($classes['repository']);
-            $definition->setParentClass($classes['repository_base']);
+            $definition->setParentClass('\\'.$classes['repository_base']);
             $definition->setDocComment(<<<EOF
 /**
  * Repository of {$this->class} document.
