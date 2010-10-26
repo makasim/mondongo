@@ -219,6 +219,25 @@ class CoreTest extends TestCase
         $this->assertSame($g, $article->getCategories());
     }
 
+    public function testDocumentReferencesManyGetterWithoutIdsDocumentNew()
+    {
+        $article = new Article();
+        $categories = $article->getCategories();
+        $this->assertInstanceOf('\Mondongo\Group', $categories);
+        $this->assertSame(0, count($categories));
+    }
+
+    public function testDocumentReferencesManyGetterWithoutIdsDocumentNotNew()
+    {
+        $article = new Article();
+        $article->setTitle('Mondongo');
+        $article->save();
+
+        $categories = $article->getCategories();
+        $this->assertInstanceOf('\Mondongo\Group', $categories);
+        $this->assertSame(0, count($categories));
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */

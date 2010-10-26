@@ -791,16 +791,19 @@ EOF;
                 // getter
                 $getterCode = <<<EOF
         if (null === \$this->data['references']['$name']) {
-            \$ids   = \$this->$fieldGetter();
-            \$value = \\Mondongo\Container::getForDocumentClass('{$reference['class']}')->getRepository('{$reference['class']}')->find(array(
-                'query' => array('_id' => array('\$in' => \$ids)),
-            ));
-            if (!\$value || count(\$value) != count(\$ids)) {
-                throw new \RuntimeException('The reference "$name" does not exists');
-            }
+            \$group = new \Mondongo\Group();
 
-            \$group = new \Mondongo\Group(\$value);
-            \$group->setChangeCallback(array(\$this, '$updateMethodName'));
+            if (\$ids = \$this->$fieldGetter()) {
+                \$value = \\Mondongo\Container::getForDocumentClass('{$reference['class']}')->getRepository('{$reference['class']}')->find(array(
+                    'query' => array('_id' => array('\$in' => \$ids)),
+                ));
+                if (!\$value || count(\$value) != count(\$ids)) {
+                    throw new \RuntimeException('The reference "$name" does not exists');
+                }
+
+                \$group->setElements(\$value);
+                \$group->setChangeCallback(array(\$this, '$updateMethodName'));
+            }
 
             \$this->data['references']['$name'] = \$group;
         }
