@@ -1,4 +1,6 @@
-Mondongo
+MondonGO
 ========
 
-Mondongo is the simple, powerful and ultrafast Object Document Mapper (ODM) for PHP (5.3.0+) and MongoDB.
+MondonGO is a simple, powerful and ultrafast Object Document Mapper (ODM) for PHP and MongoDB.
+
+http://mondongo.es

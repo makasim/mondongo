@@ -8,10 +8,10 @@
    http://pear.php.net/dtd/package-2.0.xsd"
 >
 
- <name>Mondongo</name>
+ <name>MondonGO</name>
  <channel>pear.mondongo.es</channel>
- <summary>Mondongo is the simple, powerful and ultrafast Object Document Mapper (ODM) for PHP (5.3.0+) and MongoDB.</summary>
- <description>Mondongo is the simple, powerful and ultrafast Object Document Mapper (ODM) for PHP (5.3.0+) and MongoDB. </description>
+ <summary>MondonGO is a simple, powerful and ultrafast Object Document Mapper (ODM) for PHP and MongoDB.</summary>
+ <description>MondonGO is a simple, powerful and ultrafast Object Document Mapper (ODM) for PHP and MongoDB.</description>
  <lead>
   <name>Pablo Díez</name>
   <user>pablodip</user>
