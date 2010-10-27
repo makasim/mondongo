@@ -35,8 +35,6 @@ class ReferenceManyTypeTest extends TestCase
             new \MongoId('345'),
         );
         $this->assertSame($ids, $type->toMongo($ids));
-
-        $this->assertEquals($ids, $type->toMongo(array($ids[0], '234', '345')));
     }
 
     /**
@@ -51,9 +49,9 @@ class ReferenceManyTypeTest extends TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @dataProvider toMongoNotMongoIdNorStringProvider
+     * @dataProvider      toMongoNotMongoIdProvider
      */
-    public function testToMongoNotMongoIdNorString($value)
+    public function testToMongoNotMongoId($value)
     {
         $type = new ReferenceManyType();
         $type->toMongo($value);
@@ -82,13 +80,11 @@ class ReferenceManyTypeTest extends TestCase
             new \MongoId('345'),
         );
         $this->assertSame($ids, $function($ids));
-
-        $this->assertEquals($ids, $function(array($ids[0], '234', '345')));
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @dataProvider toMongoNotArrayProvider
+     * @dataProvider      toMongoNotArrayProvider
      */
     public function testToMongoInStringNotArray($value)
     {
@@ -100,9 +96,9 @@ class ReferenceManyTypeTest extends TestCase
 
     /**
      * @expectedException \InvalidArgumentException
-     * @dataProvider toMongoNotMongoIdNorStringProvider
+     * @dataProvider      toMongoNotMongoIdProvider
      */
-    public function testToMongoInStringNotMongoIdNorString($value)
+    public function testToMongoInStringNotMongoId($value)
     {
         $type = new ReferenceManyType();
         $function = $this->getTypeFunction($type->toMongoInString());
@@ -134,9 +130,10 @@ class ReferenceManyTypeTest extends TestCase
         );
     }
 
-    public function toMongoNotMongoIdNorStringProvider()
+    public function toMongoNotMongoIdProvider()
     {
         return array(
+            array(array(new \MongoId('123'), 'string')),
             array(array(new \MongoId('123'), 123)),
             array(array(new \MongoId('123'), 1.23)),
             array(array(new \MongoId('123'), array('string'))),

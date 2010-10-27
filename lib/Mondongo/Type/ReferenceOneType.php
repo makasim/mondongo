@@ -35,10 +35,7 @@ class ReferenceOneType extends Type
     public function toMongo($value)
     {
         if (!$value instanceof \MongoId) {
-            if (!is_string($value)) {
-                throw new \InvalidArgumentException('The value of the "reference_one" type must be an instance of \MongoId or a string.');
-            }
-            $value = new \MongoId($value);
+            throw new \InvalidArgumentException('The value of the "reference_one" type must be an instance of \MongoId.');
         }
 
         return $value;
@@ -59,10 +56,7 @@ class ReferenceOneType extends Type
     {
         return <<<EOF
 if (!%from% instanceof \MongoId) {
-    if (!is_string(%from%)) {
-        throw new \InvalidArgumentException('The value of the "reference_one" type must be an instance of \MongoId or a string.');
-    }
-    %from% = new \MongoId(%from%);
+    throw new \InvalidArgumentException('The value of the "reference_one" type must be an instance of \MongoId.');
 }
 %to% = %from%;
 EOF;

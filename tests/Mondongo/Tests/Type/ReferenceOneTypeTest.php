@@ -31,15 +31,13 @@ class ReferenceOneTypeTest extends TestCase
 
         $id = new \MongoId('123');
         $this->assertSame($id, $type->toMongo($id));
-
-        $this->assertEquals($id, $type->toMongo('123'));
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @dataProvider toMongoProvider
+     * @dataProvider      toMongoProvider
      */
-    public function testToMongoNotMongoIdNorString($value)
+    public function testToMongoNotMongoId($value)
     {
         $type = new ReferenceOneType();
         $type->toMongo($value);
@@ -60,15 +58,13 @@ class ReferenceOneTypeTest extends TestCase
 
         $id = new \MongoId('123');
         $this->assertSame($id, $function($id));
-
-        $this->assertEquals($id, $type->toMongo('123'));
     }
 
     /**
      * @expectedException \InvalidArgumentException
-     * @dataProvider toMongoProvider
+     * @dataProvider      toMongoProvider
      */
-    public function testToMongoInStringNotMongoIdNorString($value)
+    public function testToMongoInStringNotMongoId($value)
     {
         $type = new ReferenceOneType();
         $function = $this->getTypeFunction($type->toMongoInString());
@@ -88,6 +84,7 @@ class ReferenceOneTypeTest extends TestCase
     public function toMongoProvider()
     {
         return array(
+            array('string'),
             array(123),
             array(1.23),
             array(array('string')),

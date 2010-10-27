@@ -38,12 +38,9 @@ class ReferenceManyType extends Type
             throw new \InvalidArgumentException('The value must be an array.');
         }
 
-        foreach ($value as &$v) {
+        foreach ($value as $v) {
             if (!$v instanceof \MongoId) {
-                if (!is_string($v)) {
-                    throw new \InvalidArgumentException('The value of the "reference_many" type must be an instance of \MongoId or a string.');
-                }
-                $v = new \MongoId($v);
+                throw new \InvalidArgumentException('The value of the "reference_many" type must be an instance of \MongoId.');
             }
         }
 
@@ -67,12 +64,9 @@ class ReferenceManyType extends Type
 if (!is_array(%from%)) {
     throw new \InvalidArgumentException('The value must be an array.');
 }
-foreach (%from% as &\$_v) {
+foreach (%from% as \$_v) {
     if (!\$_v instanceof \MongoId) {
-        if (!is_string(\$_v)) {
-            throw new \InvalidArgumentException('The value of the "reference_many" type must be an instance of \MongoId or a string.');
-        }
-        \$_v = new \MongoId(\$_v);
+        throw new \InvalidArgumentException('The value of the "reference_many" type must be an instance of \MongoId.');
     }
 }
 %to% = %from%;
