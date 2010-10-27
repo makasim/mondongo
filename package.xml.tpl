@@ -8,7 +8,7 @@
    http://pear.php.net/dtd/package-2.0.xsd"
 >
 
- <name>MondonGO</name>
+ <name>Mondongo</name>
  <channel>pear.mondongo.es</channel>
  <summary>MondonGO is a simple, powerful and ultrafast Object Document Mapper (ODM) for PHP and MongoDB.</summary>
  <description>MondonGO is a simple, powerful and ultrafast Object Document Mapper (ODM) for PHP and MongoDB.</description>
@@ -32,6 +32,7 @@
 
  <contents>
   <dir name="/">
+   <file name="CHANGELOG" role="doc" />
    <file name="LICENSE" role="doc" />
    <file name="README.markdown" role="doc" />
     ##FILES##
