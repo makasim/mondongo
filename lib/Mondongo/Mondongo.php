@@ -247,15 +247,15 @@ class Mondongo
     }
 
     /**
-     * Access to repository ->findOneByMongoId() method.
+     * Access to repository ->findOneById() method.
      *
      * The first argument is the documentClass of repository.
      *
-     * @see Mondongo\Repository::findOneByMongoId()
+     * @see Mondongo\Repository::findOneById()
      */
-    public function findOneByMongoId($documentClass, \MongoId $id)
+    public function findOneById($documentClass, $id)
     {
-        return $this->getRepository($documentClass)->findOneByMongoId($id);
+        return $this->getRepository($documentClass)->findOneById($id);
     }
 
     /**

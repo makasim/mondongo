@@ -288,7 +288,7 @@ abstract class Repository
      *
      * @return mixed The document or NULL if it does not exists.
      */
-    public function findOneByMongoId(\MongoId $id)
+    public function findOneById($id)
     {
         return $this->find(array('query' => array('_id' => $id), 'one' => true));
     }

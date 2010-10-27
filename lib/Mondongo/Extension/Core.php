@@ -737,7 +737,7 @@ EOF;
         if (null === \$this->data['references']['$name']) {
             \$value = \\Mondongo\Container::getForDocumentClass('{$reference['class']}')
                 ->getRepository('{$reference['class']}')
-                ->findOneByMongoId(\$this->$fieldGetter())
+                ->findOneById(\$this->$fieldGetter())
             ;
             if (!\$value) {
                 throw new \RuntimeException('The reference "$name" does not exists');

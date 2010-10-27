@@ -176,7 +176,7 @@ class MondongoTest extends TestCase
     {
         $articles = $this->createArticles(10);
 
-        $this->assertEquals($articles[3], $this->mondongo->findOneByMongoId('Model\Document\Article', $articles[3]->getId()));
+        $this->assertEquals($articles[3], $this->mondongo->findOneById('Model\Document\Article', $articles[3]->getId()));
     }
 
     public function testCount()
