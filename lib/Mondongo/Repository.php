@@ -302,7 +302,7 @@ abstract class Repository
      */
     public function count(array $query = array())
     {
-        return $this->getCollection()->find($query)->count();
+        return $this->getCollection()->count($query);
     }
 
     /**
