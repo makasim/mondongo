@@ -115,6 +115,7 @@ class Dumper
     {
         return <<<EOF
 <?php
+
 EOF;
     }
 
@@ -126,15 +127,19 @@ EOF;
 
         return <<<EOF
 
-
 namespace $namespace;
+
 EOF;
     }
 
     protected function startClass()
     {
+        $code = "\n";
+
         // doc comment
-        $docComment = $this->definition->getDocComment();
+        if ($docComment = $this->definition->getDocComment()) {
+            $code .= $docComment."\n";
+        }
 
         /*
          * declaration
@@ -159,13 +164,12 @@ EOF;
             $declaration .= ' implements '.implode(', ', $interfaces);
         }
 
-        return <<<EOF
-
-
-$docComment
+        $code .= <<<EOF
 $declaration
 {
 EOF;
+
+        return $code;
     }
 
     protected function addProperties()
@@ -173,16 +177,27 @@ EOF;
         $code = '';
 
         foreach ($this->definition->getProperties() as $property) {
-            $docComment = $property->getDocComment();
-            $isStatic   = $property->getIsStatic() ? 'static ' : '';
-            $value      = is_array($property->getValue()) ? self::exportArray($property->getValue(), 8) : var_export($property->getValue(), true);
+            $code .= "\n";
 
-            $code .= <<<EOF
+            if ($docComment = $property->getDocComment()) {
+                $code .= $docComment."\n";
+            }
+            $isStatic = $property->getIsStatic() ? 'static ' : '';
 
+            $value = $property->getValue();
+            if (null === $value) {
+                $code .= <<<EOF
+    $isStatic{$property->getVisibility()} \${$property->getName()};
+EOF;
+            } else {
+                $value = is_array($property->getValue()) ? self::exportArray($property->getValue(), 8) : var_export($property->getValue(), true);
 
-$docComment
+                $code .= <<<EOF
     $isStatic{$property->getVisibility()} \${$property->getName()} = $value;
 EOF;
+            }
+
+            $code .= "\n";
         }
 
         return $code;
@@ -193,8 +208,12 @@ EOF;
         $code = '';
 
         foreach ($this->definition->getMethods() as $method) {
+            $code .= "\n";
+
             // doc comment
-            $docComment = $method->getDocComment();
+            if ($docComment = $method->getDocComment()) {
+                $code .= $docComment."\n";
+            }
 
             // isFinal
             $isFinal = $method->getIsFinal() ? 'final ' : '';
@@ -205,23 +224,19 @@ EOF;
             // abstract
             if ($method->getIsAbstract()) {
                 $code .= <<<EOF
-
-
-$docComment
     abstract $isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()});
 EOF;
             } else {
                 $code .= <<<EOF
-
-
-$docComment
     $isFinal$isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()})
     {
 {$method->getCode()}
     }
 EOF;
-        }
             }
+
+            $code .= "\n";
+        }
 
         return $code;
     }
@@ -229,7 +244,6 @@ EOF;
     protected function endClass()
     {
         return <<<EOF
-
 }
 EOF;
     }
