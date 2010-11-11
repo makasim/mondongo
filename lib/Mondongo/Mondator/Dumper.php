@@ -243,8 +243,16 @@ EOF;
 
     protected function endClass()
     {
-        return <<<EOF
+        $code = '';
+
+        if (!$this->definition->getProperties() && !$this->definition->getMethods()) {
+            $code .= "\n";
+        }
+
+        $code .= <<<EOF
 }
 EOF;
+
+        return $code;
     }
 }
