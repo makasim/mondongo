@@ -144,6 +144,30 @@ $configClasses = array(
             'article' => array('class' => 'Model\\Document\\Article', 'field' => 'embed_not_id', 'type' => 'one'),
         ),
     ),
+    'Model\\Document\\MultipleEmbeds' => array(
+        'fields' => array(
+            'title'   => 'string',
+            'content' => 'string',
+        ),
+        'embeddeds' => array(
+            'embeddeds1' => array('class' => 'Model\\Document\\MultipleEmbedsEmbedded1', 'type' => 'many'),
+        ),
+    ),
+    'Model\\Document\\MultipleEmbedsEmbedded1' => array(
+        'fields' => array(
+            'name'    => 'string',
+            'surname' => 'string',
+        ),
+        'embeddeds' => array(
+            'embeddeds2' => array('class' => 'Model\\Document\\MultipleEmbedsEmbedded2', 'type' => 'many'),
+        ),
+    ),
+    'Model\\Document\\MultipleEmbedsEmbedded2' => array(
+        'fields' => array(
+            'field1' => 'string',
+            'field2' => 'string',
+        ),
+    ),
 );
 
 $mondator = new Mondator();

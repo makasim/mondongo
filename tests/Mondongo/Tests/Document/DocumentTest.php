@@ -26,6 +26,9 @@ use Mondongo\Document\Document as DocumentBase;
 use Model\Document\Article;
 use Model\Document\Comment;
 use Model\Document\Source;
+use Model\Document\MultipleEmbeds;
+use Model\Document\MultipleEmbedsEmbedded1;
+use Model\Document\MultipleEmbedsEmbedded2;
 
 class Document extends DocumentBase
 {
@@ -224,5 +227,31 @@ class DocumentTest extends TestCase
                 ),
             ),
         ), $article->getQueryForSave());
+    }
+
+    public function testQueryForSaveMultipleEmbeds()
+    {
+        $document = new MultipleEmbeds();
+        $document->setTitle('My Title');
+
+        $document->getEmbeddeds1()->add($e1 = new MultipleEmbedsEmbedded1());
+        $e1->setName('My Name 1');
+
+        $e1->getEmbeddeds2()->add($e2 = new MultipleEmbedsEmbedded2());
+        $e2->setField1('My Field 1');
+
+        $this->assertSame(array(
+            'title' => 'My Title',
+            'embeddeds1' => array(
+                array(
+                    'name' => 'My Name 1',
+                    'embeddeds2' => array(
+                        array(
+                            'field1' => 'My Field 1',
+                        ),
+                    ),
+                ),
+            ),
+        ), $document->getQueryForSave());
     }
 }

@@ -146,7 +146,7 @@ abstract class Document extends EmbeddedDocument
 
         // embeddeds
         if (isset($data['embeddeds'])) {
-            foreach ($this->data['embeddeds'] as $embedName => $embed) {
+            foreach ($data['embeddeds'] as $embedName => $embed) {
                 if (null !== $embed) {
                     $embedName = null !== $name ? array_merge($name, array($embedName)) : array($embedName);
 
