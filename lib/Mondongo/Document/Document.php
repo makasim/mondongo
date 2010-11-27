@@ -64,6 +64,20 @@ abstract class Document extends EmbeddedDocument
     }
 
     /**
+     * Refresh the document data from the database.
+     *
+     * @return void
+     */
+    public function refresh()
+    {
+        if ($this->isNew()) {
+            throw new \LogicException('The document is new.');
+        }
+
+        $this->setDocumentData($this->getRepository()->getCollection()->findOne(array('_id' => $this->getId())));
+    }
+
+    /**
      * Save the document.
      *
      * @return void

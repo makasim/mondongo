@@ -52,6 +52,44 @@ class DocumentTest extends TestCase
         $this->assertFalse($document->isNew());
     }
 
+    public function testRefresh()
+    {
+        $article = new Article();
+        $article->setTitle('My Title');
+        $article->setContent('My Content');
+        $article->save();
+
+        $article->setTitle('foo');
+        $article->setContent('bar');
+        $article->refresh();
+        $this->assertSame('My Title', $article->getTitle());
+        $this->assertSame('My Content', $article->getContent());
+    }
+
+    public function testRefreshWithEmbeddeds()
+    {
+        $article = new Article();
+        $article->setTitle('My Title');
+        $article->getSource()->setName('My Name');
+        $article->save();
+
+        $article->setTitle('foo');
+        $article->getSource()->setName('bar');
+        $article->refresh();
+        $this->assertSame('My Title', $article->getTitle());
+        $this->assertSame('My Name', $article->getSource()->getName());
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testRefreshIsNew()
+    {
+        $article = new Article();
+        $article->setTitle('foo');
+        $article->refresh();
+    }
+
     public function testSave()
     {
         $article = new Article();
