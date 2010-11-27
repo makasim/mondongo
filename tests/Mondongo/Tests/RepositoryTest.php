@@ -196,6 +196,8 @@ class RepositoryTest extends TestCase
         $image->setDescription('Foobar');
         $repository->save($image);
 
+        $repository->getIdentityMap()->clear();
+
         $image  = $repository->find(array('one' => true));
         $result = $this->db->getGridFS('image')->findOne();
 
@@ -218,6 +220,8 @@ class RepositoryTest extends TestCase
     {
         $repository = $this->mondongo->getRepository('Model\Document\Article');
         $articles   = $this->createArticles(10);
+
+        $repository->getIdentityMap()->clear();
 
         $results = $repository->find(array('fields' => array('content' => 1)));
 
@@ -509,5 +513,31 @@ class RepositoryTest extends TestCase
             'postDeleteExtensions',
             'postDelete',
         ), $document->getEvents());
+    }
+
+    public function testGetIdentityMap()
+    {
+        $repository = new Repository($this->mondongo);
+
+        $this->assertInstanceOf('\Mondongo\IdentityMap', $repository->getIdentityMap());
+    }
+
+    public function testIdentityMapFind()
+    {
+        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $articles   = $this->createArticles(10);
+
+        $this->assertSame($articles[1], $repository->find(array('query' => array('_id' => $articles[1]->getId()), 'one' => true)));
+    }
+
+    public function testIdentityMapDelete()
+    {
+        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $articles   = $this->createArticles(10);
+
+        $id = $articles[1]->getId();
+        $articles[1]->delete();
+
+        $this->assertFalse($repository->getIdentityMap()->hasById($id));
     }
 }

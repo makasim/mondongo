@@ -44,6 +44,8 @@ abstract class Repository
 
     protected $collection;
 
+    protected $identityMap;
+
     /**
      * Constructor.
      *
@@ -53,7 +55,8 @@ abstract class Repository
      */
     public function __construct(Mondongo $mondongo)
     {
-        $this->mondongo = $mondongo;
+        $this->mondongo    = $mondongo;
+        $this->identityMap = new IdentityMap();
     }
 
     /**
@@ -195,6 +198,16 @@ abstract class Repository
     }
 
     /**
+     * Returns the identity map.
+     *
+     * @return \Mondongo\IdentityMap The identity map.
+     */
+    public function getIdentityMap()
+    {
+        return $this->identityMap;
+    }
+
+    /**
      * Find documents.
      *
      * Options:
@@ -246,6 +259,12 @@ abstract class Repository
         // results
         $results = array();
         foreach ($cursor as $data) {
+            $id = $this->isFile ? $data->file['_id'] : $data['_id'];
+            if ($this->identityMap->hasById($id)) {
+                $results[] = $this->identityMap->getById($id);
+                continue;
+            }
+
             $results[] = $document = new $this->documentClass();
             if ($this->isFile) {
                 $file = $data;
@@ -387,6 +406,8 @@ abstract class Repository
                 $inserts[$oid]->setId($data['_id']);
                 $inserts[$oid]->clearModified();
 
+                $this->identityMap->add($inserts[$oid]);
+
                 // postInsert event
                 $inserts[$oid]->postInsertExtensions();
                 $inserts[$oid]->postInsert();
@@ -450,6 +471,8 @@ abstract class Repository
         $this->getCollection()->remove(array('_id' => array('$in' => $ids)), array('safe' => true));
 
         foreach ($documents as $document) {
+            $this->identityMap->remove($document);
+
             // postDelete event
             $document->postDeleteExtensions();
             $document->postDelete();
