@@ -25,7 +25,7 @@ use Mondongo\Container;
 use Mondongo\Connection;
 use Mondongo\Mondongo;
 use Mondongo\Type\Container as TypeContainer;
-use Model\Document\Article;
+use Model\Article;
 
 class TestCase extends \PHPUnit_Framework_TestCase
 {
@@ -93,7 +93,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
             $a->setTitle('Article '.$i);
             $a->setContent('Content');
         }
-        $this->mondongo->getRepository('Model\Document\Article')->save($articles);
+        $this->mondongo->getRepository('Model\Article')->save($articles);
 
         return $articles;
     }

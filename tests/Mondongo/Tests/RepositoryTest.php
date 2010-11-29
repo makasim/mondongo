@@ -24,9 +24,9 @@ namespace Mondongo\Tests;
 use Mondongo\Connection;
 use Mondongo\Mondongo;
 use Mondongo\Repository as RepositoryBase;
-use Model\Document\Article;
-use Model\Document\Events;
-use Model\Document\Image;
+use Model\Article;
+use Model\Events;
+use Model\Image;
 
 class Repository extends RepositoryBase
 {
@@ -120,15 +120,15 @@ class RepositoryTest extends TestCase
             'global' => $global = new Connection('localhost', 'mondongo_tests_global'),
         ));
 
-        $this->assertSame($local, $mondongo->getRepository('Model\Document\Article')->getConnection());
-        $this->assertSame($global, $mondongo->getRepository('Model\Document\ConnectionGlobal')->getConnection());
+        $this->assertSame($local, $mondongo->getRepository('Model\Article')->getConnection());
+        $this->assertSame($global, $mondongo->getRepository('Model\ConnectionGlobal')->getConnection());
     }
 
     public function testCollection()
     {
         $mondongo = new Mondongo();
         $mondongo->setConnection('default', $this->connection);
-        $collection = $mondongo->getRepository('Model\Document\Article')->getCollection();
+        $collection = $mondongo->getRepository('Model\Article')->getCollection();
 
         $this->assertSame('MongoCollection', get_class($collection));
         $this->assertSame('article', $collection->getName());
@@ -141,7 +141,7 @@ class RepositoryTest extends TestCase
         $mondongo = new Mondongo();
         $mondongo->setLoggerCallable($loggerCallable);
         $mondongo->setConnection('default', $this->connection);
-        $collection = $mondongo->getRepository('Model\Document\Article')->getCollection();
+        $collection = $mondongo->getRepository('Model\Article')->getCollection();
 
         $this->assertSame('Mondongo\LoggableMongoCollection', get_class($collection));
         $this->assertSame('article', $collection->getName());
@@ -152,7 +152,7 @@ class RepositoryTest extends TestCase
     {
         $mondongo = new Mondongo();
         $mondongo->setConnection('default', $this->connection);
-        $collection = $mondongo->getRepository('Model\Document\Image')->getCollection();
+        $collection = $mondongo->getRepository('Model\Image')->getCollection();
 
         $this->assertSame('MongoGridFS', get_class($collection));
         $this->assertSame('image.files', $collection->getName());
@@ -165,7 +165,7 @@ class RepositoryTest extends TestCase
         $mondongo = new Mondongo();
         $mondongo->setLoggerCallable($loggerCallable);
         $mondongo->setConnection('default', $this->connection);
-        $collection = $mondongo->getRepository('Model\Document\Image')->getCollection();
+        $collection = $mondongo->getRepository('Model\Image')->getCollection();
 
         $this->assertSame('Mondongo\LoggableMongoGridFS', get_class($collection));
         $this->assertSame('image.files', $collection->getName());
@@ -174,7 +174,7 @@ class RepositoryTest extends TestCase
 
     public function testFind()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertEquals($articles, $repository->find());
@@ -188,7 +188,7 @@ class RepositoryTest extends TestCase
 
         $mondongo = new Mondongo();
         $mondongo->setConnection('default', $this->connection);
-        $repository = $mondongo->getRepository('Model\Document\Image');
+        $repository = $mondongo->getRepository('Model\Image');
 
         $image = new Image();
         $image->setFile($file);
@@ -208,7 +208,7 @@ class RepositoryTest extends TestCase
 
     public function testFindOptionQuery()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertEquals(array($articles[0], $articles[4]), $repository->find(array('query' => array(
@@ -218,7 +218,7 @@ class RepositoryTest extends TestCase
 
     public function testFindOptionFields()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $repository->getIdentityMap()->clear();
@@ -233,7 +233,7 @@ class RepositoryTest extends TestCase
 
     public function testFindOptionSort()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(11);
 
         $results = $repository->find(array('sort' => array('title' => -1)));
@@ -247,7 +247,7 @@ class RepositoryTest extends TestCase
 
     public function testFindOptionLimit()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertSame(4, count($repository->find(array('limit' => 4))));
@@ -256,7 +256,7 @@ class RepositoryTest extends TestCase
 
     public function testFindOptionSkip()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertEquals(array($articles[8], $articles[9]), $repository->find(array(
@@ -269,7 +269,7 @@ class RepositoryTest extends TestCase
 
     public function testFindOptionOne()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertEquals($articles[0], $repository->find(array('query' => array('_id' => $articles[0]->getId()), 'one' => true)));
@@ -278,7 +278,7 @@ class RepositoryTest extends TestCase
 
     public function testFindOne()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertEquals($articles[0], $repository->findOne());
@@ -289,7 +289,7 @@ class RepositoryTest extends TestCase
 
     public function testFindOneById()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertEquals($articles[2], $repository->findOneById($articles[2]->getId()));
@@ -300,7 +300,7 @@ class RepositoryTest extends TestCase
 
     public function testCount()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertSame(10, $repository->count());
@@ -308,7 +308,7 @@ class RepositoryTest extends TestCase
 
     public function testCountQuery()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         for ($i = 1; $i <= 5; $i++) {
@@ -321,7 +321,7 @@ class RepositoryTest extends TestCase
 
     public function testRemove()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $repository->remove();
@@ -331,7 +331,7 @@ class RepositoryTest extends TestCase
 
     public function testRemoveQuery()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $articles[3]->setTitle('No');
@@ -345,7 +345,7 @@ class RepositoryTest extends TestCase
 
     public function testSaveInsertUnique()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
 
         $article = new Article();
         $article->setTitle('Mondongo');
@@ -361,7 +361,7 @@ class RepositoryTest extends TestCase
 
     public function testSaveUpdateUnique()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $articles[4]->setTitle('Mondongo Updated');
@@ -379,7 +379,7 @@ class RepositoryTest extends TestCase
     {
         $file = __DIR__.'/MondongoTest.php';
 
-        $repository = $this->mondongo->getRepository('Model\Document\Image');
+        $repository = $this->mondongo->getRepository('Model\Image');
 
         $image = new Image();
         $image->setFile($file);
@@ -399,7 +399,7 @@ class RepositoryTest extends TestCase
     {
         $bytes = file_get_contents(__DIR__.'/MondongoTest.php');
 
-        $repository = $this->mondongo->getRepository('Model\Document\Image');
+        $repository = $this->mondongo->getRepository('Model\Image');
 
         $image = new Image();
         $image->setFile($bytes);
@@ -419,7 +419,7 @@ class RepositoryTest extends TestCase
     {
         $file = __DIR__.'/MondongoTest.php';
 
-        $repository = $this->mondongo->getRepository('Model\Document\Image');
+        $repository = $this->mondongo->getRepository('Model\Image');
 
         $image = new Image();
         $image->setFile($file);
@@ -441,7 +441,7 @@ class RepositoryTest extends TestCase
 
     public function testSaveEvents()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Events');
+        $repository = $this->mondongo->getRepository('Model\Events');
 
         $document = new Events();
         $document->setName('Mondongo');
@@ -476,7 +476,7 @@ class RepositoryTest extends TestCase
 
     public function testDeleteUnique()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $repository->delete($articles[3]);
@@ -486,7 +486,7 @@ class RepositoryTest extends TestCase
 
     public function testDeleteMultiple()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $repository->delete(array($articles[4], $articles[7]));
@@ -498,7 +498,7 @@ class RepositoryTest extends TestCase
 
     public function testDeleteEvents()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Events');
+        $repository = $this->mondongo->getRepository('Model\Events');
 
         $document = new Events();
         $document->setName('Mondongo');
@@ -524,7 +524,7 @@ class RepositoryTest extends TestCase
 
     public function testIdentityMapFind()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertSame($articles[1], $repository->find(array('query' => array('_id' => $articles[1]->getId()), 'one' => true)));
@@ -532,7 +532,7 @@ class RepositoryTest extends TestCase
 
     public function testIdentityMapDelete()
     {
-        $repository = $this->mondongo->getRepository('Model\Document\Article');
+        $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $id = $articles[1]->getId();

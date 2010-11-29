@@ -22,7 +22,7 @@
 namespace Mondongo\Tests\Extension;
 
 use Mondongo\Tests\TestCase;
-use Model\Document\Article;
+use Model\Article;
 
 class DocumentArrayAccessTest extends TestCase
 {

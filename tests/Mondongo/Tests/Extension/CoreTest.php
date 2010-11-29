@@ -26,23 +26,23 @@ use Mondongo\Extension\Core;
 use Mondongo\Group;
 use Mondongo\Mondator\Container;
 use Mondongo\Mondongo;
-use Model\Document\Article;
-use Model\Document\Author;
-use Model\Document\AuthorTelephone;
-use Model\Document\Category;
-use Model\Document\Comment;
-use Model\Document\EmbedNot;
-use Model\Document\Source;
-use Model\Document\User;
+use Model\Article;
+use Model\Author;
+use Model\AuthorTelephone;
+use Model\Category;
+use Model\Comment;
+use Model\EmbedNot;
+use Model\Source;
+use Model\User;
 
 class CoreTest extends TestCase
 {
     public function testDocumentMondongoParentClass()
     {
-        $r = new \ReflectionClass('Model\Document\Article');
+        $r = new \ReflectionClass('Model\Article');
         $this->assertTrue($r->isSubclassOf('Mondongo\Document\Document'));
 
-        $r = new \ReflectionClass('Model\Document\Comment');
+        $r = new \ReflectionClass('Model\Comment');
         $this->assertTrue($r->isSubclassOf('Mondongo\Document\EmbeddedDocument'));
         $this->assertFalse($r->isSubclassOf('Mondongo\Document\Document'));
     }
@@ -53,7 +53,7 @@ class CoreTest extends TestCase
         $this->assertSame($this->mondongo, $article->getMondongo());
 
         $mondongo = new Mondongo();
-        \Mondongo\Container::setForDocumentClass('Model\Document\Article', $mondongo);
+        \Mondongo\Container::setForDocumentClass('Model\Article', $mondongo);
         $this->assertSame($mondongo, $article->getMondongo());
     }
 
@@ -70,10 +70,10 @@ class CoreTest extends TestCase
     public function testDocumentBaseGetRepositoryMethodNamespaced()
     {
         $article = new Article();
-        $this->assertSame($this->mondongo->getRepository('Model\Document\Article'), $article->getRepository());
+        $this->assertSame($this->mondongo->getRepository('Model\Article'), $article->getRepository());
 
         $user = new User();
-        $this->assertSame($this->mondongo->getRepository('Model\Document\User'), $user->getRepository());
+        $this->assertSame($this->mondongo->getRepository('Model\User'), $user->getRepository());
     }
 
     public function testDocumentBaseGetRepositoryMethodNotNamespaced()
@@ -156,7 +156,7 @@ class CoreTest extends TestCase
 
         $article->save();
 
-        $article = $this->mondongo->getRepository('Model\Document\Article')->findOneById($article->getId());
+        $article = $this->mondongo->getRepository('Model\Article')->findOneById($article->getId());
         $this->assertEquals($author, $a = $article->getAuthor());
         $this->assertSame($a, $article->getAuthor());
     }
@@ -214,7 +214,7 @@ class CoreTest extends TestCase
 
         $article->save();
 
-        $article = $this->mondongo->getRepository('Model\Document\Article')->findOneById($article->getId());
+        $article = $this->mondongo->getRepository('Model\Article')->findOneById($article->getId());
         $this->assertEquals($group, $g = $article->getCategories());
         $this->assertSame($g, $article->getCategories());
     }
@@ -557,7 +557,7 @@ class CoreTest extends TestCase
 
     public function testRepositoryDocumentClassPropertyNamespaced()
     {
-        $this->assertSame('Model\Document\Article', $this->mondongo->getRepository('Model\Document\Article')->getDocumentClass());
+        $this->assertSame('Model\Article', $this->mondongo->getRepository('Model\Article')->getDocumentClass());
     }
 
     public function testRepositoryDocumentClassPropertyNotNamespaced()
@@ -567,25 +567,25 @@ class CoreTest extends TestCase
 
     public function testRepositoryConnectionNameProperty()
     {
-        $this->assertNull($this->mondongo->getRepository('Model\Document\Article')->getConnectionName());
-        $this->assertSame('global', $this->mondongo->getRepository('Model\Document\ConnectionGlobal')->getConnectionName());
+        $this->assertNull($this->mondongo->getRepository('Model\Article')->getConnectionName());
+        $this->assertSame('global', $this->mondongo->getRepository('Model\ConnectionGlobal')->getConnectionName());
     }
 
     public function testRepositoryCollectionNameProperty()
     {
-        $this->assertSame('article', $this->mondongo->getRepository('\Model\Document\Article')->getCollectionName());
-        $this->assertSame('my_name', $this->mondongo->getRepository('Model\Document\CollectionName')->getCollectionName());
+        $this->assertSame('article', $this->mondongo->getRepository('\Model\Article')->getCollectionName());
+        $this->assertSame('my_name', $this->mondongo->getRepository('Model\CollectionName')->getCollectionName());
     }
 
     public function testRepositoryIsFileProperty()
     {
-        $this->assertTrue($this->mondongo->getRepository('Model\Document\Image')->isFile());
-        $this->assertFalse($this->mondongo->getRepository('Model\Document\Article')->isFile());
+        $this->assertTrue($this->mondongo->getRepository('Model\Image')->isFile());
+        $this->assertFalse($this->mondongo->getRepository('Model\Article')->isFile());
     }
 
     public function testRepositoryEnsureIndexesMethod()
     {
-        $this->mondongo->getRepository('Model\Document\Article')->ensureIndexes();
+        $this->mondongo->getRepository('Model\Article')->ensureIndexes();
 
         $indexInfo = $this->db->article->getIndexInfo();
 
@@ -602,22 +602,9 @@ class CoreTest extends TestCase
     /**
      * @expectedException \RuntimeException
      */
-    public function testDocumentDoesNotHaveOutput()
+    public function testDoesNotHaveOutput()
     {
-        $extension = new Core(array(
-            'default_repository_output' => '/tmp',
-        ));
-        $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
-    }
-
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testRepositoryDoesNotHaveOutput()
-    {
-        $extension = new Core(array(
-            'default_document_output' => '/tmp',
-        ));
+        $extension = new Core(array());
         $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
     }
 

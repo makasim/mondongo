@@ -21,7 +21,7 @@
 
 namespace Mondongo\Tests\Extension;
 
-use Model\Document\Article;
+use Model\Article;
 
 class DocumentDataMapTest extends \PHPUnit_Framework_TestCase
 {
@@ -37,16 +37,16 @@ class DocumentDataMapTest extends \PHPUnit_Framework_TestCase
                 'category_ids' => array('type' => 'reference_many'),
             ),
             'references' => array(
-                'author'     => array('class' => 'Model\Document\Author', 'field' => 'author_id', 'type' => 'one'),
-                'categories' => array('class' => 'Model\Document\Category', 'field' => 'category_ids', 'type' => 'many'),
+                'author'     => array('class' => 'Model\Author', 'field' => 'author_id', 'type' => 'one'),
+                'categories' => array('class' => 'Model\Category', 'field' => 'category_ids', 'type' => 'many'),
             ),
             'embeddeds' => array(
-                'source'   => array('class' => 'Model\Document\Source', 'type' => 'one'),
-                'comments' => array('class' => 'Model\Document\Comment', 'type' => 'many'),
+                'source'   => array('class' => 'Model\Source', 'type' => 'one'),
+                'comments' => array('class' => 'Model\Comment', 'type' => 'many'),
             ),
             'relations' => array(
-                'summary' => array('class' => 'Model\Document\Summary', 'field' => 'article_id', 'type' => 'one'),
-                'news'    => array('class' => 'Model\Document\News', 'field' => 'article_id', 'type' => 'many'),
+                'summary' => array('class' => 'Model\Summary', 'field' => 'article_id', 'type' => 'one'),
+                'news'    => array('class' => 'Model\News', 'field' => 'article_id', 'type' => 'many'),
             ),
         ), Article::getDataMap());
     }

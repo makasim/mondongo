@@ -23,12 +23,12 @@ namespace Mondongo\Tests\Document;
 
 use Mondongo\Tests\TestCase;
 use Mondongo\Document\Document as DocumentBase;
-use Model\Document\Article;
-use Model\Document\Comment;
-use Model\Document\Source;
-use Model\Document\MultipleEmbeds;
-use Model\Document\MultipleEmbedsEmbedded1;
-use Model\Document\MultipleEmbedsEmbedded2;
+use Model\Article;
+use Model\Comment;
+use Model\Source;
+use Model\MultipleEmbeds;
+use Model\MultipleEmbedsEmbedded1;
+use Model\MultipleEmbedsEmbedded2;
 
 class Document extends DocumentBase
 {

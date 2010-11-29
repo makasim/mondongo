@@ -21,7 +21,7 @@
 
 namespace Mondongo\Tests\Extension;
 
-use Model\Document\Article;
+use Model\Article;
 
 class DocumentDataCamelCaseMapTest extends \PHPUnit_Framework_TestCase
 {

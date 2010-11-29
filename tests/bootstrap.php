@@ -21,49 +21,49 @@ use \Mondongo\Mondator\Output\Output;
 
 // namespaced
 $configClasses = array(
-    'Model\\Document\\Author' => array(
+    'Model\Author' => array(
         'fields' => array(
             'name'         => 'string',
             'telephone_id' => 'reference_one',
         ),
         'references' => array(
-            'telephone' => array('class' => 'Model\\Document\\AuthorTelephone', 'field' => 'telephone_id', 'type' => 'one'),
+            'telephone' => array('class' => 'Model\AuthorTelephone', 'field' => 'telephone_id', 'type' => 'one'),
         ),
         'relations' => array(
-            'articles' => array('class' => 'Model\\Document\\Article', 'field' => 'author_id', 'type' => 'many'),
+            'articles' => array('class' => 'Model\Article', 'field' => 'author_id', 'type' => 'many'),
         ),
     ),
-    'Model\\Document\\AuthorTelephone' => array(
+    'Model\AuthorTelephone' => array(
         'fields' => array(
             'number' => 'string',
         ),
         'relations' => array(
-            'author' => array('class' => 'Model\\Document\\Author', 'field' => 'telephone_id', 'type' => 'one'),
+            'author' => array('class' => 'Model\Author', 'field' => 'telephone_id', 'type' => 'one'),
         ),
     ),
-    'Model\\Document\\Category' => array(
+    'Model\Category' => array(
         'fields' => array(
             'name' => 'string',
         ),
         'relations' => array(
-            'articles' => array('class' => 'Model\\Document\\Article', 'field' => 'category_ids', 'type' => 'many'),
+            'articles' => array('class' => 'Model\Article', 'field' => 'category_ids', 'type' => 'many'),
         ),
     ),
-    'Model\\Document\\Comment' => array(
+    'Model\Comment' => array(
         'is_embedded' => true,
         'fields' => array(
             'name' => 'string',
             'text' => 'string',
         ),
     ),
-    'Model\\Document\\Source' => array(
+    'Model\Source' => array(
         'is_embedded' => true,
         'fields' => array(
             'name' => 'string',
             'url'  => 'string',
         ),
     ),
-    'Model\\Document\\Article' => array(
+    'Model\Article' => array(
         'collection' => 'article',
         'fields' => array(
             'title'        => 'string',
@@ -74,16 +74,16 @@ $configClasses = array(
             'category_ids' => 'reference_many',
         ),
         'references' => array(
-            'author'     => array('class' => 'Model\\Document\\Author', 'field' => 'author_id', 'type' => 'one'),
-            'categories' => array('class' => 'Model\\Document\\Category', 'field' => 'category_ids', 'type' => 'many'),
+            'author'     => array('class' => 'Model\Author', 'field' => 'author_id', 'type' => 'one'),
+            'categories' => array('class' => 'Model\Category', 'field' => 'category_ids', 'type' => 'many'),
         ),
         'embeddeds' => array(
-            'source'   => array('class' => 'Model\\Document\\Source', 'type' => 'one'),
-            'comments' => array('class' => 'Model\\Document\\Comment', 'type' => 'many'),
+            'source'   => array('class' => 'Model\Source', 'type' => 'one'),
+            'comments' => array('class' => 'Model\Comment', 'type' => 'many'),
         ),
         'relations' => array(
-            'summary' => array('class' => 'Model\\Document\\Summary', 'field' => 'article_id', 'type' => 'one'),
-            'news'    => array('class' => 'Model\\Document\\News', 'field' => 'article_id', 'type' => 'many'),
+            'summary' => array('class' => 'Model\Summary', 'field' => 'article_id', 'type' => 'one'),
+            'news'    => array('class' => 'Model\News', 'field' => 'article_id', 'type' => 'many'),
         ),
         'indexes' => array(
             array(
@@ -95,31 +95,31 @@ $configClasses = array(
             ),
         ),
     ),
-    'Model\\Document\\News' => array(
+    'Model\News' => array(
         'fields' => array(
             'title'      => 'string',
             'article_id' => 'reference_one',
         ),
         'references' => array(
-            'article' => array('class' => 'Model\\Document\\Article', 'field' => 'article_id', 'type' => 'one'),
+            'article' => array('class' => 'Model\Article', 'field' => 'article_id', 'type' => 'one'),
         ),
     ),
-    'Model\\Document\\Summary' => array(
+    'Model\Summary' => array(
         'fields' => array(
             'article_id' => 'reference_one',
             'text'       => 'string',
         ),
         'references' => array(
-            'article' => array('class' => 'Model\\Document\\Article', 'field' => 'article_id', 'type' => 'one'),
+            'article' => array('class' => 'Model\Article', 'field' => 'article_id', 'type' => 'one'),
         ),
     ),
-    'Model\\Document\\User' => array(
+    'Model\User' => array(
         'fields' => array(
             'username'  => 'string',
             'is_active' => array('type' => 'boolean', 'default' => true),
         ),
     ),
-    'Model\\Document\\Image' => array(
+    'Model\Image' => array(
         'is_file'    => true,
         'collection' => 'image',
         'fields'  => array(
@@ -127,42 +127,42 @@ $configClasses = array(
             'description' => 'string',
         ),
     ),
-    'Model\\Document\\ConnectionGlobal' => array(
+    'Model\ConnectionGlobal' => array(
         'connection' => 'global',
     ),
-    'Model\\Document\\CollectionName' => array(
+    'Model\CollectionName' => array(
         'collection' => 'my_name',
     ),
-    'Model\\Document\\Events' => array(
+    'Model\Events' => array(
         'fields' => array(
             'name' => 'string',
         ),
     ),
-    'Model\\Document\\EmbedNot' => array(
+    'Model\EmbedNot' => array(
         'is_embedded' => true,
         'relations' => array(
-            'article' => array('class' => 'Model\\Document\\Article', 'field' => 'embed_not_id', 'type' => 'one'),
+            'article' => array('class' => 'Model\Article', 'field' => 'embed_not_id', 'type' => 'one'),
         ),
     ),
-    'Model\\Document\\MultipleEmbeds' => array(
+    'Model\MultipleEmbeds' => array(
         'fields' => array(
             'title'   => 'string',
             'content' => 'string',
         ),
         'embeddeds' => array(
-            'embeddeds1' => array('class' => 'Model\\Document\\MultipleEmbedsEmbedded1', 'type' => 'many'),
+            'embeddeds1' => array('class' => 'Model\MultipleEmbedsEmbedded1', 'type' => 'many'),
         ),
     ),
-    'Model\\Document\\MultipleEmbedsEmbedded1' => array(
+    'Model\MultipleEmbedsEmbedded1' => array(
         'fields' => array(
             'name'    => 'string',
             'surname' => 'string',
         ),
         'embeddeds' => array(
-            'embeddeds2' => array('class' => 'Model\\Document\\MultipleEmbedsEmbedded2', 'type' => 'many'),
+            'embeddeds2' => array('class' => 'Model\MultipleEmbedsEmbedded2', 'type' => 'many'),
         ),
     ),
-    'Model\\Document\\MultipleEmbedsEmbedded2' => array(
+    'Model\MultipleEmbedsEmbedded2' => array(
         'fields' => array(
             'field1' => 'string',
             'field2' => 'string',
@@ -174,8 +174,7 @@ $mondator = new Mondator();
 $mondator->setConfigClasses($configClasses);
 $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
-        'default_document_output'      => __DIR__.'/Model/Document',
-        'default_repository_output'    => __DIR__.'/Model/Repository',
+        'default_output' => __DIR__.'/Model',
     )),
     new Mondongo\Extension\DocumentDataCamelCaseMap(),
     new Mondongo\Extension\DocumentFromToArray(),
@@ -197,8 +196,7 @@ $mondator->setConfigClasses(array(
 ));
 $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
-        'default_document_output'   => __DIR__.'/model',
-        'default_repository_output' => __DIR__.'/model',
+        'default_output' => __DIR__.'/model',
     )),
     new Mondongo\Extension\DocumentDataCamelCaseMap(),
     new Mondongo\Extension\DocumentFromToArray(),

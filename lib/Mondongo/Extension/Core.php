@@ -44,9 +44,8 @@ class Core extends Extension
     protected function setup()
     {
         $this->addOptions(array(
-            'default_document_output'   => null,
-            'default_repository_output' => null,
-            'default_extensions'        => array(),
+            'default_output'     => null,
+            'default_extensions' => array(),
         ));
     }
 
@@ -141,14 +140,13 @@ class Core extends Extension
         /*
          * Classes.
          */
-        $classes['document'] = $this->class;
+        $classes = array('document' => $this->class);
         if (false !== $pos = strrpos($classes['document'], '\\')) {
-            $documentNamespace   = substr($classes['document'], 0, $pos);
-            $documentClassName   = substr($classes['document'], $pos + 1);
-            $repositoryNamespace = substr($documentNamespace, 0, strrpos($documentNamespace, '\\'));
+            $documentNamespace = substr($classes['document'], 0, $pos);
+            $documentClassName = substr($classes['document'], $pos + 1);
             $classes['document_base']   = $documentNamespace.'\\Base\\'.$documentClassName;
-            $classes['repository']      = $repositoryNamespace.'\\Repository\\'.$documentClassName;
-            $classes['repository_base'] = $repositoryNamespace.'\\Repository\\Base\\'.$documentClassName;
+            $classes['repository']      = $documentNamespace.'\\'.$documentClassName.'Repository';
+            $classes['repository_base'] = $documentNamespace.'\\Base\\'.$documentClassName.'Repository';
         } else {
             $classes['document_base']   = 'Base'.$classes['document'];
             $classes['repository']      = $classes['document'].'Repository';
@@ -212,9 +210,9 @@ EOF
          */
 
         // document
-        $dir = $this->getOption('default_document_output');
-        if (isset($this->configClass['document_output'])) {
-            $dir = $this->configClass['document_output'];
+        $dir = $this->getOption('default_output');
+        if (isset($this->configClass['output'])) {
+            $dir = $this->configClass['output'];
         }
         if (!$dir) {
             throw new \RuntimeException(sprintf('The document of the class "%s" does not have output.', $this->class));
@@ -226,9 +224,9 @@ EOF
         $this->outputs['document_base'] = new Output($this->outputs['document']->getDir().'/Base', true);
 
         // repository
-        $dir = $this->getOption('default_repository_output');
-        if (isset($this->configClass['repository_output'])) {
-            $dir = $this->configClass['repository_output'];
+        $dir = $this->getOption('default_output');
+        if (isset($this->configClass['output'])) {
+            $dir = $this->configClass['output'];
         }
         if (!$dir) {
             throw new \RuntimeException(sprintf('The repository of the class "%s" does not have output.', $this->class));

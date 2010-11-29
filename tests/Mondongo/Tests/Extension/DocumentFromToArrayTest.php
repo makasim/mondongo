@@ -22,11 +22,11 @@
 namespace Mondongo\Tests\Extension;
 
 use Mondongo\Tests\TestCase;
-use Model\Document\Article;
-use Model\Document\Author;
-use Model\Document\Category;
-use Model\Document\Comment;
-use Model\Document\Source;
+use Model\Article;
+use Model\Author;
+use Model\Category;
+use Model\Comment;
+use Model\Source;
 
 class DocumentFromToArrayTest extends TestCase
 {

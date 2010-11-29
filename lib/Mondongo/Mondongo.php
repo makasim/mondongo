@@ -210,13 +210,13 @@ class Mondongo
     public function getRepository($documentClass)
     {
         if (!isset($this->repositories[$documentClass])) {
-            if (false !== $pos = strrpos($documentClass, '\\')) {
-                $class = str_replace('Document', 'Repository', substr($documentClass, 0, $pos)).substr($documentClass, $pos);
-            } else {
-                $class = $documentClass.'Repository';
+            $repositoryClass = $documentClass.'Repository';
+
+            if (!class_exists($repositoryClass)) {
+                throw new \Exception(sprintf('The class "%s" does not exists.', $repositoryClass));
             }
 
-            $this->repositories[$documentClass] = new $class($this);
+            $this->repositories[$documentClass] = new $repositoryClass($this);
         }
 
         return $this->repositories[$documentClass];

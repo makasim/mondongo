@@ -23,9 +23,9 @@ namespace Mondongo\Tests\Document;
 
 use Mondongo\Tests\TestCase;
 use Mondongo\Document\EmbeddedDocument as EmbeddedDocumentBase;
-use Model\Document\Article;
-use Model\Document\Comment;
-use Model\Document\Source;
+use Model\Article;
+use Model\Comment;
+use Model\Source;
 
 class EmbeddedDocument extends EmbeddedDocumentBase
 {
