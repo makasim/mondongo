@@ -44,8 +44,8 @@ class Core extends Extension
     protected function setup()
     {
         $this->addOptions(array(
-            'default_output'     => null,
-            'default_extensions' => array(),
+            'default_output'    => null,
+            'default_behaviors' => array(),
         ));
     }
 
@@ -79,17 +79,17 @@ class Core extends Extension
 
         $this->processInitExtensionsEvents();
 
-        // default extensions
-        foreach ($this->getOption('default_extensions') as $extension) {
+        // default behaviors
+        foreach ($this->getOption('default_behaviors') as $behavior) {
             if ($this->configClass['is_embedded'] && isset($extension['not_with_embeddeds']) && $extension['not_with_embeddeds']) {
                 continue;
             }
-            $this->processExtensionsFromArray(array($extension));
+            $this->processExtensionsFromArray(array($behavior));
         }
 
-        // extensions
-        if (isset($this->configClass['extensions'])) {
-            $this->processExtensionsFromArray($this->configClass['extensions']);
+        // behaviors
+        if (isset($this->configClass['behaviors'])) {
+            $this->processExtensionsFromArray($this->configClass['behaviors']);
         }
 
         // is_file
