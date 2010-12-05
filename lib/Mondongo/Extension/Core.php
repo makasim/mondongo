@@ -120,6 +120,9 @@ class Core extends Extension
             $this->processDocumentRelations();
         }
 
+        $this->processDocumentSetMethod();
+        $this->processDocumentGetMethod();
+
         $this->processDocumentExtensionsEventsMethods();
 
         // repository
@@ -1007,6 +1010,90 @@ EOF;
             $method->setDocComment($getterDocComment);
             $this->definitions['document_base']->addMethod($method);
         }
+    }
+
+    /*
+     * Document "set" method.
+     */
+    protected function processDocumentSetMethod()
+    {
+        $code = '';
+        // data
+        foreach (array_merge(
+            array_keys($this->configClass['fields']),
+            array_keys($this->configClass['references']),
+            array_keys($this->configClass['embeddeds'])
+        ) as $name) {
+            $setter = 'set'.Inflector::camelize($name);
+            $code .= <<<EOF
+        if ('$name' == \$name) {
+            return \$this->$setter(\$value);
+        }
+
+EOF;
+        }
+        // exception
+        $code .= <<<EOF
+
+        throw new \InvalidArgumentException(sprintf('The data "%s" does not exists.', \$name));
+EOF;
+
+        $method = new Method('public', 'set', '$name, $value', $code);
+        $method->setDocComment(<<<EOF
+    /**
+     * Set a data by name.
+     *
+     * @param string \$name  The data name.
+     * @param mixed  \$value The value.
+     *
+     * @return void
+     */
+EOF
+        );
+
+        $this->definitions['document_base']->addMethod($method);
+    }
+
+    /*
+     * Document "get" method.
+     */
+    protected function processDocumentGetMethod()
+    {
+        $code = '';
+        // data
+        foreach (array_merge(
+            array_keys($this->configClass['fields']),
+            array_keys($this->configClass['references']),
+            array_keys($this->configClass['embeddeds']),
+            array_keys(!$this->configClass['is_embedded'] ? $this->configClass['relations'] : array())
+        ) as $name) {
+            $getter = 'get'.Inflector::camelize($name);
+            $code .= <<<EOF
+        if ('$name' == \$name) {
+            return \$this->$getter();
+        }
+
+EOF;
+        }
+        // exception
+        $code .= <<<EOF
+
+        throw new \InvalidArgumentException(sprintf('The data "%s" does not exists.', \$name));
+EOF;
+
+        $method = new Method('public', 'get', '$name', $code);
+        $method->setDocComment(<<<EOF
+    /**
+     * Get a data by name.
+     *
+     * @param string \$name  The data name.
+     *
+     * @return mixed The data value.
+     */
+EOF
+        );
+
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*

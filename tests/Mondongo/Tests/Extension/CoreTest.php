@@ -32,7 +32,9 @@ use Model\AuthorTelephone;
 use Model\Category;
 use Model\Comment;
 use Model\EmbedNot;
+use Model\News;
 use Model\Source;
+use Model\Summary;
 use Model\User;
 
 class CoreTest extends TestCase
@@ -491,6 +493,156 @@ class CoreTest extends TestCase
         $this->assertEquals($articles, $results = $category->getArticles());
 
         $this->assertSame($results, $category->getArticles());
+    }
+
+    public function testDocumentSetMethodFields()
+    {
+        $article = new Article();
+        $article->set('title', 'foo');
+        $article->set('content', 'bar');
+
+        $this->assertSame('foo', $article->getTitle());
+        $this->assertSame('bar', $article->getContent());
+    }
+
+    public function testDocumentSetMethodReferences()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+
+        $categories = new Group();
+        for ($i = 1; $i <= 10; $i++) {
+            $categories->add($category = new Category());
+            $category->setName('Category '.$i);
+            $category->save();
+        }
+
+        $article = new Article();
+        $article->set('author', $author);
+        $article->set('categories', $categories);
+
+        $this->assertSame($author, $article->getAuthor());
+        $this->assertSame($categories, $article->getCategories());
+    }
+
+    public function testDocumentSetMethodEmbeds()
+    {
+        $source = new Source();
+        $source->setName('My Source');
+
+        $comments = new Group();
+        for ($i = 1; $i <= 10; $i++) {
+            $comments->add($c = new Comment());
+            $c->setName('Comment '.$i);
+        }
+
+        $article = new Article();
+        $article->set('source', $source);
+        $article->set('comments', $comments);
+
+        $this->assertSame($source, $article->getSource());
+        $this->assertSame($comments, $article->getComments());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDocumentSetMethodRelations()
+    {
+        $article = new Article();
+        $article->set('news', 'foo');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDocumentSetMethodDataDoesNotExists()
+    {
+        $article = new Article();
+        $article->set('no', 'foo');
+    }
+
+    public function testDocumentGetMethodFields()
+    {
+        $article = new Article();
+        $article->setTitle('foo');
+        $article->setContent('bar');
+
+        $this->assertSame('foo', $article->get('title'));
+        $this->assertSame('bar', $article->get('content'));
+    }
+
+    public function testDocumentGetMethodReferences()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+
+        $categories = new Group();
+        for ($i = 1; $i <= 10; $i++) {
+            $categories->add($category = new Category());
+            $category->setName('Category '.$i);
+            $category->save();
+        }
+
+        $article = new Article();
+        $article->setAuthor($author);
+        $article->setCategories($categories);
+
+        $this->assertSame($author, $article->get('author'));
+        $this->assertSame($categories, $article->get('categories'));
+    }
+
+    public function testDocumentGetMethodEmbeds()
+    {
+        $source = new Source();
+        $source->setName('My Source');
+
+        $comments = new Group();
+        for ($i = 1; $i <= 10; $i++) {
+            $comments->add($c = new Comment());
+            $c->setName('Comment '.$i);
+        }
+
+        $article = new Article();
+        $article->setSource($source);
+        $article->setComments($comments);
+
+        $this->assertSame($source, $article->get('source'));
+        $this->assertSame($comments, $article->get('comments'));
+    }
+
+    public function testDocumentGetMethodRelations()
+    {
+        $article = new Article();
+        $article->setTitle('My Article');
+        $article->save();
+
+        $summary = new Summary();
+        $summary->setArticle($article);
+        $summary->setText('foo');
+        $summary->save();
+
+        $news = new Group();
+        for ($i = 1; $i <= 1; $i++) {
+            $news->add($n = new News());
+            $n->setTitle('News '.$i);
+            $n->setArticle($article);
+            $n->save();
+        }
+
+        $this->assertSame($summary, $article->get('summary'));
+        $this->assertSame($news->getElements(), $article->get('news'));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDocumentGetMethodDataDoesNotExists()
+    {
+        $article = new Article();
+        $article->get('no');
     }
 
     public function testDocumentSetDocumentDataMethod()
