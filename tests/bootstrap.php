@@ -176,7 +176,6 @@ $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
         'default_output' => __DIR__.'/Model',
     )),
-    new Mondongo\Extension\DocumentFromToArray(),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),
     new Mondongo\Extension\DocumentDataMap(),
@@ -197,7 +196,6 @@ $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
         'default_output' => __DIR__.'/model',
     )),
-    new Mondongo\Extension\DocumentFromToArray(),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),
     new Mondongo\Extension\DocumentDataMap(),

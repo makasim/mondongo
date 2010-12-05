@@ -123,6 +123,9 @@ class Core extends Extension
         $this->processDocumentSetMethod();
         $this->processDocumentGetMethod();
 
+        $this->processDocumentFromArrayMethod();
+        $this->processDocumentToArrayMethod();
+
         $this->processDocumentExtensionsEventsMethods();
 
         // repository
@@ -1089,6 +1092,159 @@ EOF;
      * @param string \$name  The data name.
      *
      * @return mixed The data value.
+     */
+EOF
+        );
+
+        $this->definitions['document_base']->addMethod($method);
+    }
+
+    /*
+     * document "fromArray" method.
+     */
+    protected function processDocumentFromArrayMethod()
+    {
+        $code = '';
+
+        // fields
+        foreach ($this->configClass['fields'] as $name => $field) {
+            $code .= <<<EOF
+        if (isset(\$array['$name'])) {
+            \$this->set('$name', \$array['$name']);
+        }
+
+EOF;
+        }
+
+        // references
+        foreach ($this->configClass['references'] as $name => $reference) {
+            if ('one' == $reference['type']) {
+                $code .= <<<EOF
+        if (isset(\$array['$name'])) {
+            \$this->set('$name', \$array['$name']);
+        }
+
+EOF;
+            } else {
+                $code .= <<<EOF
+        if (isset(\$array['$name'])) {
+            \$reference = \$array['$name'];
+            if (is_array(\$reference)) {
+                \$reference = new \Mondongo\Group(\$reference);
+            }
+            \$this->set('$name', \$reference);
+        }
+
+EOF;
+            }
+        }
+
+        // embeddeds
+        foreach ($this->configClass['embeddeds'] as $name => $embed) {
+            if ('one' == $embed['type']) {
+                $typeCode = <<<EOF
+                \$embed->fromArray(\$array['$name']);
+EOF;
+            } else {
+                $typeCode = <<<EOF
+                foreach (\$array['$name'] as \$a) {
+                    if (is_array(\$a)) {
+                        \$e = new \\{$embed['class']}();
+                        \$e->fromArray(\$a);
+                    } else {
+                        \$e = \$a;
+                    }
+                    \$embed->add(\$e);
+                }
+EOF;
+            }
+
+            $code .= <<<EOF
+        if (isset(\$array['$name'])) {
+            if (is_array(\$array['$name'])) {
+                \$embed = \$this->get('$name');
+$typeCode
+            } else {
+                \$this->set('$name', \$array['$name']);
+            }
+        }
+
+EOF;
+        }
+
+        $method = new Method('public', 'fromArray', '$array', $code);
+        $method->setDocComment(<<<EOF
+    /**
+     * Import data from an array.
+     *
+     * @param array \$array An array.
+     *
+     * @return void
+     */
+EOF
+        );
+
+        $this->definitions['document_base']->addMethod($method);
+    }
+
+    /*
+     * document "toArray" method
+     */
+    protected function processDocumentToArrayMethod()
+    {
+        // fields
+        $fieldsCode = '';
+        foreach ($this->configClass['fields'] as $name => $field) {
+            $fieldsCode .= <<<EOF
+        if (null !== \$this->data['fields']['$name']) {
+            \$array['$name'] = \$this->data['fields']['$name'];
+        }
+
+EOF;
+        }
+
+        // embeddeds
+        $embeddedsCode = '';
+        foreach ($this->configClass['embeddeds'] as $name => $embed) {
+            if ('one' == $embed['type']) {
+                $typeCode = <<<EOF
+                \$array['$name'] = \$this->data['embeddeds']['$name']->toArray();
+EOF;
+            } else {
+                $typeCode = <<<EOF
+                foreach (\$this->data['embeddeds']['$name'] as \$embed) {
+                    \$array['$name'][] = \$embed->toArray();
+                }
+EOF;
+            }
+
+            $embeddedsCode .= <<<EOF
+            if (null !== \$this->data['embeddeds']['$name']) {
+$typeCode
+            }
+
+EOF;
+        }
+
+        $method = new Method('public', 'toArray', '$withEmbeddeds = true', <<<EOF
+        \$array = array();
+
+$fieldsCode
+
+        if (\$withEmbeddeds) {
+$embeddedsCode
+        }
+
+        return \$array;
+EOF
+        );
+        $method->setDocComment(<<<EOF
+    /**
+     * Export the document data to an array.
+     *
+     * @param bool \$withEmbeddeds If export embeddeds or not.
+     *
+     * @return array An array with the document data.
      */
 EOF
         );
