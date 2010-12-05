@@ -176,7 +176,6 @@ $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
         'default_output' => __DIR__.'/Model',
     )),
-    new Mondongo\Extension\DocumentDataCamelCaseMap(),
     new Mondongo\Extension\DocumentFromToArray(),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),
@@ -198,7 +197,6 @@ $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
         'default_output' => __DIR__.'/model',
     )),
-    new Mondongo\Extension\DocumentDataCamelCaseMap(),
     new Mondongo\Extension\DocumentFromToArray(),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),
