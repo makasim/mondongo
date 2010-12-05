@@ -21,7 +21,6 @@
 
 namespace Mondongo\Extension;
 
-use Mondongo\Inflector;
 use Mondongo\Mondator\Definition\Method;
 use Mondongo\Mondator\Extension;
 
@@ -51,10 +50,9 @@ class DocumentFromToArray extends Extension
 
         // fields
         foreach ($this->configClass['fields'] as $name => $field) {
-            $setter = 'set'.Inflector::camelize($name);
             $code .= <<<EOF
         if (isset(\$array['$name'])) {
-            \$this->$setter(\$array['$name']);
+            \$this->set('$name', \$array['$name']);
         }
 
 EOF;
@@ -62,12 +60,10 @@ EOF;
 
         // references
         foreach ($this->configClass['references'] as $name => $reference) {
-            $setter = 'set'.Inflector::camelize($name);
-
             if ('one' == $reference['type']) {
                 $code .= <<<EOF
         if (isset(\$array['$name'])) {
-            \$this->$setter(\$array['$name']);
+            \$this->set('$name', \$array['$name']);
         }
 
 EOF;
@@ -78,7 +74,7 @@ EOF;
             if (is_array(\$reference)) {
                 \$reference = new \Mondongo\Group(\$reference);
             }
-            \$this->$setter(\$reference);
+            \$this->set('$name', \$reference);
         }
 
 EOF;
@@ -87,9 +83,6 @@ EOF;
 
         // embeddeds
         foreach ($this->configClass['embeddeds'] as $name => $embed) {
-            $setter = 'set'.Inflector::camelize($name);
-            $getter = 'get'.Inflector::camelize($name);
-
             if ('one' == $embed['type']) {
                 $typeCode = <<<EOF
                 \$embed->fromArray(\$array['$name']);
@@ -111,10 +104,10 @@ EOF;
             $code .= <<<EOF
         if (isset(\$array['$name'])) {
             if (is_array(\$array['$name'])) {
-                \$embed = \$this->$getter();
+                \$embed = \$this->get('$name');
 $typeCode
             } else {
-                \$this->$setter(\$array['$name']);
+                \$this->set('$name', \$array['$name']);
             }
         }
 

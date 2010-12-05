@@ -21,7 +21,6 @@
 
 namespace Mondongo\Extension;
 
-use Mondongo\Inflector;
 use Mondongo\Mondator\Definition\Method;
 use Mondongo\Mondator\Extension;
 
@@ -73,13 +72,7 @@ EOF
     protected function processOffsetSetMethod()
     {
         $method = new Method('public', 'offsetSet', '$name, $value', <<<EOF
-        if (!isset(self::\$dataCamelCaseMap[\$name])) {
-            throw new \InvalidArgumentException(sprintf('The name "%s" does not exists.', \$name));
-        }
-
-        \$method = 'set'.self::\$dataCamelCaseMap[\$name];
-
-        \$this->\$method(\$value);
+        \$this->set(\$name, \$value);
 EOF
         );
         $method->setDocComment(<<<EOF
@@ -105,13 +98,7 @@ EOF
     protected function processOffsetGetMethod()
     {
         $method = new Method('public', 'offsetGet', '$name', <<<EOF
-        if (!isset(self::\$dataCamelCaseMap[\$name])) {
-            throw new \InvalidArgumentException(sprintf('The data "%s" does not exists.', \$name));
-        }
-
-        \$method = 'get'.self::\$dataCamelCaseMap[\$name];
-
-        return \$this->\$method();
+        return \$this->get(\$name);
 EOF
         );
         $method->setDocComment(<<<EOF
