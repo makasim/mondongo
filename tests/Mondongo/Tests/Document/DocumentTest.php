@@ -36,6 +36,13 @@ class Document extends DocumentBase
 
 class DocumentTest extends TestCase
 {
+    public function testGetCollection()
+    {
+        $article = new Article();
+
+        $this->assertSame($article->getRepository()->getCollection(), $article->getCollection());
+    }
+
     public function testId()
     {
         $document = new Document();

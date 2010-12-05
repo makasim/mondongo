@@ -32,6 +32,16 @@ abstract class Document extends EmbeddedDocument
     protected $id;
 
     /**
+     * Returns the collection.
+     *
+     * @return \MongoCollection The collection.
+     */
+    public function getCollection()
+    {
+        return $this->getRepository()->getCollection();
+    }
+
+    /**
      * Set the document \MongoId.
      *
      * @param \MongoId $id The \MongoId object.
