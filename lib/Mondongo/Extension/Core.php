@@ -105,6 +105,7 @@ class Core extends Extension
         if (!$this->configClass['is_embedded']) {
             $this->checkRelations();
         }
+        $this->checkDataNames();
 
         // document
         $this->processDocumentDataProperty();
@@ -465,6 +466,20 @@ EOF
             }
             if (!in_array($relation['type'], array('one', 'many'))) {
                 throw new \RuntimeException(sprintf('The type "%s" of the relation "%s" of the class "%s" is not valid.', $relation['type'], $name, $this->class));
+            }
+        }
+    }
+
+    protected function checkDataNames()
+    {
+        foreach (array_merge(
+            array_keys($this->configClass['fields']),
+            array_keys($this->configClass['references']),
+            array_keys($this->configClass['embeddeds']),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations']) : array()
+        ) as $name) {
+            if (in_array($name, array('mondongo', 'repository', 'collection', 'id', 'query_for_save', 'fields_modified', 'document_data'))) {
+                throw new \RuntimeException(sprintf('The document cannot be a data with the name "%s".', $name));
             }
         }
     }
