@@ -234,22 +234,6 @@ abstract class Extension
         }
     }
 
-    protected function getMethodCode(\ReflectionMethod $method, array $replace = array())
-    {
-        $lines = file($method->getFileName());
-
-        $code = '';
-        for ($i = $method->getStartLine(); $i <= $method->getEndLine(); $i++) {
-            $code .= $lines[$i - 1];
-        }
-
-        $code = substr($code, strpos($code, '{') + 1);
-        $code = substr($code, 0, strrpos($code, '}'));
-        $code = '        '.trim($code);
-
-        return strtr($code, $replace);
-    }
-
     protected function getNamespace($class)
     {
         if (false !== $pos = strrpos($class, '\\')) {

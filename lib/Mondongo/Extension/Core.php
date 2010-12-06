@@ -665,11 +665,18 @@ EOF
     {
         foreach ($this->configClass['fields'] as $name => $field) {
             // set method
-            $method = new Method(
-                'public',
-                'set'.Inflector::camelize($name),
-                '$value',
-                $this->getMethodCode(new \ReflectionMethod(__CLASS__, 'setField'), array('$_name_' => "'$name'"))
+            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', <<<EOF
+        if (\$value === \$this->data['fields']['$name']) {
+            return;
+        }
+        if (!array_key_exists('$name', \$this->fieldsModified)) {
+            \$this->fieldsModified['$name'] = \$this->data['fields']['$name'];
+        } elseif (\$value === \$this->fieldsModified['$name']) {
+            unset(\$this->fieldsModified['$name']);
+        }
+
+        \$this->data['fields']['$name'] = \$value;
+EOF
             );
             $method->setDocComment(<<<EOF
     /**
@@ -685,11 +692,9 @@ EOF
             $this->definitions['document_base']->addMethod($method);
 
             // get method
-            $method = new Method(
-                'public',
-                'get'.Inflector::camelize($name),
-                '',
-                "        return \$this->data['fields']['$name'];"
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', <<<EOF
+        return \$this->data['fields']['$name'];
+EOF
             );
             $method->setDocComment(<<<EOF
     /**
@@ -702,19 +707,6 @@ EOF
 
             $this->definitions['document_base']->addMethod($method);
         }
-    }
-
-    private function setField($value)
-    {
-        if ($value === $this->data['fields'][$_name_]) {
-            return;
-        } if (!array_key_exists($_name_, $this->fieldsModified)) {
-            $this->fieldsModified[$_name_] = $this->data['fields'][$_name_];
-        } elseif ($value === $this->fieldsModified[$_name_]) {
-            unset($this->fieldsModified[$_name_]);
-        }
-
-        $this->data['fields'][$_name_] = $value;
     }
 
     /*
