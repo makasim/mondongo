@@ -227,11 +227,14 @@ EOF;
     abstract $isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()});
 EOF;
             } else {
+                $methodCode = trim($method->getCode());
+                if ($methodCode) {
+                    $methodCode = '    '.$methodCode."\n    ";
+                }
                 $code .= <<<EOF
     $isFinal$isStatic{$method->getVisibility()} function {$method->getName()}({$method->getArguments()})
     {
-{$method->getCode()}
-    }
+    $methodCode}
 EOF;
             }
 
