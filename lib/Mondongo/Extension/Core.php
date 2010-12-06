@@ -706,7 +706,9 @@ EOF
 
     private function setField($value)
     {
-        if (!array_key_exists($_name_, $this->fieldsModified)) {
+        if ($value === $this->data['fields'][$_name_]) {
+            return;
+        } if (!array_key_exists($_name_, $this->fieldsModified)) {
             $this->fieldsModified[$_name_] = $this->data['fields'][$_name_];
         } elseif ($value === $this->fieldsModified[$_name_]) {
             unset($this->fieldsModified[$_name_]);

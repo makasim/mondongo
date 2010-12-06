@@ -144,6 +144,18 @@ class CoreTest extends TestCase
         $this->assertSame(array('title' => null), $article->getFieldsModified());
     }
 
+    public function testDocumentFieldsSettersSameCurrentValue()
+    {
+        $article = new Article();
+        $article->setTitle(null);
+        $this->assertSame(array(), $article->getFieldsModified());
+
+        $article->setTitle('Mondongo');
+        $article->save();
+        $article->setTitle('Mondongo');
+        $this->assertSame(array(), $article->getFieldsModified());
+    }
+
     public function testDocumentReferencesOneSettersGetters()
     {
         $author = new Author();
