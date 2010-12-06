@@ -194,7 +194,7 @@ $mondator->setConfigClasses(array(
 ));
 $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
-        'default_output' => __DIR__.'/model',
+        'default_output' => __DIR__.'/model_no_namespaced',
     )),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),
@@ -202,7 +202,7 @@ $mondator->setExtensions(array(
 ));
 $mondator->process();
 
-foreach (array(__DIR__.'/model/Base', __DIR__.'/model') as $dir) {
+foreach (array(__DIR__.'/model_no_namespaced/Base', __DIR__.'/model_no_namespaced') as $dir) {
     foreach (new DirectoryIterator($dir) as $file) {
         if ($file->isFile()) {
             require_once($file->getPathname());

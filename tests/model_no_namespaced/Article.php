@@ -3,6 +3,6 @@
 /**
  * Article document.
  */
-class Article extends BaseArticle
+class Article extends \BaseArticle
 {
 }
