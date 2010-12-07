@@ -747,7 +747,7 @@ EOF;
 EOF;
                 // getter
                 $getterCode = <<<EOF
-        if (null === \$this->data['references']['$name']) {
+        if (null === \$this->data['references']['$name'] && null !== \$this->$fieldGetter()) {
             \$value = \\Mondongo\Container::getForDocumentClass('{$reference['class']}')
                 ->getRepository('{$reference['class']}')
                 ->findOneById(\$this->$fieldGetter())

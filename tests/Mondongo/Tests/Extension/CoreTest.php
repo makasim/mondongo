@@ -163,6 +163,9 @@ class CoreTest extends TestCase
         $author->save();
 
         $article = new Article();
+
+        $this->assertNull($article->getAuthor());
+
         $article->setAuthor($author);
 
         $this->assertSame($author->getId(), $article->getAuthorId());
