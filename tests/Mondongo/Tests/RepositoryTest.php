@@ -378,7 +378,7 @@ class RepositoryTest extends TestCase
         $this->assertSame(9, $this->db->article->find(array('title' => new \MongoRegex('/^Article/')))->count());
     }
 
-    public function testSaveInsertWithSaveNewReferences()
+    public function testSaveInsertWithSaveReferences()
     {
         $author = new Author();
         $author->setName('Pablo');
@@ -406,7 +406,7 @@ class RepositoryTest extends TestCase
         }
     }
 
-    public function testSaveUpdateWithSaveNewReferences()
+    public function testSaveUpdateWithSaveReferences()
     {
         $author = new Author();
         $author->setName('Pablo');

@@ -714,7 +714,7 @@ EOF
      */
     protected function processDocumentReferences()
     {
-        $saveNewReferencesCode = '';
+        $saveReferencesCode = '';
 
         foreach ($this->configClass['references'] as $name => $reference) {
             $fieldSetter = 'set'.Inflector::camelize($reference['field']);
@@ -770,10 +770,10 @@ EOF;
      * @return {$reference['class']} The "$name" reference.
      */
 EOF;
-                // save new references
-                $saveNewReferencesCode .= <<<EOF
+                // save references
+                $saveReferencesCode .= <<<EOF
         \$reference = \$this->data['references']['$name'];
-        if (null !== \$reference && \$reference->isNew() && \$reference->isModified()) {
+        if (null !== \$reference && \$reference->isModified()) {
             \$reference->save();
             \$this->$fieldSetter(\$reference->getId());
         }
@@ -844,18 +844,18 @@ EOF;
      * @return Mondongo\Group The "$name" reference.
      */
 EOF;
-                // save new references
-                $saveNewReferencesCode .= <<<EOF
+                // save references
+                $saveReferencesCode .= <<<EOF
         if (\$this->data['references']['$name']) {
             \$ids = array();
-            foreach (\$this->data['references']['$name'] as \$document) {
-                if (\$document->isNew()) {
-                    if (!\$document->isModified()) {
-                        continue;
-                    }
-                    \$document->save();
+            foreach (\$this->data['references']['$name'] as \$reference) {
+                if (\$reference->isModified()) {
+                    \$reference->save();
                 }
-                \$ids[] = \$document->getId();
+                if (\$reference->isNew()) {
+                    continue;
+                }
+                \$ids[] = \$reference->getId();
             }
             if (count(\$ids)) {
                 \$this->$fieldSetter(\$ids);
@@ -908,11 +908,11 @@ EOF;
             }
         }
 
-        // save new references
-        $method = new Method('public', 'saveNewReferences', '', $saveNewReferencesCode);
+        // save references
+        $method = new Method('public', 'saveReferences', '', $saveReferencesCode);
         $method->setDocComment(<<<EOF
     /**
-     * Update the new references.
+     * Save the references.
      *
      * @return void
      */

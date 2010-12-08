@@ -358,7 +358,7 @@ abstract class Repository
             } else {
                 $updates[] = $document;
             }
-            $document->saveNewReferences();
+            $document->saveReferences();
         }
 
         // insert

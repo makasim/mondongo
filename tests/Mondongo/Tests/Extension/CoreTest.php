@@ -451,7 +451,7 @@ class CoreTest extends TestCase
         $article->updateCategories();
     }
 
-    public function testDocumentReferencesSaveNewReferences()
+    public function testDocumentReferencesSaveReferencesNew()
     {
         $author = new Author();
         $author->setName('Pablo');
@@ -469,7 +469,7 @@ class CoreTest extends TestCase
         $article->setAuthor($author);
         $article->setCategories($categories);
 
-        $article->saveNewReferences();
+        $article->saveReferences();
 
         $this->assertTrue($article->isNew());
         $this->assertFalse($author->isNew());
@@ -482,7 +482,34 @@ class CoreTest extends TestCase
         $this->assertSame($ids, $article->getCategoryIds());
     }
 
-    public function testDocumentReferencesSaveNewReferencesNotModified()
+    public function testDocumentReferencesSaveReferencesNotNews()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+        $author->setName('pablodip');
+
+        $categories = new Group();
+        for ($i = 1; $i <= 8; $i++) {
+            $categories->add($category = new Category());
+            $category->setName('Category '.$i);
+            $category->save();
+            $category->setName('Cat');
+        }
+
+        $article = new Article();
+        $article->setAuthor($author);
+        $article->setCategories($categories);
+
+        $article->saveReferences();
+
+        $this->assertFalse($author->isModified());
+        foreach ($categories as $category) {
+            $this->assertFalse($category->isModified());
+        }
+    }
+
+    public function testDocumentReferencesSaveReferencesNotModified()
     {
         $author = new Author();
 
@@ -495,7 +522,7 @@ class CoreTest extends TestCase
         $article->setAuthor($author);
         $article->setCategories($categories);
 
-        $article->saveNewReferences();
+        $article->saveReferences();
 
         $this->assertTrue($article->isNew());
         $this->assertTrue($author->isNew());
