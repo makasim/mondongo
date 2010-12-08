@@ -714,6 +714,8 @@ EOF
      */
     protected function processDocumentReferences()
     {
+        $saveNewReferencesCode = '';
+
         foreach ($this->configClass['references'] as $name => $reference) {
             $fieldSetter = 'set'.Inflector::camelize($reference['field']);
             $fieldGetter = 'get'.Inflector::camelize($reference['field']);
@@ -729,11 +731,12 @@ EOF
         if (!\$value instanceof \\{$reference['class']}) {
             throw new \InvalidArgumentException('The reference "$name" is not an instance of "{$reference['class']}".');
         }
-        if (\$value->isNew()) {
-            throw new \InvalidArgumentException('The reference "$name" is new.');
+        if (!\$value->isNew()) {
+            \$this->{$fieldSetter}(\$value->getId());
+        } else if (\$this->{$fieldGetter}()) {
+            \$this->{$fieldSetter}(null);
         }
 
-        \$this->{$fieldSetter}(\$value->getId());
         \$this->data['references']['$name'] = \$value;
 EOF;
                 $setterDocComment = <<<EOF
@@ -767,6 +770,14 @@ EOF;
      * @return {$reference['class']} The "$name" reference.
      */
 EOF;
+                // save new references
+                $saveNewReferencesCode .= <<<EOF
+        if (\$this->data['references']['$name'] && \$this->data['references']['$name']->isNew()) {
+            \$this->data['references']['$name']->save();
+            \$this->$fieldSetter(\$this->data['references']['$name']->getId());
+        }
+
+EOF;
             /*
              * Many
              */
@@ -783,10 +794,10 @@ EOF;
             if (!\$document instanceof \\{$reference['class']}) {
                 throw new \InvalidArgumentException('Some document in the reference "$name" is not an instance of "{$reference['class']}".');
             }
-            if (\$document->isNew()) {
-                throw new \InvalidArgumentException('Some document in the reference "$name" is new.');
+            if (!\$document->isNew()) {
+                \$ids[] = \$document->getId();
             }
-            \$ids[] = \$document->getId();
+
         }
 
         \$this->{$fieldSetter}(\$ids);
@@ -830,6 +841,20 @@ EOF;
      * @return Mondongo\Group The "$name" reference.
      */
 EOF;
+                // save new references
+                $saveNewReferencesCode .= <<<EOF
+        if (\$this->data['references']['$name']) {
+            \$ids = array();
+            foreach (\$this->data['references']['$name'] as \$document) {
+                if (\$document->isNew()) {
+                    \$document->save();
+                }
+                \$ids[] = \$document->getId();
+            }
+            \$this->$fieldSetter(\$ids);
+        }
+
+EOF;
             }
 
             // setter
@@ -851,10 +876,9 @@ EOF;
                 if (!\$document instanceof \\{$reference['class']}) {
                     throw new \RuntimeException('Some document of the "$name" reference is not an instance of "{$reference['class']}".');
                 }
-                if (\$document->isNew()) {
-                    throw new \RuntimeException('Some document of the "$name" reference is new.');
+                if (!\$document->isNew()) {
+                    \$ids[] = \$document->getId();
                 }
-                \$ids[] = \$document->getId();
             }
 
             if (\$ids !== \$this->$fieldGetter()) {
@@ -875,6 +899,18 @@ EOF;
                 $this->definitions['document_base']->addMethod($method);
             }
         }
+
+        // save new references
+        $method = new Method('public', 'saveNewReferences', '', $saveNewReferencesCode);
+        $method->setDocComment(<<<EOF
+    /**
+     * Update the new references.
+     *
+     * @return void
+     */
+EOF
+        );
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*

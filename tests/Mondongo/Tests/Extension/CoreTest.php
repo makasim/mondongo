@@ -178,6 +178,33 @@ class CoreTest extends TestCase
         $this->assertSame($a, $article->getAuthor());
     }
 
+    public function testDocumentReferencesOneSetterNew()
+    {
+        $author = new Author();
+
+        $article = new Article();
+        $article->setAuthor($author);
+
+        $this->assertSame($author, $article->getAuthor());
+        $this->assertNull($article->getAuthorId());
+    }
+
+    public function testDocumentReferencesOneSetterOverrideWithNew()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+
+        $article = new Article();
+        $article->setAuthor($author);
+
+        $authorNew = new Author();
+        $authorNew->setName('pablodip');
+
+        $article->setAuthor($authorNew);
+        $this->assertNull($article->getAuthorId());
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -185,15 +212,6 @@ class CoreTest extends TestCase
     {
         $article = new Article();
         $article->setAuthor(new Category());
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testDocumentReferencesOneSetterReferenceNew()
-    {
-        $article = new Article();
-        $article->setAuthor(new Author());
     }
 
     /**
@@ -255,6 +273,26 @@ class CoreTest extends TestCase
         $this->assertSame(0, count($categories));
     }
 
+    public function testDocumentReferencesSetterNew()
+    {
+        $categories = new Group();
+        $ids = array();
+        for ($i = 1; $i <= 8; $i++) {
+            $categories->add($category = new Category());
+            $category->setName('Category '.$i);
+            if ($i % 2) {
+                $category->save();
+                $ids[] = $category->getId();
+            }
+        }
+
+        $article = new Article();
+        $article->setCategories($categories);
+
+        $this->assertSame($categories, $article->getCategories());
+        $this->assertSame($ids, $article->getCategoryIds());
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -285,24 +323,6 @@ class CoreTest extends TestCase
 
         $article = new Article();
         $article->setCategories($group);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     */
-    public function testDocumentReferencesManySetterReferenceNew()
-    {
-        $categories = array();
-        for ($i = 1; $i <= 4; $i++) {
-            $categories[] = $category = new Category();
-            $category->setName('Category '.$i);
-            if (3 != $i) {
-                $category->save();
-            }
-        }
-
-        $article = new Article();
-        $article->setCategories(new Group($categories));
     }
 
     /**
@@ -358,6 +378,23 @@ class CoreTest extends TestCase
         $this->assertSame(array($categories[0]->getId(), $categories[2]->getId(), $categories[1]->getId()), $article->getCategoryIds());
     }
 
+    public function testDocumentReferencesManyUpdateReferenceNew()
+    {
+        $categories = array();
+        for ($i = 1; $i <= 4; $i++) {
+            $categories[] = $category = new Category();
+            $category->setName('Category '.$i);
+            $category->save();
+        }
+
+        $group = new Group($categories);
+
+        $article = new Article();
+        $article->setCategories($group);
+        $group->add(new Category());
+        $article->updateCategories();
+    }
+
     /**
      * @expectedException \RuntimeException
      */
@@ -383,24 +420,34 @@ class CoreTest extends TestCase
         $article->updateCategories();
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testDocumentReferencesManyUpdateReferenceNew()
+    public function testDocumentReferencesSaveNewReference()
     {
-        $categories = array();
-        for ($i = 1; $i <= 4; $i++) {
-            $categories[] = $category = new Category();
+        $author = new Author();
+        $author->setName('Pablo');
+
+        $categories = new Group();
+        for ($i = 1; $i <= 8; $i++) {
+            $categories->add($category = new Category());
             $category->setName('Category '.$i);
-            $category->save();
+            if ($i % 2) {
+                $category->save();
+            }
         }
 
-        $group = new Group($categories);
-
         $article = new Article();
-        $article->setCategories($group);
-        $group->add(new Category());
-        $article->updateCategories();
+        $article->setAuthor($author);
+        $article->setCategories($categories);
+
+        $article->saveNewReferences();
+
+        $this->assertFalse($author->isNew());
+        $this->assertSame($author->getId(), $article->getAuthorId());
+        $ids = array();
+        foreach ($categories as $category) {
+            $this->assertFalse($category->isNew());
+            $ids[] = $category->getId();
+        }
+        $this->assertSame($ids, $article->getCategoryIds());
     }
 
     public function testEmbeddedDocumentsOne()

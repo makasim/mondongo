@@ -24,7 +24,10 @@ namespace Mondongo\Tests;
 use Mondongo\Connection;
 use Mondongo\Mondongo;
 use Mondongo\Repository as RepositoryBase;
+use Mondongo\Group;
 use Model\Article;
+use Model\Author;
+use Model\Category;
 use Model\Events;
 use Model\Image;
 
@@ -373,6 +376,63 @@ class RepositoryTest extends TestCase
         ), $this->db->article->findOne(array('_id' => $articles[4]->getId())));
 
         $this->assertSame(9, $this->db->article->find(array('title' => new \MongoRegex('/^Article/')))->count());
+    }
+
+    public function testSaveInsertWithSaveNewReferences()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+
+        $categories = new Group();
+        for ($i = 1; $i <= 8; $i++) {
+            $categories->add($category = new Category());
+            $category->setName('Category '.$i);
+            if ($i % 2) {
+                $category->save();
+            }
+        }
+
+        $article = new Article();
+        $article->setTitle('Mondongo');
+        $article->setAuthor($author);
+        $article->setCategories($categories);
+
+        $article->save();
+
+        $this->assertFalse($article->isNew());
+        $this->assertFalse($author->isNew());
+        foreach ($categories as $category) {
+            $this->assertFalse($category->isNew());
+        }
+    }
+
+    public function testSaveUpdateWithSaveNewReferences()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+
+        $categories = new Group();
+        for ($i = 1; $i <= 8; $i++) {
+            $categories->add($category = new Category());
+            $category->setName('Category '.$i);
+            if ($i % 2) {
+                $category->save();
+            }
+        }
+
+        $article = new Article();
+        $article->setTitle('Mondongo');
+        $article->save();
+        $article->setAuthor($author);
+        $article->setCategories($categories);
+
+        $article->save();
+
+        $this->assertFalse($article->isNew());
+        $this->assertFalse($author->isNew());
+        foreach ($categories as $category) {
+            $this->assertFalse($category->isNew());
+        }
     }
 
     public function testSaveInsertGridFSSaveFile()
