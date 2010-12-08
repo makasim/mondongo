@@ -396,7 +396,7 @@ class CoreTest extends TestCase
     }
 
     /**
-     * @expectedException \RuntimeException
+     * @expectedException \InvalidArgumentException
      */
     public function testDocumentReferencesManyUpdateReferenceClass()
     {
@@ -483,13 +483,77 @@ class CoreTest extends TestCase
         $this->assertSame($group, $article->getComments());
     }
 
+    public function testDocumentsEmbeddedsManySetArray()
+    {
+        $comments = array();
+        for ($i = 1; $i <= 5; $i++) {
+            $comments[] = new Comment();
+        }
+
+        $article = new Article();
+        $article->setComments($comments);
+
+        $this->assertInstanceOf('Mondongo\Group', $article->getComments());
+        $this->assertSame($comments, $article->getComments()->getElements());
+    }
+
+    public function testDocumentEmbeddedsManySetCombine()
+    {
+        $comments1 = new Group();
+        for ($i = 1; $i <= 5; $i++) {
+            $comments1->add($comment = new Comment());
+            $comment->setName('Comments1 '.$i);
+        }
+
+        $comments2 = new Group();
+        for ($i = 1; $i <= 5; $i++) {
+            $comments2->add($comment = new Comment());
+            $comment->setName('Comments1 '.$i);
+        }
+
+        $article = new Article();
+        $article->setComments($comments1);
+        $article->save();
+        $article->setComments($comments2);
+
+        $this->assertSame(spl_object_hash($comments2), spl_object_hash($article->getComments()));
+        $this->assertSame($comments1->getElements(), $article->getComments()->getOriginalElements());
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testEmbeddedDocumentsManySetterNotGroup()
+    public function testEmbeddedDocumentsManySetterNotGroupNorArray()
     {
         $article = new Article();
         $article->setComments(new Comment());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDocumentEmbeddedsManySetterInvalidEmbeddedClass()
+    {
+        $comments = array();
+        $comments[] = new Comment();
+        $comments[] = new Author();
+        $comments[] = new Comment();
+
+        $article = new Article();
+        $article->setComments($comments);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDocumentEmbeddedsManyUpdateInvalidEmbeddedClass()
+    {
+        $comments = new Group(array(new Comment()));
+
+        $article = new Article();
+        $article->setComments($comments);
+
+        $comments->add(new Author());
     }
 
     public function testDocumentRelationsOneOne()

@@ -88,6 +88,13 @@ class GroupTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->elements, $group->getOriginalElements());
     }
 
+    public function testSetOriginalElements()
+    {
+        $group = new Group();
+        $group->setOriginalElements($this->elements);
+        $this->assertSame($this->elements, $group->getOriginalElements());
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */

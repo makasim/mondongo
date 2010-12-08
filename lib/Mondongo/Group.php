@@ -78,6 +78,18 @@ class Group implements \Countable, \IteratorAggregate
     }
 
     /**
+     * Set the original elements.
+     *
+     * @param array $originalElements The original elements.
+     *
+     * @return void
+     */
+    public function setOriginalElements(array $originalElements)
+    {
+        $this->originalElements = $originalElements;
+    }
+
+    /**
      * Save the original elements.
      *
      * @return void

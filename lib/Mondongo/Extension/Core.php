@@ -874,7 +874,7 @@ EOF;
             \$ids = array();
             foreach (\$this->data['references']['$name'] as \$document) {
                 if (!\$document instanceof \\{$reference['class']}) {
-                    throw new \RuntimeException('Some document of the "$name" reference is not an instance of "{$reference['class']}".');
+                    throw new \InvalidArgumentException('Some document of the "$name" reference is not an instance of "{$reference['class']}".');
                 }
                 if (!\$document->isNew()) {
                     \$ids[] = \$document->getId();
@@ -959,10 +959,24 @@ EOF;
              * many
              */
             } else {
+                $updateMethodName = 'update'.Inflector::camelize($name);
+
                 // setter
                 $setterCode = <<<EOF
-        if (!\$value instanceof \Mondongo\Group) {
-            throw new \InvalidArgumentException('The embed "$name" is not an instance of "Mondongo\Group".');
+        if (!\$value instanceof \Mondongo\Group && !is_array(\$value)) {
+            throw new \InvalidArgumentException('The embed "$name" is not an instance of "Mondongo\Group" or an array.');
+        }
+        if (is_array(\$value)) {
+            \$value = new \Mondongo\Group(\$value);
+        }
+        \$value->setChangeCallback(array(\$this, '$updateMethodName'));
+        foreach (\$value as \$embedded) {
+            if (!\$embedded instanceof \\{$embed['class']}) {
+                throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embed['class']}".');
+            }
+        }
+        if (null !== \$this->data['embeddeds']['$name']) {
+            \$value->setOriginalElements(\$this->data['embeddeds']['$name']->getElements());
         }
 
         \$this->data['embeddeds']['$name'] = \$value;
@@ -1002,6 +1016,29 @@ EOF;
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
             $method->setDocComment($getterDocComment);
             $this->definitions['document_base']->addMethod($method);
+
+            // update
+            if ('many' == $embed['type']) {
+                $method = new Method('public', $updateMethodName, '', <<<EOF
+        if (null !== \$this->data['embeddeds']['$name']) {
+            foreach (\$this->data['embeddeds']['$name'] as \$embedded) {
+                if (!\$embedded instanceof \\{$embed['class']}) {
+                    throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embed['class']}".');
+                }
+            }
+        }
+EOF
+                );
+                $method->setDocComment(<<<EOF
+    /**
+     * Update the "$name" embedded.
+     *
+     * @return void
+     */
+EOF
+                );
+                $this->definitions['document_base']->addMethod($method);
+            }
         }
     }
 
