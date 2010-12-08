@@ -293,6 +293,24 @@ class CoreTest extends TestCase
         $this->assertSame($ids, $article->getCategoryIds());
     }
 
+    public function testDocumentReferencesManySetArray()
+    {
+        $categories = array();
+        for ($i = 1; $i <= 6; $i++) {
+            $categories[] = $category = new Category();
+            if ($i % 2) {
+                $category->setName('Category '.$i);
+                $category->save();
+            }
+        }
+
+        $article = new Article();
+        $article->setCategories($categories);
+
+        $this->assertInstanceof('Mondongo\Group', $article->getCategories());
+        $this->assertSame($categories, $article->getCategories()->getElements());
+    }
+
     public function testDocumentReferencesManySetterFieldNullWithNewReferences()
     {
         $categories = new Group();
@@ -309,7 +327,7 @@ class CoreTest extends TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testDocumentReferencesManySetterNotGroup()
+    public function testDocumentReferencesManySetterNotGroupNorArray()
     {
         $article = new Article();
         $article->setCategories(new Category());

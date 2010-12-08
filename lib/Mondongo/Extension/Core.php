@@ -785,8 +785,11 @@ EOF;
             } else {
                 // setter
                 $setterCode = <<<EOF
-        if (!\$value instanceof \Mondongo\Group) {
-            throw new \InvalidArgumentException('The reference "$name" is not an instance of Mondongo\Group.');
+        if (!\$value instanceof \Mondongo\Group && !is_array(\$value)) {
+            throw new \InvalidArgumentException('The reference "$name" is not an instance of Mondongo\Group or an array.');
+        }
+        if (is_array(\$value)) {
+            \$value = new \Mondongo\Group(\$value);
         }
         \$value->setChangeCallback(array(\$this, '$updateMethodName'));
 
