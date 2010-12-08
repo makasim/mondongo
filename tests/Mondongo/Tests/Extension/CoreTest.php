@@ -475,7 +475,9 @@ class CoreTest extends TestCase
     {
         $article = new Article();
 
-        $this->assertEquals(new Group(), $group = $article->getComments());
+        $group = $article->getComments();
+        $this->assertInstanceOf('Mondongo\Group', $group);
+        $this->assertSame(array(), $group->getElements());
         $this->assertSame($group, $article->getComments());
 
         $groups = new Group();
@@ -546,7 +548,16 @@ class CoreTest extends TestCase
     /**
      * @expectedException \InvalidArgumentException
      */
-    public function testDocumentEmbeddedsManyUpdateInvalidEmbeddedClass()
+    public function testDocumentEmbeddedsManyGetterUpdateInvalidEmbeddedClass()
+    {
+        $article = new Article();
+        $article->getComments()->add(new Author());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testDocumentEmbeddedsManySetterUpdateInvalidEmbeddedClass()
     {
         $comments = new Group(array(new Comment()));
 

@@ -993,7 +993,8 @@ EOF;
                 // getter
                 $getterCode = <<<EOF
         if (null === \$this->data['embeddeds']['$name']) {
-            \$this->data['embeddeds']['$name'] = new \\Mondongo\Group();
+            \$this->data['embeddeds']['$name'] = \$group = new \\Mondongo\Group();
+            \$group->setChangeCallback(array(\$this, '$updateMethodName'));
         }
 
         return \$this->data['embeddeds']['$name'];
