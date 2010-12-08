@@ -772,9 +772,10 @@ EOF;
 EOF;
                 // save new references
                 $saveNewReferencesCode .= <<<EOF
-        if (\$this->data['references']['$name'] && \$this->data['references']['$name']->isNew()) {
-            \$this->data['references']['$name']->save();
-            \$this->$fieldSetter(\$this->data['references']['$name']->getId());
+        \$reference = \$this->data['references']['$name'];
+        if (null !== \$reference && \$reference->isNew() && \$reference->isModified()) {
+            \$reference->save();
+            \$this->$fieldSetter(\$reference->getId());
         }
 
 EOF;
@@ -797,10 +798,9 @@ EOF;
             if (!\$document->isNew()) {
                 \$ids[] = \$document->getId();
             }
-
         }
 
-        \$this->{$fieldSetter}(\$ids);
+        \$this->{$fieldSetter}(count(\$ids) ? \$ids : null);
         \$this->data['references']['$name'] = \$value;
 EOF;
                 $setterDocComment = <<<EOF
@@ -847,11 +847,16 @@ EOF;
             \$ids = array();
             foreach (\$this->data['references']['$name'] as \$document) {
                 if (\$document->isNew()) {
+                    if (!\$document->isModified()) {
+                        continue;
+                    }
                     \$document->save();
                 }
                 \$ids[] = \$document->getId();
             }
-            \$this->$fieldSetter(\$ids);
+            if (count(\$ids)) {
+                \$this->$fieldSetter(\$ids);
+            }
         }
 
 EOF;

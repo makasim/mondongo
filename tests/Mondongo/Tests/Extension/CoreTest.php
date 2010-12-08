@@ -273,7 +273,7 @@ class CoreTest extends TestCase
         $this->assertSame(0, count($categories));
     }
 
-    public function testDocumentReferencesSetterNew()
+    public function testDocumentReferencesManySetterNew()
     {
         $categories = new Group();
         $ids = array();
@@ -291,6 +291,19 @@ class CoreTest extends TestCase
 
         $this->assertSame($categories, $article->getCategories());
         $this->assertSame($ids, $article->getCategoryIds());
+    }
+
+    public function testDocumentReferencesManySetterFieldNullWithNewReferences()
+    {
+        $categories = new Group();
+        for ($i = 1; $i <= 5; $i++) {
+            $categories->add(new Category());
+        }
+
+        $article = new Article();
+        $article->setCategories($categories);
+
+        $this->assertNull($article->getCategoryIds());
     }
 
     /**
@@ -420,7 +433,7 @@ class CoreTest extends TestCase
         $article->updateCategories();
     }
 
-    public function testDocumentReferencesSaveNewReference()
+    public function testDocumentReferencesSaveNewReferences()
     {
         $author = new Author();
         $author->setName('Pablo');
@@ -440,6 +453,7 @@ class CoreTest extends TestCase
 
         $article->saveNewReferences();
 
+        $this->assertTrue($article->isNew());
         $this->assertFalse($author->isNew());
         $this->assertSame($author->getId(), $article->getAuthorId());
         $ids = array();
@@ -448,6 +462,30 @@ class CoreTest extends TestCase
             $ids[] = $category->getId();
         }
         $this->assertSame($ids, $article->getCategoryIds());
+    }
+
+    public function testDocumentReferencesSaveNewReferencesNotModified()
+    {
+        $author = new Author();
+
+        $categories = new Group();
+        for ($i = 1; $i <= 4; $i++) {
+            $categories->add($category = new Category());
+        }
+
+        $article = new Article();
+        $article->setAuthor($author);
+        $article->setCategories($categories);
+
+        $article->saveNewReferences();
+
+        $this->assertTrue($article->isNew());
+        $this->assertTrue($author->isNew());
+        $this->assertNull($article->getAuthorId());
+        foreach ($categories as $category) {
+            $this->assertTrue($category->isNew());
+        }
+        $this->assertNull($article->getCategoryIds());
     }
 
     public function testEmbeddedDocumentsOne()
