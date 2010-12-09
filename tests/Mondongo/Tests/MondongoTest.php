@@ -27,6 +27,15 @@ use Model\Article;
 
 class MondongoTest extends TestCase
 {
+    public function testGetUnitOfWork()
+    {
+        $mondongo = new Mondongo();
+
+        $this->assertInstanceOf('Mondongo\UnitOfWork', $unitOfWork = $mondongo->getUnitOfWork());
+        $this->assertSame($mondongo, $unitOfWork->getMondongo());
+        $this->assertSame($unitOfWork, $mondongo->getUnitOfWork());
+    }
+
     public function testLoggerCallable()
     {
         $loggerCallable = function() {};
@@ -198,43 +207,31 @@ class MondongoTest extends TestCase
         $this->assertSame(5, $this->mondongo->count('Model\Article', array('title' => 'Count')));
     }
 
-    public function testRemove()
-    {
-        $articles = $this->createArticles(10);
-
-        $this->mondongo->remove('Model\Article');
-
-        $this->assertSame(0, $this->db->article->find()->count());
-    }
-
-    public function testRemoveOptions()
-    {
-        $articles = $this->createArticles(10);
-
-        $articles[3]->setTitle('No');
-        $articles[3]->save();
-
-        $this->mondongo->remove('Model\Article', array('title' => new \MongoRegex('/^Article/')));
-
-        $this->assertSame(1, $this->db->article->find()->count());
-        $this->assertSame(1, $this->db->article->find(array('_id' => $articles[3]->getId()))->count());
-    }
-
-    public function testSave()
+    public function testPersist()
     {
         $article = new Article();
-        $article->setTitle('Title');
-        $this->mondongo->save('Model\Article', $article);
+        $this->mondongo->persist($article);
 
-        $this->assertFalse($article->isNew());
+        $this->assertTrue($this->unitOfWork->isPendingForPersist($article));
     }
 
-    public function testDelete()
+    public function testRemove()
     {
-        $articles = $this->createArticles(10);
+        $article = new Article();
+        $article->setTitle('Mondongo');
+        $article->save();
+        $this->mondongo->remove($article);
 
-        $this->mondongo->delete('Model\Article', $articles[5]);
+        $this->assertTrue($this->unitOfWork->isPendingForRemove($article));
+    }
 
-        $this->assertSame(9, $this->db->article->find()->count());
+    public function testFlush()
+    {
+        $article = new Article();
+        $article->setTitle('Mondongo');
+        $this->mondongo->persist($article);
+        $this->mondongo->flush();
+
+        $this->assertFalse($article->isNew());
     }
 }

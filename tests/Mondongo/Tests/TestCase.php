@@ -41,6 +41,8 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
     protected $mondongo;
 
+    protected $unitOfWork;
+
     public function setUp()
     {
         Container::clearDefault();
@@ -81,6 +83,8 @@ class TestCase extends \PHPUnit_Framework_TestCase
         $this->mondongo = new Mondongo();
         $this->mondongo->setLoggerCallable(function($log) {});
         $this->mondongo->setConnection('default', $this->connection);
+
+        $this->unitOfWork = $this->mondongo->getUnitOfWork();
 
         Container::setDefault($this->mondongo);
     }

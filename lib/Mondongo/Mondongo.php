@@ -31,11 +31,31 @@ class Mondongo
 {
     const VERSION = '1.0.0-DEV';
 
+    protected $unitOfWork;
+
     protected $loggerCallable;
 
     protected $connections = array();
 
     protected $defaultConnectionName;
+
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+        $this->unitOfWork = new UnitOfWork($this);
+    }
+
+    /**
+     * Returns the UnitOfWork.
+     *
+     * @return \Mondongo\UnitOfWork The UnitOfWork.
+     */
+    public function getUnitOfWork()
+    {
+        return $this->unitOfWork;
+    }
 
     /**
      * Set the logger callable.
@@ -271,38 +291,32 @@ class Mondongo
     }
 
     /**
-     * Access to repository ->remove() method.
+     * Access to UnitOfWork ->persist() method.
      *
-     * The first argument is the documentClass of repository.
-     *
-     * @see Mondongo\Repository::remove()
+     * @see \Mondongo\UnitOfWork::persist()
      */
-    public function remove($documentClass, array $query = array())
+    public function persist($document)
     {
-        return $this->getRepository($documentClass)->remove($query);
+        $this->unitOfWork->persist($document);
     }
 
     /**
-     * Access to repository ->save() method.
+     * Access to UnitOfWork ->remove() method.
      *
-     * The first argument is the documentClass of repository.
-     *
-     * @see Mondongo\Repository::save()
+     * @see \Mondongo\UnitOfWork::remove()
      */
-    public function save($documentClass, $documents)
+    public function remove($document)
     {
-        return $this->getRepository($documentClass)->save($documents);
+        $this->unitOfWork->remove($document);
     }
 
     /**
-     * Access to repository ->delete() method.
+     * Access to UnitOfWork ->commit() method.
      *
-     * The first argument is the documentClass of repository.
-     *
-     * @see Mondongo\Repository::delete()
+     * @see \Mondongo\UnitOfWork::commit()
      */
-    public function delete($documentClass, $documents)
+    public function flush()
     {
-        return $this->getRepository($documentClass)->delete($documents);
+        $this->unitOfWork->commit();
     }
 }
