@@ -127,4 +127,20 @@ class UnitOfWorkTest extends TestCase
         }
         $this->assertNull($authorForRemove->getCollection()->findOne(array('_id' => $authorForRemove->getId())));
     }
+
+    public function testClear()
+    {
+        $articleForInsert = new Article();
+        $this->unitOfWork->persist($articleForInsert);
+
+        $articleForRemove = new Article();
+        $articleForRemove->setTitle('Mondongo');
+        $articleForRemove->save();
+        $this->unitOfWork->remove($articleForRemove);
+
+        $this->unitOfWork->clear();
+
+        $this->assertFalse($this->unitOfWork->isPendingForPersist($articleForInsert));
+        $this->assertFalse($this->unitOfWork->isPendingForRemove($articleForRemove));
+    }
 }
