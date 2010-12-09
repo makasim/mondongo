@@ -272,6 +272,8 @@ abstract class Repository
                 $data['file'] = $file;
             }
             $document->setDocumentData($data);
+
+            $this->identityMap->add($document);
         }
 
         if ($results) {
@@ -309,6 +311,10 @@ abstract class Repository
      */
     public function findOneById($id)
     {
+        if ($this->identityMap->hasById($id)) {
+            return $this->identityMap->getById($id);
+        }
+
         return $this->find(array('query' => array('_id' => $id), 'one' => true));
     }
 

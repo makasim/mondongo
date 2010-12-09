@@ -301,6 +301,19 @@ class RepositoryTest extends TestCase
         $this->assertNull($repository->findOneById(new \MongoId('123')));
     }
 
+    public function testFindOneByIdIdentityMap()
+    {
+        $repository = $this->mondongo->getRepository('Model\Article');
+        $articles   = $this->createArticles(10);
+
+        $repository->getIdentityMap()->clear();
+
+        $this->assertEquals($articles[3], $article = $repository->findOneById($articles[3]->getId()));
+        $this->assertNotSame($articles[3], $article);
+
+        $this->assertSame($article, $repository->findOneById($articles[3]->getId()));
+    }
+
     public function testCount()
     {
         $repository = $this->mondongo->getRepository('Model\Article');
@@ -582,12 +595,25 @@ class RepositoryTest extends TestCase
         $this->assertInstanceOf('\Mondongo\IdentityMap', $repository->getIdentityMap());
     }
 
-    public function testIdentityMapFind()
+    public function testIdentityMapFindCreating()
     {
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
         $this->assertSame($articles[1], $repository->find(array('query' => array('_id' => $articles[1]->getId()), 'one' => true)));
+    }
+
+    public function testIdentityMapFindQuering()
+    {
+        $repository = $this->mondongo->getRepository('Model\Article');
+        $articles   = $this->createArticles(10);
+
+        $repository->getIdentityMap()->clear();
+
+        $this->assertEquals($articles[3], $article = $repository->findOneById($articles[3]->getId()));
+        $this->assertNotSame($articles[3], $article);
+
+        $this->assertSame($article, $repository->findOneById($articles[3]->getId()));
     }
 
     public function testIdentityMapDelete()
