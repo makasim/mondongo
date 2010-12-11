@@ -106,21 +106,6 @@ class LoggableMongoGridFS extends \MongoGridFS
     }
 
     /*
-     * log.
-     */
-    protected function log(array $log)
-    {
-        if ($this->loggerCallable) {
-            call_user_func($this->loggerCallable, array_merge(array(
-                'connection' => $this->connectionName,
-                'database'   => $this->db->__toString(),
-                'collection' => $this->getName(),
-                'gridfs'     => 1,
-            ), $log));
-        }
-    }
-
-    /*
      * storeBytes.
      */
     public function storeBytes($bytes, array $extra, array $options = array())
@@ -223,5 +208,20 @@ class LoggableMongoGridFS extends \MongoGridFS
         ));
 
         return parent::remove($criteria, $options);
+    }
+
+    /*
+     * log.
+     */
+    protected function log(array $log)
+    {
+        if ($this->loggerCallable) {
+            call_user_func($this->loggerCallable, array_merge(array(
+                'connection' => $this->connectionName,
+                'database'   => $this->db->__toString(),
+                'collection' => $this->getName(),
+                'gridfs'     => 1,
+            ), $log));
+        }
     }
 }

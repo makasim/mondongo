@@ -92,6 +92,72 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
     }
 
     /*
+     * hasNext.
+     */
+    public function hasNext()
+    {
+        $this->logQuery();
+
+        return parent::hasNext();
+    }
+
+    /*
+     * rewind.
+     */
+    public function rewind()
+    {
+        $this->logQuery();
+
+        return parent::rewind();
+    }
+
+    /*
+     * next.
+     */
+    public function next()
+    {
+        $this->logQuery();
+
+        return parent::next();
+    }
+
+    /*
+     * count.
+     */
+    public function count($foundOnly = false)
+    {
+        $info = $this->info();
+
+        $this->log(array(
+            'count'     => 1,
+            'query'     => $info['query'],
+            'limit'     => $info['limit'],
+            'skip'      => $info['skip'],
+            'foundOnly' => $foundOnly,
+        ));
+
+        return parent::count($foundOnly);
+    }
+
+    /*
+     * log the query.
+     */
+    protected function logQuery()
+    {
+        $info = $this->info();
+
+        if (!$info['started_iterating']) {
+            $this->log(array(
+                'query'     => $info['query'],
+                'fields'    => $info['fields'],
+                'limit'     => $info['limit'],
+                'skip'      => $info['skip'],
+                'batchSize' => $info['batchSize'],
+            ));
+        }
+    }
+
+    /*
      * log.
      */
     protected function log(array $log)
@@ -101,47 +167,7 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
                 'connection' => $this->connectionName,
                 'database'   => $this->dbName,
                 'collection' => $this->collectionName,
-                'gridfs'     => 1,
             ), $log));
         }
-    }
-
-    /*
-     * limit.
-     */
-    public function limit($num)
-    {
-        $this->log(array(
-            'limit' => 1,
-            'num'   => $num,
-        ));
-
-        return parent::limit($num);
-    }
-
-    /*
-     * skip.
-     */
-    public function skip($num)
-    {
-        $this->log(array(
-            'skip' => 1,
-            'num'  => $num,
-        ));
-
-        return parent::skip($num);
-    }
-
-    /*
-     * sort.
-     */
-    public function sort(array $fields)
-    {
-        $this->log(array(
-            'sort'   => 1,
-            'fields' => $fields,
-        ));
-
-        return parent::sort($fields);
     }
 }

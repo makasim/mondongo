@@ -37,6 +37,8 @@ class LoggableMongoCursor extends \MongoCursor
 
     protected $connectionName;
 
+    protected $isLogged;
+
     /**
      * Constructor.
      */
@@ -45,6 +47,8 @@ class LoggableMongoCursor extends \MongoCursor
         parent::__construct($connection, $ns, $query, $fields);
 
         list($this->dbName, $this->collectionName) = explode('.', $ns);
+
+        $this->isLogged = false;
     }
 
     /**
@@ -92,6 +96,72 @@ class LoggableMongoCursor extends \MongoCursor
     }
 
     /*
+     * hasNext.
+     */
+    public function hasNext()
+    {
+        $this->logQuery();
+
+        return parent::hasNext();
+    }
+
+    /*
+     * rewind.
+     */
+    public function rewind()
+    {
+        $this->logQuery();
+
+        return parent::rewind();
+    }
+
+    /*
+     * next.
+     */
+    public function next()
+    {
+        $this->logQuery();
+
+        return parent::next();
+    }
+
+    /*
+     * count.
+     */
+    public function count($foundOnly = false)
+    {
+        $info = $this->info();
+
+        $this->log(array(
+            'count'     => 1,
+            'query'     => $info['query'],
+            'limit'     => $info['limit'],
+            'skip'      => $info['skip'],
+            'foundOnly' => $foundOnly,
+        ));
+
+        return parent::count($foundOnly);
+    }
+
+    /*
+     * log the query.
+     */
+    protected function logQuery()
+    {
+        $info = $this->info();
+
+        if (!$info['started_iterating']) {
+            $this->log(array(
+                'query'     => $info['query'],
+                'fields'    => $info['fields'],
+                'limit'     => $info['limit'],
+                'skip'      => $info['skip'],
+                'batchSize' => $info['batchSize'],
+            ));
+        }
+    }
+
+    /*
      * log.
      */
     protected function log(array $log)
@@ -103,44 +173,5 @@ class LoggableMongoCursor extends \MongoCursor
                 'collection' => $this->collectionName,
             ), $log));
         }
-    }
-
-    /*
-     * limit.
-     */
-    public function limit($num)
-    {
-        $this->log(array(
-            'limit' => 1,
-            'num'   => $num,
-        ));
-
-        return parent::limit($num);
-    }
-
-    /*
-     * skip.
-     */
-    public function skip($num)
-    {
-        $this->log(array(
-            'skip' => 1,
-            'num'  => $num,
-        ));
-
-        return parent::skip($num);
-    }
-
-    /*
-     * sort.
-     */
-    public function sort(array $fields)
-    {
-        $this->log(array(
-            'sort'   => 1,
-            'fields' => $fields,
-        ));
-
-        return parent::sort($fields);
     }
 }

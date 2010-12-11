@@ -106,20 +106,6 @@ class LoggableMongoCollection extends \MongoCollection
     }
 
     /*
-     * log.
-     */
-    protected function log(array $log)
-    {
-        if ($this->loggerCallable) {
-            call_user_func($this->loggerCallable, array_merge(array(
-                'connection' => $this->connectionName,
-                'database'   => $this->db->__toString(),
-                'collection' => $this->getName(),
-            ), $log));
-        }
-    }
-
-    /*
      * batchInsert.
      */
     public function batchInsert(array $a, array $options = array())
@@ -154,12 +140,6 @@ class LoggableMongoCollection extends \MongoCollection
      */
     public function find(array $query = array(), array $fields = array())
     {
-        $this->log(array(
-            'find'   => 1,
-            'query'  => $query,
-            'fields' => $fields,
-        ));
-
         $cursor = new LoggableMongoCursor($this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields);
         $cursor->setLoggerCallable($this->loggerCallable);
         $cursor->setConnectionName($this->connectionName);
@@ -172,13 +152,12 @@ class LoggableMongoCollection extends \MongoCollection
      */
     public function findOne(array $query = array(), array $fields = array())
     {
-        $this->log(array(
-            'findOne' => 1,
-            'query'   => $query,
-            'fields'  => $fields,
-        ));
+        $cursor = new LoggableMongoCursor($this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields);
+        $cursor->setLoggerCallable($this->loggerCallable);
+        $cursor->setConnectionName($this->connectionName);
+        $cursor->limit(1);
 
-        return parent::findOne($query, $fields);
+        return $cursor->getNext();
     }
 
     /*
@@ -207,5 +186,19 @@ class LoggableMongoCollection extends \MongoCollection
         ));
 
         return parent::remove($criteria, $options);
+    }
+
+    /*
+     * log.
+     */
+    protected function log(array $log)
+    {
+        if ($this->loggerCallable) {
+            call_user_func($this->loggerCallable, array_merge(array(
+                'connection' => $this->connectionName,
+                'database'   => $this->db->__toString(),
+                'collection' => $this->getName(),
+            ), $log));
+        }
     }
 }
