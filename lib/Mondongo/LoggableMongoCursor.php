@@ -37,7 +37,7 @@ class LoggableMongoCursor extends \MongoCursor
 
     protected $connectionName;
 
-    protected $isLogged;
+    protected $explainCursor;
 
     /**
      * Constructor.
@@ -48,7 +48,7 @@ class LoggableMongoCursor extends \MongoCursor
 
         list($this->dbName, $this->collectionName) = explode('.', $ns);
 
-        $this->isLogged = false;
+        $this->explainCursor = new \MongoCursor($connection, $ns, $query, $fields);
     }
 
     /**
@@ -151,12 +151,61 @@ class LoggableMongoCursor extends \MongoCursor
         $info = $this->info();
 
         if (!$info['started_iterating']) {
-            $this->log(array(
-                'query'     => $info['query'],
-                'fields'    => $info['fields'],
-                'limit'     => $info['limit'],
-                'skip'      => $info['skip'],
-                'batchSize' => $info['batchSize'],
+            if (!is_array($info['query'])) {
+                $info['query'] = array();
+            }
+
+            // explain cursor
+            $this->explainCursor->fields($info['fields']);
+            $this->explainCursor->limit($info['limit']);
+            $this->explainCursor->skip($info['skip']);
+            if (isset($info['batchSize'])) {
+                $this->explainCursor->batchSize($info['batchSize']);
+            }
+            if (isset($info['query']['$orderby'])) {
+                $this->explainCursor->sort($info['query']['$orderby']);
+            }
+            if (isset($info['query']['$hint'])) {
+                $this->explainCursor->hint($info['query']['$hint']);
+            }
+            if (isset($info['query']['$snapshot'])) {
+                $this->explainCursor->snapshot();
+            }
+            $explain = $this->explainCursor->explain();
+
+            // info log
+            $infoLog = array(
+                'query'  => isset($info['query']['$query']) && is_array($info['query']['$query']) ? $info['query']['$query'] : array(),
+                'fields' => $info['fields'],
+            );
+            if (isset($info['query']['$orderby'])) {
+                $infoLog['sort'] = $info['query']['$orderby'];
+            }
+            if ($info['limit']) {
+                $infoLog['limit'] = $info['limit'];
+            }
+            if ($info['skip']) {
+                $infoLog['skip'] = $info['skip'];
+            }
+            if ($info['batchSize']) {
+                $infoLog['batchSize'] = $info['batchSize'];
+            }
+            if (isset($info['query']['$hint'])) {
+                $infoLog['hint'] = $info['query']['$hint'];
+            }
+            if (isset($info['query']['$snapshot'])) {
+                $infoLog['snapshot'] = 1;
+            }
+
+            $this->log($log = array(
+                'info' => $infoLog,
+                'explain' => array(
+                    'nscanned'        => $explain['nscanned'],
+                    'nscannedObjects' => $explain['nscannedObjects'],
+                    'n'               => $explain['n'],
+                    'millis'          => $explain['millis'],
+                    'indexBounds'     => $explain['indexBounds'],
+                ),
             ));
         }
     }
