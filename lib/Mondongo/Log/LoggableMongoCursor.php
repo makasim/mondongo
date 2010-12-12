@@ -19,7 +19,7 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo;
+namespace Mondongo\Log;
 
 /**
  * A loggable MongoCursor.
@@ -29,6 +29,9 @@ namespace Mondongo;
  */
 class LoggableMongoCursor extends \MongoCursor
 {
+    const TYPE_FIND     = 'find';
+    const TYPE_FIND_ONE = 'findOne';
+
     protected $dbName;
 
     protected $collectionName;
@@ -37,18 +40,26 @@ class LoggableMongoCursor extends \MongoCursor
 
     protected $connectionName;
 
+    protected $type;
+
     protected $explainCursor;
+
+    protected $time;
 
     /**
      * Constructor.
      */
-    public function __construct(\Mongo $connection, $ns, array $query = array(), array $fields = array())
+    public function __construct(\Mongo $connection, $ns, array $query = array(), array $fields = array(), $type = self::TYPE_FIND)
     {
         parent::__construct($connection, $ns, $query, $fields);
 
         list($this->dbName, $this->collectionName) = explode('.', $ns);
 
+        $this->type = $type;
+
         $this->explainCursor = new \MongoCursor($connection, $ns, $query, $fields);
+
+        $this->time = new Time();
     }
 
     /**
@@ -106,6 +117,16 @@ class LoggableMongoCursor extends \MongoCursor
     }
 
     /*
+     * getNext.
+     */
+    public function getNext()
+    {
+        $this->logQuery();
+
+        return parent::getNext();
+    }
+
+    /*
      * rewind.
      */
     public function rewind()
@@ -130,17 +151,22 @@ class LoggableMongoCursor extends \MongoCursor
      */
     public function count($foundOnly = false)
     {
+        $this->time->start();
+        $return = parent::count($foundOnly);
+        $time = $this->time->stop();
+
         $info = $this->info();
 
         $this->log(array(
-            'count'     => 1,
-            'query'     => $info['query'],
+            'type'      => 'count',
+            'query'     => is_array($info['query']) ? $info['query'] : array(),
             'limit'     => $info['limit'],
             'skip'      => $info['skip'],
             'foundOnly' => $foundOnly,
+            'time'      => $time,
         ));
 
-        return parent::count($foundOnly);
+        return $return;
     }
 
     /*
@@ -153,6 +179,8 @@ class LoggableMongoCursor extends \MongoCursor
         if (!$info['started_iterating']) {
             if (!is_array($info['query'])) {
                 $info['query'] = array();
+            } else if (!isset($info['query']['$query'])) {
+                $info['query'] = array('$query' => $info['query']);
             }
 
             // explain cursor
@@ -198,14 +226,15 @@ class LoggableMongoCursor extends \MongoCursor
             }
 
             $this->log($log = array(
+                'type' => $this->type,
                 'info' => $infoLog,
                 'explain' => array(
                     'nscanned'        => $explain['nscanned'],
                     'nscannedObjects' => $explain['nscannedObjects'],
                     'n'               => $explain['n'],
-                    'millis'          => $explain['millis'],
                     'indexBounds'     => $explain['indexBounds'],
                 ),
+                'time' => $explain['millis'],
             ));
         }
     }

@@ -19,7 +19,7 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo;
+namespace Mondongo\Log;
 
 /**
  * A loggable MongoGridFSCursor.
@@ -29,6 +29,9 @@ namespace Mondongo;
  */
 class LoggableMongoGridFSCursor extends \MongoGridFSCursor
 {
+    const TYPE_FIND     = 'find';
+    const TYPE_FIND_ONE = 'findOne';
+
     protected $dbName;
 
     protected $collectionName;
@@ -37,14 +40,26 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
 
     protected $connectionName;
 
+    protected $type;
+
+    protected $explainCursor;
+
+    protected $time;
+
     /**
      * Constructor.
      */
-    public function __construct(\MongoGridFS $gridfs, \Mongo $connection, $ns, array $query = array(), array $fields = array())
+    public function __construct(\MongoGridFS $gridfs, \Mongo $connection, $ns, array $query = array(), array $fields = array(), $type = self::TYPE_FIND)
     {
         parent::__construct($gridfs, $connection, $ns, $query, $fields);
 
         list($this->dbName, $this->collectionName) = explode('.', $ns);
+
+        $this->type = $type;
+
+        $this->explainCursor = new \MongoGridFSCursor($gridfs, $connection, $ns, $query, $fields);
+
+        $this->time = new Time();
     }
 
     /**
@@ -102,6 +117,16 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
     }
 
     /*
+     * getNext.
+     */
+    public function getNext()
+    {
+        $this->logQuery();
+
+        return parent::getNext();
+    }
+
+    /*
      * rewind.
      */
     public function rewind()
@@ -126,17 +151,22 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
      */
     public function count($foundOnly = false)
     {
+        $this->time->start();
+        $return = parent::count($foundOnly);
+        $time = $this->time->stop();
+
         $info = $this->info();
 
         $this->log(array(
-            'count'     => 1,
-            'query'     => $info['query'],
+            'type'      => 'count',
+            'query'     => is_array($info['query']) ? $info['query'] : array(),
             'limit'     => $info['limit'],
             'skip'      => $info['skip'],
             'foundOnly' => $foundOnly,
+            'time'      => $time,
         ));
 
-        return parent::count($foundOnly);
+        return $return;
     }
 
     /*
@@ -147,12 +177,62 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
         $info = $this->info();
 
         if (!$info['started_iterating']) {
-            $this->log(array(
-                'query'     => $info['query'],
-                'fields'    => $info['fields'],
-                'limit'     => $info['limit'],
-                'skip'      => $info['skip'],
-                'batchSize' => $info['batchSize'],
+            if (!is_array($info['query'])) {
+                $info['query'] = array();
+            }
+
+            // explain cursor
+            $this->explainCursor->fields($info['fields']);
+            $this->explainCursor->limit($info['limit']);
+            $this->explainCursor->skip($info['skip']);
+            if (isset($info['batchSize'])) {
+                $this->explainCursor->batchSize($info['batchSize']);
+            }
+            if (isset($info['query']['$orderby'])) {
+                $this->explainCursor->sort($info['query']['$orderby']);
+            }
+            if (isset($info['query']['$hint'])) {
+                $this->explainCursor->hint($info['query']['$hint']);
+            }
+            if (isset($info['query']['$snapshot'])) {
+                $this->explainCursor->snapshot();
+            }
+            $explain = $this->explainCursor->explain();
+
+            // info log
+            $infoLog = array(
+                'query'  => isset($info['query']['$query']) && is_array($info['query']['$query']) ? $info['query']['$query'] : array(),
+                'fields' => $info['fields'],
+            );
+            if (isset($info['query']['$orderby'])) {
+                $infoLog['sort'] = $info['query']['$orderby'];
+            }
+            if ($info['limit']) {
+                $infoLog['limit'] = $info['limit'];
+            }
+            if ($info['skip']) {
+                $infoLog['skip'] = $info['skip'];
+            }
+            if ($info['batchSize']) {
+                $infoLog['batchSize'] = $info['batchSize'];
+            }
+            if (isset($info['query']['$hint'])) {
+                $infoLog['hint'] = $info['query']['$hint'];
+            }
+            if (isset($info['query']['$snapshot'])) {
+                $infoLog['snapshot'] = 1;
+            }
+
+            $this->log($log = array(
+                'type' => $this->type,
+                'info' => $infoLog,
+                'explain' => array(
+                    'nscanned'        => $explain['nscanned'],
+                    'nscannedObjects' => $explain['nscannedObjects'],
+                    'n'               => $explain['n'],
+                    'indexBounds'     => $explain['indexBounds'],
+                ),
+                'time' => $explain['millis'],
             ));
         }
     }

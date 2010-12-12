@@ -19,26 +19,33 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests;
+namespace Mondongo\Log;
 
-use Mondongo\LoggableMongoCollection;
-
-class LoggableMongoCollectionTest extends TestCase
+/**
+ * Time.
+ *
+ * @package Mondongo
+ * @author  Pablo Díez Pascual <pablodip@gmail.com>
+ */
+class Time
 {
-    public function testLoggerCallable()
-    {
-        $loggerCallable = function() {};
+    protected $time;
 
-        $collection = new LoggableMongoCollection($this->mongo, $this->db, 'article');
-        $this->assertSame($this->mongo, $collection->getMongo());
-        $collection->setLoggerCallable($loggerCallable);
-        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
+    /**
+     * Start to count the time.
+     */
+    public function start()
+    {
+        $this->time = microtime(true);
     }
 
-    public function testConnectionName()
+    /**
+     * Stop of count the time and returns the result.
+     *
+     * @return int The result.
+     */
+    public function stop()
     {
-        $collection = new LoggableMongoCollection($this->mongo, $this->db, 'article');
-        $collection->setConnectionName('foobar');
-        $this->assertSame('foobar', $collection->getConnectionName());
+        return (int) round((microtime(true) - $this->time) * 1000);
     }
 }

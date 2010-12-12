@@ -19,7 +19,7 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo;
+namespace Mondongo\Log;
 
 /**
  * A loggable MongoGridFS.
@@ -35,6 +35,8 @@ class LoggableMongoGridFS extends \MongoGridFS
 
     protected $connectionName;
 
+    protected $time;
+
     /**
      * Constructor.
      *
@@ -46,9 +48,11 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function __construct(\Mongo $mongo, \MongoDB $db, $collectionName)
     {
+        parent::__construct($db, $collectionName);
+
         $this->mongo = $mongo;
 
-        parent::__construct($db, $collectionName);
+        $this->time = new Time();
     }
 
     /**
@@ -110,14 +114,19 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function storeBytes($bytes, array $extra, array $options = array())
     {
+        $this->time->start();
+        $return = parent::storeBytes($bytes, $extra, $options);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'storeBytes' => 1,
+            'type'       => 'storeBytes',
             'bytes_sha1' => sha1($bytes),
             'extra'      => $extra,
             'options'    => $options,
+            'time'       => $time,
         ));
 
-        return parent::storeBytes($bytes, $extra, $options);
+        return $return;
     }
 
     /*
@@ -125,14 +134,19 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function storeFile($filename, array $extra, array $options = array())
     {
+        $this->time->start();
+        $return = parent::storeFile($filename, $extra, $options);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'storeFile' => 1,
+            'type'      => 'storeFile',
             'filename'  => $filename,
             'extra'     => $extra,
             'options'   => $options,
+            'time'      => $time,
         ));
 
-        return parent::storeFile($filename, $extra, $options);
+        return $return;
     }
 
     /*
@@ -140,14 +154,19 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
+        $this->time->start();
+        $return = parent::count($query, $limit, $skip);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'count' => 1,
+            'type'  => 'count',
             'query' => $query,
             'limit' => $limit,
             'skip'  => $skip,
+            'time'  => $time,
         ));
 
-        return parent::count($query, $limit, $skip);
+        return $return;
     }
 
     /*
@@ -155,12 +174,6 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function find(array $query = array(), array $fields = array())
     {
-        $this->log(array(
-            'find'   => 1,
-            'query'  => $query,
-            'fields' => $fields,
-        ));
-
         $cursor = new LoggableMongoGridFSCursor($this, $this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields);
         $cursor->setLoggerCallable($this->loggerCallable);
         $cursor->setConnectionName($this->connectionName);
@@ -173,13 +186,12 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function findOne(array $query = array(), array $fields = array())
     {
-        $this->log(array(
-            'findOne' => 1,
-            'query'   => $query,
-            'fields'  => $fields,
-        ));
+        $cursor = new LoggableMongoGridFSCursor($this, $this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields, LoggableMongoCursor::TYPE_FIND_ONE);
+        $cursor->setLoggerCallable($this->loggerCallable);
+        $cursor->setConnectionName($this->connectionName);
+        $cursor->limit(-1);
 
-        return parent::findOne($query, $fields);
+        return $cursor->getNext();
     }
 
     /*
@@ -187,13 +199,18 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function insert(array $a, array $options = array())
     {
+        $this->time->start();
+        $return = parent::insert($a, $options);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'insert'  => 1,
+            'type'    => 'insert',
             'a'       => $a,
             'options' => $options,
+            'time'    => $time,
         ));
 
-        return parent::insert($a, $options);
+        return $return;
     }
 
     /*
@@ -201,13 +218,18 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function remove(array $criteria = array(), array $options = array())
     {
+        $this->time->start();
+        $return = parent::remove($criteria, $options);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'remove'   => 1,
+            'type'     => 'remove',
             'criteria' => $criteria,
             'options'  => $options,
+            'time'     => $time,
         ));
 
-        return parent::remove($criteria, $options);
+        return $return;
     }
 
     /*

@@ -57,7 +57,7 @@ class RepositoryTest extends TestCase
 
         $collection = RepositoryBase::createCollection($this->connection, 'bar', false, $loggable, 'barfoo');
 
-        $this->assertSame('Mondongo\LoggableMongoCollection', get_class($collection));
+        $this->assertSame('Mondongo\Log\LoggableMongoCollection', get_class($collection));
         $this->assertSame($this->connection->getMongoDB(), $collection->db);
         $this->assertSame('bar', $collection->getName());
         $this->assertSame($loggable, $collection->getLoggerCallable());
@@ -79,7 +79,7 @@ class RepositoryTest extends TestCase
 
         $collection = RepositoryBase::createCollection($this->connection, 'barfoo', true, $loggable, 'foobar');
 
-        $this->assertSame('Mondongo\LoggableMongoGridFS', get_class($collection));
+        $this->assertSame('Mondongo\Log\LoggableMongoGridFS', get_class($collection));
         $this->assertSame($this->connection->getMongoDB(), $collection->db);
         $this->assertSame('barfoo.files', $collection->getName());
         $this->assertSame($loggable, $collection->getLoggerCallable());
@@ -146,7 +146,7 @@ class RepositoryTest extends TestCase
         $mondongo->setConnection('default', $this->connection);
         $collection = $mondongo->getRepository('Model\Article')->getCollection();
 
-        $this->assertSame('Mondongo\LoggableMongoCollection', get_class($collection));
+        $this->assertSame('Mondongo\Log\LoggableMongoCollection', get_class($collection));
         $this->assertSame('article', $collection->getName());
         $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }
@@ -170,7 +170,7 @@ class RepositoryTest extends TestCase
         $mondongo->setConnection('default', $this->connection);
         $collection = $mondongo->getRepository('Model\Image')->getCollection();
 
-        $this->assertSame('Mondongo\LoggableMongoGridFS', get_class($collection));
+        $this->assertSame('Mondongo\Log\LoggableMongoGridFS', get_class($collection));
         $this->assertSame('image.files', $collection->getName());
         $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }

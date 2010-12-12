@@ -19,7 +19,7 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo;
+namespace Mondongo\Log;
 
 /**
  * A loggable MongoCollection.
@@ -35,6 +35,8 @@ class LoggableMongoCollection extends \MongoCollection
 
     protected $connectionName;
 
+    protected $time;
+
     /**
      * Constructor.
      *
@@ -46,9 +48,11 @@ class LoggableMongoCollection extends \MongoCollection
      */
     public function __construct(\Mongo $mongo, \MongoDB $db, $collectionName)
     {
+        parent::__construct($db, $collectionName);
+
         $this->mongo = $mongo;
 
-        parent::__construct($db, $collectionName);
+        $this->time = new Time();
     }
 
     /**
@@ -110,14 +114,19 @@ class LoggableMongoCollection extends \MongoCollection
      */
     public function batchInsert(array $a, array $options = array())
     {
+        $this->time->start();
+        $return = parent::batchInsert($a, $options);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'batchInsert' => 1,
-            'nb'          => count($a),
-            'data'        => $a,
-            'options'     => $options,
+            'type'    => 'batchInsert',
+            'nb'      => count($a),
+            'data'    => $a,
+            'options' => $options,
+            'time'    => $time,
         ));
 
-        return parent::batchInsert($a, $options);
+        return $return;
     }
 
     /*
@@ -125,14 +134,19 @@ class LoggableMongoCollection extends \MongoCollection
      */
     public function count(array $query = array(), $limit = 0, $skip = 0)
     {
+        $this->time->start();
+        $return = parent::count($query, $limit, $skip);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'count' => 1,
+            'type'  => 'count',
             'query' => $query,
             'limit' => $limit,
             'skip'  => $skip,
+            'time'  => $time,
         ));
 
-        return parent::count($query, $limit, $skip);
+        return $return;
     }
 
     /*
@@ -152,10 +166,10 @@ class LoggableMongoCollection extends \MongoCollection
      */
     public function findOne(array $query = array(), array $fields = array())
     {
-        $cursor = new LoggableMongoCursor($this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields);
+        $cursor = new LoggableMongoCursor($this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields, LoggableMongoCursor::TYPE_FIND_ONE);
         $cursor->setLoggerCallable($this->loggerCallable);
         $cursor->setConnectionName($this->connectionName);
-        $cursor->limit(1);
+        $cursor->limit(-1);
 
         return $cursor->getNext();
     }
@@ -165,13 +179,18 @@ class LoggableMongoCollection extends \MongoCollection
      */
     public function insert(array $a, array $options = array())
     {
+        $this->time->start();
+        $return = parent::insert($a, $options);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'insert'  => 1,
+            'type'    => 'insert',
             'a'       => $a,
             'options' => $options,
+            'time'    => $time,
         ));
 
-        return parent::insert($a, $options);
+        return $return;
     }
 
     /*
@@ -179,13 +198,18 @@ class LoggableMongoCollection extends \MongoCollection
      */
     public function remove(array $criteria = array(), array $options = array())
     {
+        $this->time->start();
+        $return = parent::remove($criteria, $options);
+        $time = $this->time->stop();
+
         $this->log(array(
-            'remove'   => 1,
+            'type'     => 'remove',
             'criteria' => $criteria,
             'options'  => $options,
+            'time'     => $time,
         ));
 
-        return parent::remove($criteria, $options);
+        return $return;
     }
 
     /*

@@ -19,9 +19,10 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests;
+namespace Mondongo\Tests\Log;
 
-use Mondongo\LoggableMongoCursor;
+use Mondongo\Tests\TestCase;
+use Mondongo\Log\LoggableMongoCursor;
 
 class LoggableMongoCursorTest extends TestCase
 {
