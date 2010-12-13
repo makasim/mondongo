@@ -30,16 +30,16 @@ namespace Mondongo\Type;
 class Container
 {
     static protected $map = array(
-        'bin_data'       => 'Mondongo\\Type\\BinDataType',
-        'boolean'        => 'Mondongo\\Type\\BooleanType',
-        'date'           => 'Mondongo\\Type\\DateType',
-        'float'          => 'Mondongo\\Type\\FloatType',
-        'integer'        => 'Mondongo\\Type\\IntegerType',
-        'raw'            => 'Mondongo\\Type\\RawType',
-        'reference_one'  => 'Mondongo\\Type\\ReferenceOneType',
-        'reference_many' => 'Mondongo\\Type\\ReferenceManyType',
-        'serialized'     => 'Mondongo\\Type\\SerializedType',
-        'string'         => 'Mondongo\\Type\\StringType',
+        'bin_data'       => 'Mondongo\Type\BinDataType',
+        'boolean'        => 'Mondongo\Type\BooleanType',
+        'date'           => 'Mondongo\Type\DateType',
+        'float'          => 'Mondongo\Type\FloatType',
+        'integer'        => 'Mondongo\Type\IntegerType',
+        'raw'            => 'Mondongo\Type\RawType',
+        'reference_one'  => 'Mondongo\Type\ReferenceOneType',
+        'reference_many' => 'Mondongo\Type\ReferenceManyType',
+        'serialized'     => 'Mondongo\Type\SerializedType',
+        'string'         => 'Mondongo\Type\StringType',
     );
 
     static protected $types = array();
@@ -74,8 +74,8 @@ class Container
         }
 
         $r = new \ReflectionClass($class);
-        if (!$r->isSubclassOf('\\Mondongo\\Type\\Type')) {
-            throw new \InvalidArgumentException(sprintf('The class "%s" is not a subclass of \\Mondongo\\Type\\Type.', $class));
+        if (!$r->isSubclassOf('\Mondongo\Type\Type')) {
+            throw new \InvalidArgumentException(sprintf('The class "%s" is not a subclass of \Mondongo\Type\Type.', $class));
         }
 
         self::$map[$name] = $class;
@@ -129,16 +129,16 @@ class Container
     static public function resetTypes()
     {
         self::$map = array(
-            'bin_data'       => 'Mondongo\\Type\\BinDataType',
-            'boolean'        => 'Mondongo\\Type\\BooleanType',
-            'date'           => 'Mondongo\\Type\\DateType',
-            'float'          => 'Mondongo\\Type\\FloatType',
-            'integer'        => 'Mondongo\\Type\\IntegerType',
-            'raw'            => 'Mondongo\\Type\\RawType',
-            'reference_one'  => 'Mondongo\\Type\\ReferenceOneType',
-            'reference_many' => 'Mondongo\\Type\\ReferenceManyType',
-            'serialized'     => 'Mondongo\\Type\\SerializedType',
-            'string'         => 'Mondongo\\Type\\StringType',
+            'bin_data'       => 'Mondongo\Type\BinDataType',
+            'boolean'        => 'Mondongo\Type\BooleanType',
+            'date'           => 'Mondongo\Type\DateType',
+            'float'          => 'Mondongo\Type\FloatType',
+            'integer'        => 'Mondongo\Type\IntegerType',
+            'raw'            => 'Mondongo\Type\RawType',
+            'reference_one'  => 'Mondongo\Type\ReferenceOneType',
+            'reference_many' => 'Mondongo\Type\ReferenceManyType',
+            'serialized'     => 'Mondongo\Type\SerializedType',
+            'string'         => 'Mondongo\Type\StringType',
         );
 
         self::$types = array();
