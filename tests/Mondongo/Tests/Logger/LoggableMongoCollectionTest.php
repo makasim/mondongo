@@ -19,18 +19,18 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\Log;
+namespace Mondongo\Tests\Logger;
 
 use Mondongo\Tests\TestCase;
-use Mondongo\Log\LoggableMongoGridFS;
+use Mondongo\Logger\LoggableMongoCollection;
 
-class LoggableMongoGridFSTest extends TestCase
+class LoggableMongoCollectionTest extends TestCase
 {
     public function testLoggerCallable()
     {
         $loggerCallable = function() {};
 
-        $collection = new LoggableMongoGridFS($this->mongo, $this->db, 'image');
+        $collection = new LoggableMongoCollection($this->mongo, $this->db, 'article');
         $this->assertSame($this->mongo, $collection->getMongo());
         $collection->setLoggerCallable($loggerCallable);
         $this->assertSame($loggerCallable, $collection->getLoggerCallable());
@@ -38,7 +38,7 @@ class LoggableMongoGridFSTest extends TestCase
 
     public function testConnectionName()
     {
-        $collection = new LoggableMongoGridFS($this->mongo, $this->db, 'image');
+        $collection = new LoggableMongoCollection($this->mongo, $this->db, 'article');
         $collection->setConnectionName('foobar');
         $this->assertSame('foobar', $collection->getConnectionName());
     }

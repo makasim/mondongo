@@ -177,7 +177,7 @@ abstract class Repository
         // gridfs
         if ($isFile) {
             if ($loggerCallable) {
-                $collection = new \Mondongo\Log\LoggableMongoGridFS($connection->getMongo(), $db, $collectionName);
+                $collection = new \Mondongo\Logger\LoggableMongoGridFS($connection->getMongo(), $db, $collectionName);
                 $collection->setLoggerCallable($loggerCallable);
                 $collection->setConnectionName($connectionName);
             } else {
@@ -186,7 +186,7 @@ abstract class Repository
         // normal
         } else {
             if ($loggerCallable) {
-                $collection = new \Mondongo\Log\LoggableMongoCollection($connection->getMongo(), $db, $collectionName);
+                $collection = new \Mondongo\Logger\LoggableMongoCollection($connection->getMongo(), $db, $collectionName);
                 $collection->setLoggerCallable($loggerCallable);
                 $collection->setConnectionName($connectionName);
             } else {

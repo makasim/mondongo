@@ -19,27 +19,17 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\Log;
+namespace Mondongo\Tests\Logger;
 
-use Mondongo\Tests\TestCase;
-use Mondongo\Log\LoggableMongoCollection;
+use Mondongo\Logger\Time;
 
-class LoggableMongoCollectionTest extends TestCase
+class TimeTest extends \PHPUnit_Framework_TestCase
 {
-    public function testLoggerCallable()
+    public function testTime()
     {
-        $loggerCallable = function() {};
+        $time = new Time();
+        $time->start();
 
-        $collection = new LoggableMongoCollection($this->mongo, $this->db, 'article');
-        $this->assertSame($this->mongo, $collection->getMongo());
-        $collection->setLoggerCallable($loggerCallable);
-        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
-    }
-
-    public function testConnectionName()
-    {
-        $collection = new LoggableMongoCollection($this->mongo, $this->db, 'article');
-        $collection->setConnectionName('foobar');
-        $this->assertSame('foobar', $collection->getConnectionName());
+        $this->assertTrue(is_int($time->stop()));
     }
 }

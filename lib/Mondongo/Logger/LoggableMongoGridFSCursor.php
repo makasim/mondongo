@@ -19,7 +19,7 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Log;
+namespace Mondongo\Logger;
 
 /**
  * A loggable MongoGridFSCursor.

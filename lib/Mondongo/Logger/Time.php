@@ -19,26 +19,33 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\Log;
+namespace Mondongo\Logger;
 
-use Mondongo\Tests\TestCase;
-use Mondongo\Log\LoggableMongoCursor;
-
-class LoggableMongoCursorTest extends TestCase
+/**
+ * Time.
+ *
+ * @package Mondongo
+ * @author  Pablo Díez Pascual <pablodip@gmail.com>
+ */
+class Time
 {
-    public function testLoggerCallable()
-    {
-        $loggerCallable = function() {};
+    protected $time;
 
-        $cursor = new LoggableMongoCursor($this->mongo, 'mondongo_tests.article');
-        $cursor->setLoggerCallable($loggerCallable);
-        $this->assertSame($loggerCallable, $cursor->getLoggerCallable());
+    /**
+     * Start to count the time.
+     */
+    public function start()
+    {
+        $this->time = microtime(true);
     }
 
-    public function testConnectionName()
+    /**
+     * Stop of count the time and returns the result.
+     *
+     * @return int The result.
+     */
+    public function stop()
     {
-        $cursor = new LoggableMongoCursor($this->mongo, 'mondongo_tests.article');
-        $cursor->setConnectionName('foobar');
-        $this->assertSame('foobar', $cursor->getConnectionName());
+        return (int) round((microtime(true) - $this->time) * 1000);
     }
 }

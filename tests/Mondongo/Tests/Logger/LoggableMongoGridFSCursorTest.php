@@ -19,10 +19,10 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\Log;
+namespace Mondongo\Tests\Logger;
 
 use Mondongo\Tests\TestCase;
-use Mondongo\Log\LoggableMongoGridFSCursor;
+use Mondongo\Logger\LoggableMongoGridFSCursor;
 
 class LoggableMongoGridFSCursorTest extends TestCase
 {

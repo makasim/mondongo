@@ -19,33 +19,27 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Log;
+namespace Mondongo\Tests\Logger;
 
-/**
- * Time.
- *
- * @package Mondongo
- * @author  Pablo Díez Pascual <pablodip@gmail.com>
- */
-class Time
+use Mondongo\Tests\TestCase;
+use Mondongo\Logger\LoggableMongoGridFS;
+
+class LoggableMongoGridFSTest extends TestCase
 {
-    protected $time;
-
-    /**
-     * Start to count the time.
-     */
-    public function start()
+    public function testLoggerCallable()
     {
-        $this->time = microtime(true);
+        $loggerCallable = function() {};
+
+        $collection = new LoggableMongoGridFS($this->mongo, $this->db, 'image');
+        $this->assertSame($this->mongo, $collection->getMongo());
+        $collection->setLoggerCallable($loggerCallable);
+        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }
 
-    /**
-     * Stop of count the time and returns the result.
-     *
-     * @return int The result.
-     */
-    public function stop()
+    public function testConnectionName()
     {
-        return (int) round((microtime(true) - $this->time) * 1000);
+        $collection = new LoggableMongoGridFS($this->mongo, $this->db, 'image');
+        $collection->setConnectionName('foobar');
+        $this->assertSame('foobar', $collection->getConnectionName());
     }
 }

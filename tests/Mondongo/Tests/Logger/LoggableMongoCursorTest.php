@@ -19,17 +19,26 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\Log;
+namespace Mondongo\Tests\Logger;
 
-use Mondongo\Log\Time;
+use Mondongo\Tests\TestCase;
+use Mondongo\Logger\LoggableMongoCursor;
 
-class TimeTest extends \PHPUnit_Framework_TestCase
+class LoggableMongoCursorTest extends TestCase
 {
-    public function testTime()
+    public function testLoggerCallable()
     {
-        $time = new Time();
-        $time->start();
+        $loggerCallable = function() {};
 
-        $this->assertTrue(is_int($time->stop()));
+        $cursor = new LoggableMongoCursor($this->mongo, 'mondongo_tests.article');
+        $cursor->setLoggerCallable($loggerCallable);
+        $this->assertSame($loggerCallable, $cursor->getLoggerCallable());
+    }
+
+    public function testConnectionName()
+    {
+        $cursor = new LoggableMongoCursor($this->mongo, 'mondongo_tests.article');
+        $cursor->setConnectionName('foobar');
+        $this->assertSame('foobar', $cursor->getConnectionName());
     }
 }
