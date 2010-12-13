@@ -71,7 +71,60 @@ class LoggableMongoGridFS extends \MongoGridFS
         ), $log));
     }
 
-    /*
+    /**
+     * delete.
+     */
+    public function delete($id)
+    {
+        $this->time->start();
+        $return = parent::delete($id);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'delete',
+            'id'   => $id,
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * get.
+     */
+    public function get($id)
+    {
+        $this->time->start();
+        $return = parent::get($id);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'get',
+            'id'   => $id,
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * put.
+     */
+    public function put($filename, array $extra = array())
+    {
+        $this->time->start();
+        $return = parent::put($filename, $extra);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'     => 'put',
+            'filename' => $filename,
+            'extra'    => $extra,
+            'time'     => $time,
+        ));
+    }
+
+    /**
      * storeBytes.
      */
     public function storeBytes($bytes, array $extra, array $options = array())
@@ -91,7 +144,7 @@ class LoggableMongoGridFS extends \MongoGridFS
         return $return;
     }
 
-    /*
+    /**
      * storeFile.
      */
     public function storeFile($filename, array $extra, array $options = array())
@@ -111,7 +164,46 @@ class LoggableMongoGridFS extends \MongoGridFS
         return $return;
     }
 
-    /*
+    /**
+     * storeUpload.
+     */
+    public function storeUpload($name, $filename)
+    {
+        $this->time->start();
+        $return = parent::storeUpload($name, $filename);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'     => 'storeUpload',
+            'name'     => $name,
+            'filename' => $filename,
+            'time'     => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * batchInsert.
+     */
+    public function batchInsert(array $a, array $options = array())
+    {
+        $this->time->start();
+        $return = parent::batchInsert($a, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'    => 'batchInsert',
+            'nb'      => count($a),
+            'data'    => $a,
+            'options' => $options,
+            'time'    => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
      * count.
      */
     public function count(array $query = array(), $limit = 0, $skip = 0)
@@ -126,6 +218,77 @@ class LoggableMongoGridFS extends \MongoGridFS
             'limit' => $limit,
             'skip'  => $skip,
             'time'  => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * deleteIndex.
+     */
+    public function deleteIndex($keys)
+    {
+        $this->time->start();
+        $return = parent::deleteIndex($keys);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'deleteIndex',
+            'keys' => $keys,
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * deleteIndexes.
+     */
+    public function deleteIndexes()
+    {
+        $this->time->start();
+        $return = parent::deleteIndexes();
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'deleteIndexes',
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * drop.
+     */
+    public function drop()
+    {
+        $this->time->start();
+        $return = parent::drop();
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'drop',
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * ensureIndex.
+     */
+    public function ensureIndex(array $keys, array $options)
+    {
+        $this->time->start();
+        $return = parent::ensureIndex($keys, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'    => 'ensureIndex',
+            'keys'    => $keys,
+            'options' => $options,
+            'time'    => $time,
         ));
 
         return $return;
@@ -150,7 +313,64 @@ class LoggableMongoGridFS extends \MongoGridFS
         return $cursor->getNext();
     }
 
-    /*
+
+    /**
+     * getDBRef.
+     */
+    public function getDBRef($ref)
+    {
+        $this->time->start();
+        $return = parent::getDBRef($ref);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'getDBRef',
+            'ref'  => $ref,
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * getIndexInfo.
+     */
+    public function getIndexInfo()
+    {
+        $this->time->start();
+        $return = parent::getIndexInfo();
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'getIndexInfo',
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * group.
+     */
+    public function group($keys, $initial, $reduce, $options = array())
+    {
+        $this->time->start();
+        $return = parent::group($key, $initial, $reduce, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'    => 'group',
+            'keys'    => $keys,
+            'initial' => $initial,
+            'reduce'  => $reduce,
+            'options' => $options,
+            'time'    => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
      * insert.
      */
     public function insert(array $a, array $options = array())
@@ -169,7 +389,7 @@ class LoggableMongoGridFS extends \MongoGridFS
         return $return;
     }
 
-    /*
+    /**
      * remove.
      */
     public function remove(array $criteria = array(), array $options = array())
@@ -182,6 +402,63 @@ class LoggableMongoGridFS extends \MongoGridFS
             'type'     => 'remove',
             'criteria' => $criteria,
             'options'  => $options,
+            'time'     => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * save.
+     */
+    public function save(&$a, array $options = array())
+    {
+        $this->time->start();
+        $return = parent::save($a, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'    => 'save',
+            'a'       => $a,
+            'options' => $options,
+            'time'    => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * update.
+     */
+    public function update(array $criteria, array $newobj, array $options = array())
+    {
+        $this->time->start();
+        $return = parent::update($criteria, $newobj, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'     => 'update',
+            'criteria' => $criteria,
+            'newobj'   => $newobj,
+            'options'  => $options,
+            'time'     => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * validate.
+     */
+    public function validate($scanData = false)
+    {
+        $this->time->start();
+        $return = parent::validate($scanData);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'     => 'validate',
+            'scanData' => $scanData,
             'time'     => $time,
         ));
 

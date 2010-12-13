@@ -110,6 +110,77 @@ class LoggableMongoCollection extends \MongoCollection
     }
 
     /**
+     * deleteIndex.
+     */
+    public function deleteIndex($keys)
+    {
+        $this->time->start();
+        $return = parent::deleteIndex($keys);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'deleteIndex',
+            'keys' => $keys,
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * deleteIndexes.
+     */
+    public function deleteIndexes()
+    {
+        $this->time->start();
+        $return = parent::deleteIndexes();
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'deleteIndexes',
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * drop.
+     */
+    public function drop()
+    {
+        $this->time->start();
+        $return = parent::drop();
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'drop',
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * ensureIndex.
+     */
+    public function ensureIndex(array $keys, array $options)
+    {
+        $this->time->start();
+        $return = parent::ensureIndex($keys, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'    => 'ensureIndex',
+            'keys'    => $keys,
+            'options' => $options,
+            'time'    => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
      * find.
      */
     public function find(array $query = array(), array $fields = array())
@@ -126,6 +197,62 @@ class LoggableMongoCollection extends \MongoCollection
         $cursor->limit(-1);
 
         return $cursor->getNext();
+    }
+
+    /**
+     * getDBRef.
+     */
+    public function getDBRef($ref)
+    {
+        $this->time->start();
+        $return = parent::getDBRef($ref);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'getDBRef',
+            'ref'  => $ref,
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * getIndexInfo.
+     */
+    public function getIndexInfo()
+    {
+        $this->time->start();
+        $return = parent::getIndexInfo();
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type' => 'getIndexInfo',
+            'time' => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * group.
+     */
+    public function group($keys, $initial, $reduce, $options = array())
+    {
+        $this->time->start();
+        $return = parent::group($key, $initial, $reduce, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'    => 'group',
+            'keys'    => $keys,
+            'initial' => $initial,
+            'reduce'  => $reduce,
+            'options' => $options,
+            'time'    => $time,
+        ));
+
+        return $return;
     }
 
     /**
@@ -160,6 +287,63 @@ class LoggableMongoCollection extends \MongoCollection
             'type'     => 'remove',
             'criteria' => $criteria,
             'options'  => $options,
+            'time'     => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * save.
+     */
+    public function save(&$a, array $options = array())
+    {
+        $this->time->start();
+        $return = parent::save($a, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'    => 'save',
+            'a'       => $a,
+            'options' => $options,
+            'time'    => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * update.
+     */
+    public function update(array $criteria, array $newobj, array $options = array())
+    {
+        $this->time->start();
+        $return = parent::update($criteria, $newobj, $options);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'     => 'update',
+            'criteria' => $criteria,
+            'newobj'   => $newobj,
+            'options'  => $options,
+            'time'     => $time,
+        ));
+
+        return $return;
+    }
+
+    /**
+     * validate.
+     */
+    public function validate($scanData = false)
+    {
+        $this->time->start();
+        $return = parent::validate($scanData);
+        $time = $this->time->stop();
+
+        $this->log(array(
+            'type'     => 'validate',
+            'scanData' => $scanData,
             'time'     => $time,
         ));
 
