@@ -22,12 +22,12 @@
 namespace Mondongo\Type;
 
 /**
- * ArrayType.
+ * SerializedType.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class ArrayType extends Type
+class SerializedType extends Type
 {
     /**
      * @inheritdoc

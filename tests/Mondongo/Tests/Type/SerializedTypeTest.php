@@ -21,27 +21,27 @@
 
 namespace Mondongo\Tests\Type;
 
-use Mondongo\Type\ArrayType;
+use Mondongo\Type\SerializedType;
 
-class ArrayTypeTest extends TestCase
+class SerializedTypeTest extends TestCase
 {
     protected $array = array('foo' => 'bar');
 
     public function testToMongo()
     {
-        $type = new ArrayType();
+        $type = new SerializedType();
         $this->assertSame(serialize($this->array), $type->toMongo($this->array));
     }
 
     public function testToPHP()
     {
-        $type = new ArrayType();
+        $type = new SerializedType();
         $this->assertSame($this->array, $type->toPHP(serialize($this->array)));
     }
 
     public function testToMongoInString()
     {
-        $type = new ArrayType();
+        $type = new SerializedType();
         $function = $this->getTypeFunction($type->toMongoInString());
 
         $this->assertSame(serialize($this->array), $function($this->array));
@@ -49,7 +49,7 @@ class ArrayTypeTest extends TestCase
 
     public function testToPHPInString()
     {
-        $type = new ArrayType();
+        $type = new SerializedType();
         $function = $this->getTypeFunction($type->toPHPInString());
 
         $this->assertSame($this->array, $function(serialize($this->array)));

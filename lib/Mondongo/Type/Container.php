@@ -30,7 +30,6 @@ namespace Mondongo\Type;
 class Container
 {
     static protected $map = array(
-        'array'          => 'Mondongo\\Type\\ArrayType',
         'bin_data'       => 'Mondongo\\Type\\BinDataType',
         'boolean'        => 'Mondongo\\Type\\BooleanType',
         'date'           => 'Mondongo\\Type\\DateType',
@@ -39,6 +38,7 @@ class Container
         'raw'            => 'Mondongo\\Type\\RawType',
         'reference_one'  => 'Mondongo\\Type\\ReferenceOneType',
         'reference_many' => 'Mondongo\\Type\\ReferenceManyType',
+        'serialized'     => 'Mondongo\\Type\\SerializedType',
         'string'         => 'Mondongo\\Type\\StringType',
     );
 
@@ -129,7 +129,6 @@ class Container
     static public function resetTypes()
     {
         self::$map = array(
-            'array'          => 'Mondongo\\Type\\ArrayType',
             'bin_data'       => 'Mondongo\\Type\\BinDataType',
             'boolean'        => 'Mondongo\\Type\\BooleanType',
             'date'           => 'Mondongo\\Type\\DateType',
@@ -138,6 +137,7 @@ class Container
             'raw'            => 'Mondongo\\Type\\RawType',
             'reference_one'  => 'Mondongo\\Type\\ReferenceOneType',
             'reference_many' => 'Mondongo\\Type\\ReferenceManyType',
+            'serialized'     => 'Mondongo\\Type\\SerializedType',
             'string'         => 'Mondongo\\Type\\StringType',
         );
 
