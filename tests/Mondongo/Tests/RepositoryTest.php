@@ -42,50 +42,6 @@ class Repository extends RepositoryBase
 
 class RepositoryTest extends TestCase
 {
-    public function testCreateCollectionNormalNoLoggable()
-    {
-        $collection = RepositoryBase::createCollection($this->connection, 'foo', false, null, null);
-
-        $this->assertSame('MongoCollection', get_class($collection));
-        $this->assertSame($this->connection->getMongoDB(), $collection->db);
-        $this->assertSame('foo', $collection->getName());
-    }
-
-    public function testCreateCollectionNormalLoggable()
-    {
-        $loggable = function() {};
-
-        $collection = RepositoryBase::createCollection($this->connection, 'bar', false, $loggable, 'barfoo');
-
-        $this->assertSame('Mondongo\Logger\LoggableMongoCollection', get_class($collection));
-        $this->assertSame($this->connection->getMongoDB(), $collection->db);
-        $this->assertSame('bar', $collection->getName());
-        $this->assertSame($loggable, $collection->getLoggerCallable());
-        $this->assertSame('barfoo', $collection->getConnectionName());
-    }
-
-    public function testCreateCollectionGridFSNoLoggable()
-    {
-        $collection = RepositoryBase::createCollection($this->connection, 'foobar', true, null, null);
-
-        $this->assertSame('MongoGridFS', get_class($collection));
-        $this->assertSame($this->connection->getMongoDB(), $collection->db);
-        $this->assertSame('foobar.files', $collection->getName());
-    }
-
-    public function testCreateCollectionGridFSLoggable()
-    {
-        $loggable = function() {};
-
-        $collection = RepositoryBase::createCollection($this->connection, 'barfoo', true, $loggable, 'foobar');
-
-        $this->assertSame('Mondongo\Logger\LoggableMongoGridFS', get_class($collection));
-        $this->assertSame($this->connection->getMongoDB(), $collection->db);
-        $this->assertSame('barfoo.files', $collection->getName());
-        $this->assertSame($loggable, $collection->getLoggerCallable());
-        $this->assertSame('foobar', $collection->getConnectionName());
-    }
-
     public function testGetMondongo()
     {
         $mondongo   = new Mondongo();
@@ -131,6 +87,7 @@ class RepositoryTest extends TestCase
     {
         $mondongo = new Mondongo();
         $mondongo->setConnection('default', $this->connection);
+
         $collection = $mondongo->getRepository('Model\Article')->getCollection();
 
         $this->assertSame('MongoCollection', get_class($collection));
@@ -139,16 +96,12 @@ class RepositoryTest extends TestCase
 
     public function testCollectionLoggable()
     {
-        $loggerCallable = function() {};
-
-        $mondongo = new Mondongo();
-        $mondongo->setLoggerCallable($loggerCallable);
+        $mondongo = new Mondongo($loggerCallable = function() {});
         $mondongo->setConnection('default', $this->connection);
         $collection = $mondongo->getRepository('Model\Article')->getCollection();
 
         $this->assertSame('Mondongo\Logger\LoggableMongoCollection', get_class($collection));
         $this->assertSame('article', $collection->getName());
-        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }
 
     public function testCollectionGridFS()
@@ -163,16 +116,12 @@ class RepositoryTest extends TestCase
 
     public function testCollectionGridFSLoggable()
     {
-        $loggerCallable = function() {};
-
-        $mondongo = new Mondongo();
-        $mondongo->setLoggerCallable($loggerCallable);
+        $mondongo = new Mondongo($loggerCallable = function() {});
         $mondongo->setConnection('default', $this->connection);
         $collection = $mondongo->getRepository('Model\Image')->getCollection();
 
         $this->assertSame('Mondongo\Logger\LoggableMongoGridFS', get_class($collection));
         $this->assertSame('image.files', $collection->getName());
-        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
     }
 
     public function testFind()

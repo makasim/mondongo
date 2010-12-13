@@ -29,84 +29,50 @@ namespace Mondongo\Logger;
  */
 class LoggableMongoCursor extends \MongoCursor
 {
-    const TYPE_FIND     = 'find';
-    const TYPE_FIND_ONE = 'findOne';
-
-    protected $dbName;
-
-    protected $collectionName;
-
-    protected $loggerCallable;
-
-    protected $connectionName;
+    protected $collection;
 
     protected $type;
-
     protected $explainCursor;
-
     protected $time;
 
     /**
      * Constructor.
      */
-    public function __construct(\Mongo $connection, $ns, array $query = array(), array $fields = array(), $type = self::TYPE_FIND)
+    public function __construct(LoggableMongoCollection $collection, array $query = array(), array $fields = array(), $type = 'find')
     {
-        parent::__construct($connection, $ns, $query, $fields);
+        $this->collection = $collection;
 
-        list($this->dbName, $this->collectionName) = explode('.', $ns);
+        $mongo = $collection->getDB()->getMongo();
+        $ns = $collection->getDB()->__toString().'.'.$collection->getName();
 
         $this->type = $type;
-
-        $this->explainCursor = new \MongoCursor($connection, $ns, $query, $fields);
-
+        $this->explainCursor = new \MongoCursor($mongo, $ns, $query, $fields);
         $this->time = new Time();
+
+        parent::__construct($mongo, $ns, $query, $fields);
     }
 
     /**
-     * Set the logger callable.
+     * Returns the LoggableMongoCollection.
      *
-     * @param mixed $loggerCallable A PHP callable.
-     *
-     * @return void
+     * @return \Mondongo\Logger\LoggableMongoCollection The LoggableMongoCollection.
      */
-    public function setLoggerCallable($loggerCallable)
+    public function getCollection()
     {
-        $this->loggerCallable = $loggerCallable;
+        return $this->collection;
     }
 
     /**
-     * Returns the logger callable.
+     * Log.
      *
-     * @return mixed The logger callable.
+     * @param array $log The log.
      */
-    public function getLoggerCallable()
+    public function log(array $log)
     {
-        return $this->loggerCallable;
+        $this->collection->log($log);
     }
 
     /**
-     * Set the connection name (for log).
-     *
-     * @param string $connectionName The connection name.
-     *
-     * @return void
-     */
-    public function setConnectionName($connectionName)
-    {
-        $this->connectionName = $connectionName;
-    }
-
-    /**
-     * Returns the connection name.
-     *
-     * @return string The connection name.
-     */
-    public function getConnectionName()
-    {
-        return $this->connectionName;
-    }
-
-    /*
      * hasNext.
      */
     public function hasNext()
@@ -116,7 +82,7 @@ class LoggableMongoCursor extends \MongoCursor
         return parent::hasNext();
     }
 
-    /*
+    /**
      * getNext.
      */
     public function getNext()
@@ -126,7 +92,7 @@ class LoggableMongoCursor extends \MongoCursor
         return parent::getNext();
     }
 
-    /*
+    /**
      * rewind.
      */
     public function rewind()
@@ -136,7 +102,7 @@ class LoggableMongoCursor extends \MongoCursor
         return parent::rewind();
     }
 
-    /*
+    /**
      * next.
      */
     public function next()
@@ -146,7 +112,7 @@ class LoggableMongoCursor extends \MongoCursor
         return parent::next();
     }
 
-    /*
+    /**
      * count.
      */
     public function count($foundOnly = false)
@@ -236,20 +202,6 @@ class LoggableMongoCursor extends \MongoCursor
                 ),
                 'time' => $explain['millis'],
             ));
-        }
-    }
-
-    /*
-     * log.
-     */
-    protected function log(array $log)
-    {
-        if ($this->loggerCallable) {
-            call_user_func($this->loggerCallable, array_merge(array(
-                'connection' => $this->connectionName,
-                'database'   => $this->dbName,
-                'collection' => $this->collectionName,
-            ), $log));
         }
     }
 }

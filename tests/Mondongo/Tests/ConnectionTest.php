@@ -28,11 +28,76 @@ class ConnectionTest extends TestCase
     public function testConnection()
     {
         $connection = new Connection($this->server, $this->dbName);
+
         $mongo   = $connection->getMongo();
         $mongoDB = $connection->getMongoDB();
 
         $this->assertInstanceOf('\Mongo', $mongo);
         $this->assertInstanceOf('\MongoDB', $mongoDB);
         $this->assertSame($this->dbName, $mongoDB->__toString());
+
+        $this->assertSame($mongo, $connection->getMongo());
+        $this->assertSame($mongoDB, $connection->getMongoDB());
+    }
+
+    public function testLoggerCallable()
+    {
+        $connection = new Connection($this->server, $this->dbName);
+
+        $connection->setLoggerCallable($loggerCallable = array($this, 'log'));
+        $this->assertSame($loggerCallable, $connection->getLoggerCallable());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testSetLoggerCallableWhenTheConnectionHasAlreadyTheMongo()
+    {
+        $connection = new Connection($this->server, $this->dbName);
+        $connection->getMongo();
+
+        $connection->setLoggerCallable($loggerCallable = array($this, 'log'));
+    }
+
+    public function testLogDefault()
+    {
+        $connection = new Connection($this->server, $this->dbName);
+
+        $connection->setLogDefault($logDefault = array('foo' => 'bar'));
+        $this->assertSame($logDefault, $connection->getLogDefault());
+    }
+
+    /**
+     * @expectedException \RuntimeException
+     */
+    public function testSetLogDefaultWhenTheConnectionHasAlreadyTheMongo()
+    {
+        $connection = new Connection($this->server, $this->dbName);
+        $connection->getMongo();
+
+        $connection->setLogDefault($logDefault = array('foo' => 'bar'));
+    }
+
+    public function testMondongoLoggerWithLoggerCallable()
+    {
+        $connection = new Connection($this->server, $this->dbName);
+        $connection->setLoggerCallable($loggerCallable = array($this, 'log'));
+        $connection->setLogDefault($logDefault = array('foo' => 'bar'));
+
+        $mongo   = $connection->getMongo();
+        $mongoDB = $connection->getMongoDB();
+
+        $this->assertInstanceOf('\Mondongo\Logger\LoggableMongo', $mongo);
+        $this->assertInstanceOf('\Mondongo\Logger\LoggableMongoDB', $mongoDB);
+        $this->assertSame($loggerCallable, $mongo->getLoggerCallable());
+        $this->assertSame($logDefault, $mongo->getLogDefault());
+        $this->assertSame($this->dbName, $mongoDB->__toString());
+
+        $this->assertSame($mongo, $connection->getMongo());
+        $this->assertSame($mongoDB, $connection->getMongoDB());
+    }
+
+    public function log()
+    {
     }
 }

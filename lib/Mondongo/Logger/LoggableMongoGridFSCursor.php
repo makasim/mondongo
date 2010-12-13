@@ -29,81 +29,47 @@ namespace Mondongo\Logger;
  */
 class LoggableMongoGridFSCursor extends \MongoGridFSCursor
 {
-    const TYPE_FIND     = 'find';
-    const TYPE_FIND_ONE = 'findOne';
-
-    protected $dbName;
-
-    protected $collectionName;
-
-    protected $loggerCallable;
-
-    protected $connectionName;
+    protected $grid;
 
     protected $type;
-
     protected $explainCursor;
-
     protected $time;
 
     /**
      * Constructor.
      */
-    public function __construct(\MongoGridFS $gridfs, \Mongo $connection, $ns, array $query = array(), array $fields = array(), $type = self::TYPE_FIND)
+    public function __construct(LoggableMongoGridFS $grid, array $query = array(), array $fields = array(), $type = 'find')
     {
-        parent::__construct($gridfs, $connection, $ns, $query, $fields);
+        $this->grid = $grid;
 
-        list($this->dbName, $this->collectionName) = explode('.', $ns);
+        $mongo = $grid->getDB()->getMongo();
+        $ns = $grid->getDB()->__toString().'.'.$grid->getName();
 
         $this->type = $type;
-
-        $this->explainCursor = new \MongoGridFSCursor($gridfs, $connection, $ns, $query, $fields);
-
+        $this->explainCursor = new \MongoGridFSCursor($grid, $mongo, $ns, $query, $fields);
         $this->time = new Time();
+
+        parent::__construct($grid, $mongo, $ns, $query, $fields);
     }
 
     /**
-     * Set the logger callable.
+     * Returns the LoggableMongoGridFS.
      *
-     * @param mixed $loggerCallable A PHP callable.
-     *
-     * @return void
+     * @return \Mondongo\Logger\LoggableMongoGridFS The LoggableMongoGridFS.
      */
-    public function setLoggerCallable($loggerCallable)
+    public function getGrid()
     {
-        $this->loggerCallable = $loggerCallable;
+        return $this->grid;
     }
 
     /**
-     * Returns the logger callable.
+     * Log.
      *
-     * @return mixed The logger callable.
+     * @param array $log The log.
      */
-    public function getLoggerCallable()
+    public function log(array $log)
     {
-        return $this->loggerCallable;
-    }
-
-    /**
-     * Set the connection name (for log).
-     *
-     * @param string $connectionName The connection name.
-     *
-     * @return void
-     */
-    public function setConnectionName($connectionName)
-    {
-        $this->connectionName = $connectionName;
-    }
-
-    /**
-     * Returns the connection name.
-     *
-     * @return string The connection name.
-     */
-    public function getConnectionName()
-    {
-        return $this->connectionName;
+        $this->grid->log($log);
     }
 
     /*
@@ -234,20 +200,6 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
                 ),
                 'time' => $explain['millis'],
             ));
-        }
-    }
-
-    /*
-     * log.
-     */
-    protected function log(array $log)
-    {
-        if ($this->loggerCallable) {
-            call_user_func($this->loggerCallable, array_merge(array(
-                'connection' => $this->connectionName,
-                'database'   => $this->dbName,
-                'collection' => $this->collectionName,
-            ), $log));
         }
     }
 }

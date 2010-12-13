@@ -22,24 +22,58 @@
 namespace Mondongo\Tests\Logger;
 
 use Mondongo\Tests\TestCase;
+use Mondongo\Logger\LoggableMongo;
 use Mondongo\Logger\LoggableMongoGridFS;
 
 class LoggableMongoGridFSTest extends TestCase
 {
-    public function testLoggerCallable()
-    {
-        $loggerCallable = function() {};
+    protected $log;
 
-        $collection = new LoggableMongoGridFS($this->mongo, $this->db, 'image');
-        $this->assertSame($this->mongo, $collection->getMongo());
-        $collection->setLoggerCallable($loggerCallable);
-        $this->assertSame($loggerCallable, $collection->getLoggerCallable());
+    public function testConstructorAndGetDB()
+    {
+        $mongo = new LoggableMongo();
+        $db = $mongo->selectDB('mondongo_logger');
+
+        $grid = new LoggableMongoGridFS($db, 'mondongo_logger_grid');
+
+        $this->assertSame('mondongo_logger_grid.files', $grid->getName());
+        $this->assertSame($db, $grid->getDB());
     }
 
-    public function testConnectionName()
+    public function testLog()
     {
-        $collection = new LoggableMongoGridFS($this->mongo, $this->db, 'image');
-        $collection->setConnectionName('foobar');
-        $this->assertSame('foobar', $collection->getConnectionName());
+        $mongo = new LoggableMongo();
+        $mongo->setLoggerCallable(array($this, 'log'));
+        $db = $mongo->selectDB('mondongo_logger');
+        $grid = $db->getGridFS('mondongo_logger_grid');
+
+        $grid->log($log = array('foo' => 'bar'));
+
+        $this->assertSame(array_merge(array(
+            'database'   => 'mondongo_logger',
+            'collection' => 'mondongo_logger_grid.files',
+            'gridfs'     => 1
+        ), $log), $this->log);
+    }
+
+    public function log(array $log)
+    {
+        $this->log = $log;
+    }
+
+    public function testFind()
+    {
+        $mongo = new LoggableMongo();
+        $mongo->setLoggerCallable(array($this, 'log'));
+        $db = $mongo->selectDB('mondongo_logger');
+        $grid = $db->getGridFS('mondongo_logger_grid');
+
+        $cursor = $grid->find();
+        $this->assertInstanceOf('\Mondongo\Logger\LoggableMongoGridFSCursor', $cursor);
+
+        $cursor = $grid->find($query = array('foo' => 'bar'), $fields = array('foobar' => 1, 'barfoo' => 1));
+        $info = $cursor->info();
+        $this->assertSame($query, $info['query']);
+        $this->assertSame($fields, $info['fields']);
     }
 }

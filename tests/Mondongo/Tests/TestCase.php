@@ -80,8 +80,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
         $this->connection = new Connection('localhost', 'mondongo_tests');
 
-        $this->mondongo = new Mondongo();
-        $this->mondongo->setLoggerCallable(function($log) {});
+        $this->mondongo = new Mondongo(function($log) {});
         $this->mondongo->setConnection('default', $this->connection);
 
         $this->unitOfWork = $this->mondongo->getUnitOfWork();

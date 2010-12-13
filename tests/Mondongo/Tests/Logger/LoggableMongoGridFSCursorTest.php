@@ -22,23 +22,43 @@
 namespace Mondongo\Tests\Logger;
 
 use Mondongo\Tests\TestCase;
+use Mondongo\Logger\LoggableMongo;
 use Mondongo\Logger\LoggableMongoGridFSCursor;
 
 class LoggableMongoGridFSCursorTest extends TestCase
 {
-    public function testLoggerCallable()
-    {
-        $loggerCallable = function() {};
+    protected $log;
 
-        $cursor = new LoggableMongoGridFSCursor($this->db->getGridFS('image'), $this->mongo, 'mondongo_tests.article');
-        $cursor->setLoggerCallable($loggerCallable);
-        $this->assertSame($loggerCallable, $cursor->getLoggerCallable());
+    public function testConstructorAndGetCollection()
+    {
+        $mongo = new LoggableMongo();
+        $db = $mongo->selectDB('mondongo_logger');
+        $grid = $db->getGridFS('mondongo_logger_grid');
+
+        $cursor = new LoggableMongoGridFSCursor($grid);
+
+        $this->assertSame($grid, $cursor->getGrid());
     }
 
-    public function testConnectionName()
+    public function testLog()
     {
-        $cursor = new LoggableMongoGridFSCursor($this->db->getGridFS('image'), $this->mongo, 'mondongo_tests.article');
-        $cursor->setConnectionName('foobar');
-        $this->assertSame('foobar', $cursor->getConnectionName());
+        $mongo = new LoggableMongo();
+        $mongo->setLoggerCallable(array($this, 'log'));
+        $db = $mongo->selectDB('mondongo_logger');
+        $grid = $db->getGridFS('mondongo_logger_grid');
+        $cursor = $grid->find();
+
+        $cursor->log($log = array('foo' => 'bar'));
+
+        $this->assertSame(array_merge(array(
+            'database'   => 'mondongo_logger',
+            'collection' => 'mondongo_logger_grid.files',
+            'gridfs'     => 1,
+        ), $log), $this->log);
+    }
+
+    public function log(array $log)
+    {
+        $this->log = $log;
     }
 }

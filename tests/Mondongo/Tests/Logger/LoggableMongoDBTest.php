@@ -21,23 +21,21 @@
 
 namespace Mondongo\Tests\Logger;
 
-use Mondongo\Tests\TestCase;
 use Mondongo\Logger\LoggableMongo;
-use Mondongo\Logger\LoggableMongoCollection;
+use Mondongo\Logger\LoggableMongoDB;
 
-class LoggableMongoCollectionTest extends TestCase
+class LoggableMongoDBTest extends \PHPUnit_Framework_TestCase
 {
     protected $log;
 
-    public function testConstructorAndGetDB()
+    public function testConstructorAndGetMongo()
     {
         $mongo = new LoggableMongo();
-        $db = $mongo->selectDB('mondongo_logger');
 
-        $collection = new LoggableMongoCollection($db, 'mondongo_logger_collection');
+        $db = new LoggableMongoDB($mongo, 'mondongo_logger');
 
-        $this->assertSame('mondongo_logger_collection', $collection->getName());
-        $this->assertSame($db, $collection->getDB());
+        $this->assertSame('mondongo_logger', $db->__toString());
+        $this->assertSame($mongo, $db->getMongo());
     }
 
     public function testLog()
@@ -45,13 +43,11 @@ class LoggableMongoCollectionTest extends TestCase
         $mongo = new LoggableMongo();
         $mongo->setLoggerCallable(array($this, 'log'));
         $db = $mongo->selectDB('mondongo_logger');
-        $collection = $db->selectCollection('mondongo_logger_collection');
 
-        $collection->log($log = array('foo' => 'bar'));
+        $db->log($log = array('foo' => 'bar'));
 
         $this->assertSame(array_merge(array(
-            'database'   => 'mondongo_logger',
-            'collection' => 'mondongo_logger_collection',
+            'database' => 'mondongo_logger'
         ), $log), $this->log);
     }
 
@@ -60,18 +56,36 @@ class LoggableMongoCollectionTest extends TestCase
         $this->log = $log;
     }
 
-    public function testFind()
+    public function testSelectCollection()
     {
         $mongo = new LoggableMongo();
         $db = $mongo->selectDB('mondongo_logger');
+
         $collection = $db->selectCollection('mondongo_logger_collection');
 
-        $cursor = $collection->find();
-        $this->assertInstanceOf('\Mondongo\Logger\LoggableMongoCursor', $cursor);
+        $this->assertInstanceOf('\Mondongo\Logger\LoggableMongoCollection', $collection);
+        $this->assertSame('mondongo_logger_collection', $collection->getName());
+    }
 
-        $cursor = $collection->find($query = array('foo' => 'bar'), $fields = array('foobar' => 1, 'barfoo' => 1));
-        $info = $cursor->info();
-        $this->assertSame($query, $info['query']);
-        $this->assertSame($fields, $info['fields']);
+    public function test__get()
+    {
+        $mongo = new LoggableMongo();
+        $db = $mongo->selectDB('mondongo_logger');
+
+        $collection = $db->mondongo_logger_collection;
+
+        $this->assertInstanceOf('\Mondongo\Logger\LoggableMongoCollection', $collection);
+        $this->assertSame('mondongo_logger_collection', $collection->getName());
+    }
+
+    public function testGetGridFS()
+    {
+        $mongo = new LoggableMongo();
+        $db = $mongo->selectDB('mondongo_logger');
+
+        $grid = $db->getGridFS('mondongo_logger_grid');
+
+        $this->assertInstanceOf('\Mondongo\Logger\LoggableMongoGridFS', $grid);
+        $this->assertSame('mondongo_logger_grid.files', $grid->getName());
     }
 }

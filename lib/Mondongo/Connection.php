@@ -30,13 +30,13 @@ namespace Mondongo;
 class Connection
 {
     protected $server;
-
+    protected $database;
     protected $options;
 
-    protected $database;
+    protected $loggerCallable;
+    protected $logDefault;
 
     protected $mongo;
-
     protected $mongoDB;
 
     /**
@@ -56,6 +56,58 @@ class Connection
     }
 
     /**
+     * Set the logger callable.
+     *
+     * @param mixed $loggerCallable The logger callable.
+     *
+     * @throws \RuntimeException When the connection has the Mongo already.
+     */
+    public function setLoggerCallable($loggerCallable = null)
+    {
+        if (null !== $this->mongo) {
+            throw new \RuntimeException('The connection has already Mongo.');
+        }
+
+        $this->loggerCallable = $loggerCallable;
+    }
+
+    /**
+     * Returns the logger callable.
+     *
+     * @return mixed The logger callable.
+     */
+    public function getLoggerCallable()
+    {
+        return $this->loggerCallable;
+    }
+
+    /**
+     * Set the log default.
+     *
+     * @param array $logDefault The log default.
+     *
+     * @throws \RuntimeException When the connection has the Mongo already.
+     */
+    public function setLogDefault(array $logDefault)
+    {
+        if (null !== $this->mongo) {
+            throw new \RuntimeException('The connection has already Mongo.');
+        }
+
+        $this->logDefault = $logDefault;
+    }
+
+    /**
+     * Returns the log default.
+     *
+     * @return array|null The log default.
+     */
+    public function getLogDefault()
+    {
+        return $this->logDefault;
+    }
+
+    /**
      * Returns the mongo connection object.
      *
      * @return \Mongo The mongo collection object.
@@ -63,7 +115,15 @@ class Connection
     public function getMongo()
     {
         if (null === $this->mongo) {
-            $this->mongo = new \Mongo($this->server, $this->options);
+            if (null !== $this->loggerCallable) {
+                $this->mongo = new \Mondongo\Logger\LoggableMongo($this->server, $this->options);
+                $this->mongo->setLoggerCallable($this->loggerCallable);
+                if (null !== $this->logDefault) {
+                    $this->mongo->setLogDefault($this->logDefault);
+                }
+            } else {
+                $this->mongo = new \Mongo($this->server, $this->options);
+            }
         }
 
         return $this->mongo;

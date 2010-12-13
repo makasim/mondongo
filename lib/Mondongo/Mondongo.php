@@ -42,9 +42,10 @@ class Mondongo
     /**
      * Constructor.
      */
-    public function __construct()
+    public function __construct($loggerCallable = null)
     {
         $this->unitOfWork = new UnitOfWork($this);
+        $this->loggerCallable = $loggerCallable;
     }
 
     /**
@@ -55,18 +56,6 @@ class Mondongo
     public function getUnitOfWork()
     {
         return $this->unitOfWork;
-    }
-
-    /**
-     * Set the logger callable.
-     *
-     * @param mixed $logger A PHP callable.
-     *
-     * @return void
-     */
-    public function setLoggerCallable($loggerCallable)
-    {
-        $this->loggerCallable = $loggerCallable;
     }
 
     /**
@@ -89,6 +78,13 @@ class Mondongo
      */
     public function setConnection($name, Connection $connection)
     {
+        if (null !== $this->loggerCallable) {
+            $connection->setLoggerCallable($this->loggerCallable);
+            $connection->setLogDefault(array('connection' => $name));
+        } else {
+            $connection->setLoggerCallable(null);
+        }
+
         $this->connections[$name] = $connection;
     }
 

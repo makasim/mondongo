@@ -46,6 +46,10 @@ class Time
      */
     public function stop()
     {
-        return (int) round((microtime(true) - $this->time) * 1000);
+        $time = (int) round((microtime(true) - $this->time) * 1000);
+
+        $this->time = null;
+
+        return $time;
     }
 }

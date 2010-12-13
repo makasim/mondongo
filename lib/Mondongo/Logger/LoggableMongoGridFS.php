@@ -29,84 +29,46 @@ namespace Mondongo\Logger;
  */
 class LoggableMongoGridFS extends \MongoGridFS
 {
-    protected $mongo;
-
-    protected $loggerCallable;
-
-    protected $connectionName;
+    protected $db;
 
     protected $time;
 
     /**
      * Constructor.
      *
-     * @param \Mongo   $mongo          The mongo connection object.
-     * @param \MongoDB $db             The mongo database object.
-     * @param string   $collectionName The collection name.
-     *
-     * @return void
+     * @param \Mondongo\Logger\LoggableMongoDB $db     A LoggableMongoDB instance.
+     * @param string                           $prefix The prefix (optional, fs by default).
      */
-    public function __construct(\Mongo $mongo, \MongoDB $db, $collectionName)
+    public function __construct(LoggableMongoDB $db, $prefix = 'fs')
     {
-        parent::__construct($db, $collectionName);
-
-        $this->mongo = $mongo;
-
+        $this->db = $db;
         $this->time = new Time();
+
+        parent::__construct($db, $prefix);
+    }
+
+
+    /**
+     * Returns the LoggableMongoDB.
+     *
+     * @return \Mondongo\Logger\LoggableMongoDB The LoggableMongoDB
+     */
+    public function getDB()
+    {
+        return $this->db;
     }
 
     /**
-     * Returns the mongo connection object.
+     * Log.
      *
-     * @return \Mongo The mongo connection object.
+     * @param array $log The log.
      */
-    public function getMongo()
+    public function log(array $log)
     {
-        return $this->mongo;
-    }
-
-    /**
-     * Set the logger callable.
-     *
-     * @param mixed $loggerCallable A PHP callable.
-     *
-     * @return void
-     */
-    public function setLoggerCallable($loggerCallable)
-    {
-        $this->loggerCallable = $loggerCallable;
-    }
-
-    /**
-     * Returns the logger callable.
-     *
-     * @return mixed The logger callable.
-     */
-    public function getLoggerCallable()
-    {
-        return $this->loggerCallable;
-    }
-
-    /**
-     * Set the connection name (for log).
-     *
-     * @param string $connectionName The connection name.
-     *
-     * @return void
-     */
-    public function setConnectionName($connectionName)
-    {
-        $this->connectionName = $connectionName;
-    }
-
-    /**
-     * Returns the connection name.
-     *
-     * @return string The connection name.
-     */
-    public function getConnectionName()
-    {
-        return $this->connectionName;
+        $this->db->log(array_merge(array(
+            'collection' => $this->getName(),
+            'gridfs'     => 1,
+        ), $log));
     }
 
     /*
@@ -174,11 +136,7 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function find(array $query = array(), array $fields = array())
     {
-        $cursor = new LoggableMongoGridFSCursor($this, $this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields);
-        $cursor->setLoggerCallable($this->loggerCallable);
-        $cursor->setConnectionName($this->connectionName);
-
-        return $cursor;
+        return new LoggableMongoGridFSCursor($this, $query, $fields);
     }
 
     /*
@@ -186,9 +144,7 @@ class LoggableMongoGridFS extends \MongoGridFS
      */
     public function findOne(array $query = array(), array $fields = array())
     {
-        $cursor = new LoggableMongoGridFSCursor($this, $this->mongo, $this->db->__toString().'.'.$this->getName(), $query, $fields, LoggableMongoCursor::TYPE_FIND_ONE);
-        $cursor->setLoggerCallable($this->loggerCallable);
-        $cursor->setConnectionName($this->connectionName);
+        $cursor = new LoggableMongoGridFSCursor($this, $query, $fields, 'findOne');
         $cursor->limit(-1);
 
         return $cursor->getNext();
@@ -230,20 +186,5 @@ class LoggableMongoGridFS extends \MongoGridFS
         ));
 
         return $return;
-    }
-
-    /*
-     * log.
-     */
-    protected function log(array $log)
-    {
-        if ($this->loggerCallable) {
-            call_user_func($this->loggerCallable, array_merge(array(
-                'connection' => $this->connectionName,
-                'database'   => $this->db->__toString(),
-                'collection' => $this->getName(),
-                'gridfs'     => 1,
-            ), $log));
-        }
     }
 }

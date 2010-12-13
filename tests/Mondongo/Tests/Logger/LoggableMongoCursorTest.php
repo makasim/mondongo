@@ -22,23 +22,42 @@
 namespace Mondongo\Tests\Logger;
 
 use Mondongo\Tests\TestCase;
+use Mondongo\Logger\LoggableMongo;
 use Mondongo\Logger\LoggableMongoCursor;
 
 class LoggableMongoCursorTest extends TestCase
 {
-    public function testLoggerCallable()
-    {
-        $loggerCallable = function() {};
+    protected $log;
 
-        $cursor = new LoggableMongoCursor($this->mongo, 'mondongo_tests.article');
-        $cursor->setLoggerCallable($loggerCallable);
-        $this->assertSame($loggerCallable, $cursor->getLoggerCallable());
+    public function testConstructorAndGetCollection()
+    {
+        $mongo = new LoggableMongo();
+        $db = $mongo->selectDB('mondongo_logger');
+        $collection = $db->selectCollection('mondongo_logger_collection');
+
+        $cursor = new LoggableMongoCursor($collection);
+
+        $this->assertSame($collection, $cursor->getCollection());
     }
 
-    public function testConnectionName()
+    public function testLog()
     {
-        $cursor = new LoggableMongoCursor($this->mongo, 'mondongo_tests.article');
-        $cursor->setConnectionName('foobar');
-        $this->assertSame('foobar', $cursor->getConnectionName());
+        $mongo = new LoggableMongo();
+        $mongo->setLoggerCallable(array($this, 'log'));
+        $db = $mongo->selectDB('mondongo_logger');
+        $collection = $db->selectCollection('mondongo_logger_collection');
+        $cursor = $collection->find();
+
+        $cursor->log($log = array('foo' => 'bar'));
+
+        $this->assertSame(array_merge(array(
+            'database'   => 'mondongo_logger',
+            'collection' => 'mondongo_logger_collection',
+        ), $log), $this->log);
+    }
+
+    public function log(array $log)
+    {
+        $this->log = $log;
     }
 }

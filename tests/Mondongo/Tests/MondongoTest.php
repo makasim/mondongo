@@ -40,8 +40,7 @@ class MondongoTest extends TestCase
     {
         $loggerCallable = function() {};
 
-        $mondongo = new Mondongo();
-        $mondongo->setLoggerCallable($loggerCallable);
+        $mondongo = new Mondongo($loggerCallable);
         $this->assertSame($loggerCallable, $mondongo->getLoggerCallable());
     }
 
@@ -93,6 +92,21 @@ class MondongoTest extends TestCase
         $this->assertSame($connections['global'], $mondongo->getDefaultConnection());
         $mondongo->setDefaultConnectionName(null);
         $this->assertSame($connections['local'], $mondongo->getDefaultConnection());
+    }
+
+    public function testSetConnectionLoggerCallable()
+    {
+        $mondongo = new Mondongo();
+        $connection = new Connection('localhost', 'mondongo_tests');
+        $mondongo->setConnection('default', $connection);
+        $this->assertNull($connection->getLoggerCallable());
+        $this->assertNull($connection->getLogDefault());
+
+        $mondongo = new Mondongo($loggerCallable = function() {});
+        $connection = new Connection('localhost', 'mondongo_tests');
+        $mondongo->setConnection('default', $connection);
+        $this->assertSame($loggerCallable, $connection->getLoggerCallable());
+        $this->assertSame(array('connection' => 'default'), $connection->getLogDefault());
     }
 
     public function testDefaultConnectionName()

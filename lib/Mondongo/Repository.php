@@ -135,66 +135,16 @@ abstract class Repository
     public function getCollection()
     {
         if (!$this->collection) {
-            // connection name
-            $connectionName = null;
-            if ($loggerCallable = $this->mondongo->getLoggerCallable()) {
-                if (!$connectionName = $this->connectionName && !$connectionName = $this->mondongo->getDefaultConnectionName()) {
-                    $connections = $this->mondongo->getConnections();
-                    foreach ($connections as $name => $connection) {
-                        $connectionName = $name;
-                        break;
-                    }
-                }
+            // gridfs
+            if ($this->isFile) {
+                $this->collection = $this->getConnection()->getMongoDB()->getGridFS($this->collectionName);
+            // normal
+            } else {
+                $this->collection = $this->getConnection()->getMongoDB()->selectCollection($this->collectionName);
             }
-
-            $this->collection = self::createCollection(
-                $this->getConnection(),
-                $this->collectionName,
-                $this->isFile,
-                $loggerCallable,
-                $connectionName
-            );
         }
 
         return $this->collection;
-    }
-
-    /**
-     * Create a collection.
-     *
-     * @param Mondongo\Connection $connection     A mondongo connection.
-     * @param string              $collectionName The name of the collection.
-     * @param bool                $isFile         If the collection is GridFS.
-     * @param mixed               $loggerCallable The logger callable if the collection is loggable, null otherwise.
-     * @param mixed               $connectionName The connection name.
-     *
-     * @return mixed The collection.
-     */
-    static public function createCollection(Connection $connection, $collectionName, $isFile, $loggerCallable, $connectionName)
-    {
-        $db = $connection->getMongoDB();
-
-        // gridfs
-        if ($isFile) {
-            if ($loggerCallable) {
-                $collection = new \Mondongo\Logger\LoggableMongoGridFS($connection->getMongo(), $db, $collectionName);
-                $collection->setLoggerCallable($loggerCallable);
-                $collection->setConnectionName($connectionName);
-            } else {
-                $collection = new \MongoGridFS($db, $collectionName);
-            }
-        // normal
-        } else {
-            if ($loggerCallable) {
-                $collection = new \Mondongo\Logger\LoggableMongoCollection($connection->getMongo(), $db, $collectionName);
-                $collection->setLoggerCallable($loggerCallable);
-                $collection->setConnectionName($connectionName);
-            } else {
-                $collection = new \MongoCollection($db, $collectionName);
-            }
-        }
-
-        return $collection;
     }
 
     /**
