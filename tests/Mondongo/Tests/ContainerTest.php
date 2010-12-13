@@ -26,74 +26,66 @@ use Mondongo\Mondongo;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
+    protected $mondongo;
+
     public function setUp()
     {
-        Container::clearDefault();
+        Container::clear();
     }
 
-    public function testDefault()
+    public function testSetGet()
     {
-        $this->assertFalse(Container::hasDefault());
-
-        $mondongo = new Mondongo();
-        Container::setDefault($mondongo);
-        $this->assertTrue(Container::hasDefault());
-        $this->assertSame($mondongo, Container::getDefault());
-
-        Container::clearDefault();
-        $this->assertFalse(Container::hasDefault());
+        Container::set($mondongo = new Mondongo());
+        $this->assertSame($mondongo, Container::get());
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testGetDefaultNotExists()
+    public function testGetThereIsNotMondongo()
     {
-        Container::getDefault();
+        Container::get();
     }
 
-    public function testForDocumentClasses()
+    public function testGetWithLoader()
     {
-        $mondongo1 = new Mondongo();
-        $mondongo2 = new Mondongo();
-        $mondongo3 = new Mondongo();
+        Container::setLoader(array($this, 'load'));
+        $this->mondongo = new Mondongo();
 
-        Container::setDefault($mondongo3);
-
-        $this->assertFalse(Container::hasForDocumentClass('Article'));
-
-        Container::setForDocumentClass('Article', $mondongo1);
-        Container::setForDocumentClass('Category', $mondongo2);
-        Container::setForDocumentClass('Comment', $mondongo2);
-
-        $this->assertTrue(Container::hasForDocumentClass('Article'));
-        $this->assertSame($mondongo1, Container::getForDocumentClass('Article'));
-        $this->assertSame($mondongo2, Container::getForDocumentClass('Category'));
-        $this->assertSame($mondongo2, Container::getForDocumentClass('Comment'));
-        $this->assertSame($mondongo3, Container::getForDocumentClass('User'));
-
-        Container::removeForDocumentClass('Category');
-        $this->assertFalse(Container::hasForDocumentClass('Category'));
-        $this->assertTrue(Container::hasForDocumentClass('Article'));
-
-        Container::clearForDocumentClasses();
-        $this->assertFalse(Container::hasForDocumentClass('Article'));
-        $this->assertFalse(Container::hasForDocumentClass('Comment'));
+        $this->assertSame($this->mondongo, Container::get());
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testGetForDocumentClassNotExists()
+    public function testGetWithLoaderDoesNotReturnAMondongoInstance()
     {
-        Container::getForDocumentClass('Article');
+        Container::setLoader(array($this, 'load'));
+        $this->mondongo = 'ups';
+
+        Container::get();
+    }
+
+    public function load()
+    {
+        return $this->mondongo;
+    }
+
+    public function testSetLoaderGetLoader()
+    {
+        Container::setLoader($loader = array($this, 'load'));
+
+        $this->assertSame($loader, Container::getLoader());
     }
 
     /**
-     * @expectedException \InvalidArgumentException
+     * @expectedException \RuntimeException
      */
-    public function testRemoveForDocumentClassNotExists()
+    public function testClear()
     {
-        Container::removeForDocumentClass('Article');
+        Container::set(new Mondongo());
+        Container::clear();
+
+        Container::get();
     }
 }

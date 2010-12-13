@@ -45,8 +45,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        Container::clearDefault();
-        Container::clearForDocumentClasses();
+        Container::clear();
 
         TypeContainer::resetTypes();
 
@@ -85,7 +84,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
         $this->unitOfWork = $this->mondongo->getUnitOfWork();
 
-        Container::setDefault($this->mondongo);
+        Container::set($this->mondongo);
     }
 
     protected function createArticles($nb)

@@ -251,7 +251,7 @@ EOF
     public function processDocumentGetMondongoMethod()
     {
         $method = new Method('public', 'getMondongo', '', <<<EOF
-        return \Mondongo\Container::getForDocumentClass('{$this->definitions['document']->getClass()}');
+        return \Mondongo\Container::get();
 EOF
         );
         $method->setDocComment(<<<EOF
@@ -751,7 +751,7 @@ EOF;
                 // getter
                 $getterCode = <<<EOF
         if (null === \$this->data['references']['$name'] && null !== \$this->$fieldGetter()) {
-            \$value = \\Mondongo\Container::getForDocumentClass('{$reference['class']}')
+            \$value = \\Mondongo\Container::get()
                 ->getRepository('{$reference['class']}')
                 ->findOneById(\$this->$fieldGetter())
             ;
@@ -821,7 +821,7 @@ EOF;
             \$group = new \Mondongo\Group();
 
             if (\$ids = \$this->$fieldGetter()) {
-                \$value = \\Mondongo\Container::getForDocumentClass('{$reference['class']}')->getRepository('{$reference['class']}')->find(array(
+                \$value = \\Mondongo\Container::get()->getRepository('{$reference['class']}')->find(array(
                     'query' => array('_id' => array('\$in' => \$ids)),
                 ));
                 if (!\$value || count(\$value) != count(\$ids)) {
@@ -1063,7 +1063,7 @@ EOF
             if ('one' == $relation['type']) {
                 $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::getForDocumentClass('{$relation['class']}')->getRepository('{$relation['class']}')->find(array(
+            \$this->data['relations']['$name'] = \Mondongo\Container::get('{$relation['class']}')->getRepository('{$relation['class']}')->find(array(
                 'query' => array('{$relation['field']}' => \$this->getId()),
                 'one'   => true,
             ));
@@ -1084,7 +1084,7 @@ EOF;
             } else {
                 $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::getForDocumentClass('{$relation['class']}')->getRepository('{$relation['class']}')->find(array(
+            \$this->data['relations']['$name'] = \Mondongo\Container::get('{$relation['class']}')->getRepository('{$relation['class']}')->find(array(
                 'query' => array('{$relation['field']}' => \$this->getId()),
             ));
         }

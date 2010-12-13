@@ -22,139 +22,83 @@
 namespace Mondongo;
 
 /**
- * Container of Mondongo's.
+ * Container of the Mondongo.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
 class Container
 {
-    static protected $default;
+    static protected $mondongo;
 
-    static protected $mondongos = array();
+    static protected $loader;
 
     /**
-     * Set the default Mondongo.
+     * Set the Mondongo.
      *
-     * @param Mondongo\Mondongo $mondongo A Mondongo.
-     *
-     * @return void
+     * @param \Mondongo\Mondongo $mondongo The Mondongo.
      */
-    static public function setDefault(Mondongo $mondongo)
+    static public function set(Mondongo $mondongo)
     {
-        self::$default = $mondongo;
+        self::$mondongo = $mondongo;
     }
 
     /**
-     * Returns if exists the default Mondongo.
+     * Returns the Mondongo.
      *
-     * @return boolean Returns if exists the default Mondongo.
+     * @return \Mondongo\Mondongo The Mondongo.
+     *
+     * @throws \RuntimeException If there is loader and the loader does not return an instaoce of \Mondongo\Mondongo.
+     * @throws \RuntimeException If there is not Mondongo.
      */
-    static public function hasDefault()
+    static public function get()
     {
-        return null !== self::$default;
-    }
-
-    /**
-     * Returns the default Mondongo.
-     *
-     * @return Mondongo\Mondongo The default Mondongo.
-     *
-     * @throws \RuntimeException If the default Mondongo does not exists.
-     */
-    static public function getDefault()
-    {
-        if (!self::hasDefault()) {
-            throw new \RuntimeException('The default Mondongo does not exists.');
-        }
-
-        return self::$default;
-    }
-
-    /**
-     * Clear the default Mondongo.
-     *
-     * @return void
-     */
-    static public function clearDefault()
-    {
-        self::$default = null;
-    }
-
-    /**
-     * Set the Mondongo for a document class.
-     *
-     * @param string            $documentClass The document class.
-     * @param Mondongo\Mondongo $mondongo      The Mondongo.
-     *
-     * @return void
-     */
-    static public function setForDocumentClass($documentClass, Mondongo $mondongo)
-    {
-        self::$mondongos[$documentClass] = $mondongo;
-    }
-
-    /**
-     * Returns if exists a Mondongo for a document class.
-     *
-     * @param string $documentClass The document class.
-     *
-     * @return boolean Returns if exists the Mondongo.
-     */
-    static public function hasForDocumentClass($documentClass)
-    {
-        return isset(self::$mondongos[$documentClass]);
-    }
-
-    /**
-     * Return the Mondongo for a document class.
-     *
-     * If not exists the Mondongo for the document class returns the default Mondongo.
-     *
-     * @param string $documentClass The document class.
-     *
-     * @return Mondongo\Mondongo The Mondongo.
-     *
-     * @throws \RuntimeException If does not exists the Mondongo for the document class and the default Mondongo.
-     */
-    static public function getForDocumentClass($documentClass)
-    {
-        if (!isset(self::$mondongos[$documentClass])) {
-            if (!self::hasDefault()) {
-                throw new \RuntimeException(sprintf('The Mondongo for document class "%s" does not exists.', $documentClass));
+        if (null !== self::$loader) {
+            self::$mondongo = call_user_func(self::$loader);
+            if (!self::$mondongo instanceof Mondongo) {
+                throw new \RuntimeException('The mondongo is not an instance of \Mondongo\Mondongo.');
             }
-
-            return self::$default;
         }
 
-        return self::$mondongos[$documentClass];
+        if (null === self::$mondongo) {
+            throw new \RuntimeException('There is not Mondongo.');
+        }
+
+        return self::$mondongo;
     }
 
     /**
-     * Remove the Mondongo for a document class.
+     * Set the loader.
      *
-     * @param string $documentClass The document class.
+     * @param mixed $loader The loader.
      *
-     * @return void
-     *
-     * @throws \InvalidArgumentException If does not exists the Mondongo for the document class.
+     * @throws \RuntimeException If there is Mondongo already.
      */
-    static public function removeForDocumentClass($documentClass)
+    static public function setLoader($loader)
     {
-        if (!self::hasForDocumentClass($documentClass)) {
-            throw new \InvalidArgumentException(sprintf('The Mondongo for document class "%s" does not exists.', $documentClass));
+        if (null !== self::$mondongo) {
+            throw new \RuntimeException('There is Mondongo already.');
         }
 
-        unset(self::$mondongos[$documentClass]);
+        self::$loader = $loader;
     }
 
     /**
-     * Clear the Mondongos for the document classes.
+     * Returns the loader.
      *
-     * @return void
+     * @return mixed The loader.
      */
-    static public function clearForDocumentClasses()
+    static public function getLoader()
     {
-        self::$mondongos = array();
+        return self::$loader;
+    }
+
+    /**
+     * Clear the Mondongo and the loader.
+     */
+    static public function clear()
+    {
+        self::$mondongo = null;
+        self::$loader = null;
     }
 }

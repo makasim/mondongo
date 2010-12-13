@@ -53,20 +53,12 @@ class CoreTest extends TestCase
     {
         $article = new Article();
         $this->assertSame($this->mondongo, $article->getMondongo());
-
-        $mondongo = new Mondongo();
-        \Mondongo\Container::setForDocumentClass('Model\Article', $mondongo);
-        $this->assertSame($mondongo, $article->getMondongo());
     }
 
     public function testDocumentBaseGetMondongoMethodNotNamespaced()
     {
         $article = new \Article();
         $this->assertSame($this->mondongo, $article->getMondongo());
-
-        $mondongo = new Mondongo();
-        \Mondongo\Container::setForDocumentClass('Article', $mondongo);
-        $this->assertSame($mondongo, $article->getMondongo());
     }
 
     public function testDocumentBaseGetRepositoryMethodNamespaced()
