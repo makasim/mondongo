@@ -145,6 +145,8 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
         if (!$info['started_iterating']) {
             if (!is_array($info['query'])) {
                 $info['query'] = array();
+            } else if (!isset($info['query']['$query'])) {
+                $info['query'] = array('$query' => $info['query']);
             }
 
             // explain cursor
@@ -165,41 +167,39 @@ class LoggableMongoGridFSCursor extends \MongoGridFSCursor
             }
             $explain = $this->explainCursor->explain();
 
-            // info log
-            $infoLog = array(
+            // log
+            $log = array(
+                'type'   => $this->type,
                 'query'  => isset($info['query']['$query']) && is_array($info['query']['$query']) ? $info['query']['$query'] : array(),
                 'fields' => $info['fields'],
             );
             if (isset($info['query']['$orderby'])) {
-                $infoLog['sort'] = $info['query']['$orderby'];
+                $log['sort'] = $info['query']['$orderby'];
             }
             if ($info['limit']) {
-                $infoLog['limit'] = $info['limit'];
+                $log['limit'] = $info['limit'];
             }
             if ($info['skip']) {
-                $infoLog['skip'] = $info['skip'];
+                $log['skip'] = $info['skip'];
             }
             if ($info['batchSize']) {
-                $infoLog['batchSize'] = $info['batchSize'];
+                $log['batchSize'] = $info['batchSize'];
             }
             if (isset($info['query']['$hint'])) {
-                $infoLog['hint'] = $info['query']['$hint'];
+                $log['hint'] = $info['query']['$hint'];
             }
             if (isset($info['query']['$snapshot'])) {
-                $infoLog['snapshot'] = 1;
+                $log['snapshot'] = 1;
             }
+            $log['explain'] = array(
+                'nscanned'        => $explain['nscanned'],
+                'nscannedObjects' => $explain['nscannedObjects'],
+                'n'               => $explain['n'],
+                'indexBounds'     => $explain['indexBounds'],
+            );
+            $log['time'] = $explain['millis'];
 
-            $this->log($log = array(
-                'type' => $this->type,
-                'info' => $infoLog,
-                'explain' => array(
-                    'nscanned'        => $explain['nscanned'],
-                    'nscannedObjects' => $explain['nscannedObjects'],
-                    'n'               => $explain['n'],
-                    'indexBounds'     => $explain['indexBounds'],
-                ),
-                'time' => $explain['millis'],
-            ));
+            $this->log($log);
         }
     }
 }
