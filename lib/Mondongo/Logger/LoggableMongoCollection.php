@@ -240,7 +240,7 @@ class LoggableMongoCollection extends \MongoCollection
     public function group($keys, $initial, $reduce, $options = array())
     {
         $this->time->start();
-        $return = parent::group($key, $initial, $reduce, $options);
+        $return = parent::group($keys, $initial, $reduce, $options);
         $time = $this->time->stop();
 
         $this->log(array(
