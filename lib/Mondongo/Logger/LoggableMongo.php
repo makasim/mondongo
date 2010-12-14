@@ -96,7 +96,7 @@ class LoggableMongo extends \Mongo
     }
 
     /**
-     * __get
+     * __get.
      */
     public function __get($dbname)
     {
