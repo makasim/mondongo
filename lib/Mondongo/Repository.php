@@ -309,12 +309,18 @@ abstract class Repository
         $updates = array();
 
         foreach ($documents as $document) {
+            $document->saveReferences();
+
+            // only modified
+            if (!$document->isModified()) {
+                continue;
+            }
+
             if ($document->isNew()) {
                 $inserts[spl_object_hash($document)] = $document;
             } else {
                 $updates[] = $document;
             }
-            $document->saveReferences();
         }
 
         // insert

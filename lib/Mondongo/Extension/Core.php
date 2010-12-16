@@ -773,9 +773,11 @@ EOF;
                 // save references
                 $saveReferencesCode .= <<<EOF
         \$reference = \$this->data['references']['$name'];
-        if (null !== \$reference && \$reference->isModified()) {
+        if (null !== \$reference) {
             \$reference->save();
-            \$this->$fieldSetter(\$reference->getId());
+            if (!\$reference->isNew()) {
+                \$this->$fieldSetter(\$reference->getId());
+            }
         }
 
 EOF;
@@ -849,9 +851,7 @@ EOF;
         if (\$this->data['references']['$name']) {
             \$ids = array();
             foreach (\$this->data['references']['$name'] as \$reference) {
-                if (\$reference->isModified()) {
-                    \$reference->save();
-                }
+                \$reference->save();
                 if (\$reference->isNew()) {
                     continue;
                 }

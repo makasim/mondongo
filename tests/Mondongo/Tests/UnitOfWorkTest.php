@@ -128,6 +128,22 @@ class UnitOfWorkTest extends TestCase
         $this->assertNull($authorForRemove->getCollection()->findOne(array('_id' => $authorForRemove->getId())));
     }
 
+    public function testCommitOnlyReferencedDocuments()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $this->unitOfWork->persist($author);
+
+        $article = new Article();
+        $article->setAuthor($author);
+        $this->unitOfWork->persist($article);
+
+        $this->unitOfWork->commit();
+
+        $this->assertFalse($author->isNew());
+        $this->assertFalse($article->isNew());
+    }
+
     public function testClear()
     {
         $articleForInsert = new Article();

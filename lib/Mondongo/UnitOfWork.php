@@ -125,23 +125,11 @@ class UnitOfWork
      */
     public function commit()
     {
-        // prepare
-        $persist = array();
-        foreach ($this->persist as $class => $documents) {
-            foreach ($documents as $document) {
-                // only modified
-                if ($document->isModified()) {
-                    $persist[$class][] = $document;
-                }
-            }
-        }
-        $remove = $this->remove;
-
         // execute
-        foreach ($persist as $class => $documents) {
+        foreach ($this->persist as $class => $documents) {
             $this->mondongo->getRepository($class)->save($documents);
         }
-        foreach ($remove as $class => $documents) {
+        foreach ($this->remove as $class => $documents) {
             $this->mondongo->getRepository($class)->delete($documents);
         }
 
