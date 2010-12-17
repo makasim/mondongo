@@ -224,7 +224,8 @@ class Mondator
                     $dumper  = new Dumper($definition);
                     $content = $dumper->dump();
 
-                    if (false === @file_put_contents($file, $content)) {
+                    $tmpFile = tempnam(dirname($file), basename($file));
+                    if (false === @file_put_contents($tmpFile, $content) || !@rename($tmpFile, $file)) {
                         throw new \RuntimeException(sprintf('Failed to write the file "%s".', $file));
                     }
                     chmod($file, 0644);
