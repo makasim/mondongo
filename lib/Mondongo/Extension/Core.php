@@ -60,15 +60,15 @@ class Core extends Extension
         // definitions and outputs
         $this->processInitDefinitionsAndOutputs();
 
+        // init
+        $this->processInitFinalClass();
+
         if (!$this->configClass['is_embedded']) {
-            $this->processDocumentGetMondongoMethod();
-            $this->processDocumentGetRepositoryMethod();
             $this->processInitConnectionName();
             $this->processInitCollectionName();
             $this->processInitIndexes();
         }
 
-        // init
         $this->processInitFields();
         $this->processInitReferences();
         $this->processInitEmbeddeds();
@@ -108,6 +108,11 @@ class Core extends Extension
         $this->checkDataNames();
 
         // document
+        if (!$this->configClass['is_embedded']) {
+            $this->processDocumentGetMondongoMethod();
+            $this->processDocumentGetRepositoryMethod();
+        }
+
         $this->processDocumentDataProperty();
         $this->processDocumentFieldsModifiedsProperty();
 
@@ -246,45 +251,13 @@ EOF
     }
 
     /*
-     * Document "getMondongo" method.
+     * Final Class.
      */
-    public function processDocumentGetMondongoMethod()
+    protected function processInitFinalClass()
     {
-        $method = new Method('public', 'getMondongo', '', <<<EOF
-        return \Mondongo\Container::get();
-EOF
-        );
-        $method->setDocComment(<<<EOF
-    /**
-     * Returns the Mondongo of the document.
-     *
-     * @return Mondongo\Mondongo The Mondongo of the document.
-     */
-EOF
-        );
-
-        $this->definitions['document_base']->addMethod($method);
-    }
-
-    /*
-     * Document "getRepository" method.
-     */
-    public function processDocumentGetRepositoryMethod()
-    {
-        $method = new Method('public', 'getRepository', '', <<<EOF
-        return \$this->getMondongo()->getRepository('{$this->definitions['document']->getClass()}');
-EOF
-        );
-        $method->setDocComment(<<<EOF
-    /**
-     * Returns the repository of the document.
-     *
-     * @return Mondongo\Repository The repository of the document.
-     */
-EOF
-        );
-
-        $this->definitions['document_base']->addMethod($method);
+        if (!isset($this->configClass['final_class'])) {
+            $this->configClass['final_class'] = $this->class;
+        }
     }
 
     /*
@@ -482,6 +455,48 @@ EOF
                 throw new \RuntimeException(sprintf('The document cannot be a data with the name "%s".', $name));
             }
         }
+    }
+
+    /*
+     * Document "getMondongo" method.
+     */
+    public function processDocumentGetMondongoMethod()
+    {
+        $method = new Method('public', 'getMondongo', '', <<<EOF
+        return \Mondongo\Container::get();
+EOF
+        );
+        $method->setDocComment(<<<EOF
+    /**
+     * Returns the Mondongo of the document.
+     *
+     * @return Mondongo\Mondongo The Mondongo of the document.
+     */
+EOF
+        );
+
+        $this->definitions['document_base']->addMethod($method);
+    }
+
+    /*
+     * Document "getRepository" method.
+     */
+    public function processDocumentGetRepositoryMethod()
+    {
+        $method = new Method('public', 'getRepository', '', <<<EOF
+        return \$this->getMondongo()->getRepository('{$this->configClass['final_class']}');
+EOF
+        );
+        $method->setDocComment(<<<EOF
+    /**
+     * Returns the repository of the document.
+     *
+     * @return Mondongo\Repository The repository of the document.
+     */
+EOF
+        );
+
+        $this->definitions['document_base']->addMethod($method);
     }
 
     /*
@@ -1367,7 +1382,7 @@ EOF
      */
     protected function processRepositoryDocumentClassProperty()
     {
-        $property = new Property('protected', 'documentClass', $this->definitions['document']->getClass());
+        $property = new Property('protected', 'documentClass', $this->configClass['final_class']);
 
         $this->definitions['repository_base']->addProperty($property);
     }
