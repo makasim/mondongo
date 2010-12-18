@@ -144,6 +144,55 @@ class UnitOfWorkTest extends TestCase
         $this->assertFalse($article->isNew());
     }
 
+    public function testHasPendingForPersist()
+    {
+        $this->assertFalse($this->unitOfWork->hasPendingForPersist());
+
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+
+        $this->unitOfWork->remove($author);
+        $this->assertFalse($this->unitOfWork->hasPendingForPersist());
+
+        $author = new Author();
+
+        $this->unitOfWork->persist($author);
+        $this->assertTrue($this->unitOfWork->hasPendingForPersist());
+    }
+
+    public function testHasPendingForRemove()
+    {
+        $this->assertFalse($this->unitOfWork->hasPendingForRemove());
+
+        $author = new Author();
+        $author->setName('Pablo');
+
+        $this->unitOfWork->persist($author);
+        $this->assertFalse($this->unitOfWork->hasPendingForRemove());
+
+        $this->unitOfWork->commit();
+
+        $this->unitOfWork->remove($author);
+        $this->assertTrue($this->unitOfWork->hasPendingForRemove());
+    }
+
+    public function testHasPending()
+    {
+        $this->assertFalse($this->unitOfWork->hasPending());
+
+        $author = new Author();
+        $author->setName('Pablo');
+
+        $this->unitOfWork->persist($author);
+        $this->assertTrue($this->unitOfWork->hasPending());
+
+        $this->unitOfWork->commit();
+
+        $this->unitOfWork->remove($author);
+        $this->assertTrue($this->unitOfWork->hasPending());
+    }
+
     public function testClear()
     {
         $articleForInsert = new Article();

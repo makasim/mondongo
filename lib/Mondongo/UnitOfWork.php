@@ -138,6 +138,36 @@ class UnitOfWork
     }
 
     /**
+     * Returns if there are pending persist operations.
+     *
+     * @return boolean If there are pending persist operations.
+     */
+    public function hasPendingForPersist()
+    {
+        return (bool) count($this->persist);
+    }
+
+    /**
+     * Returns if there are pending remove operations.
+     *
+     * @return boolean If there are pending remove operations.
+     */
+    public function hasPendingForRemove()
+    {
+        return (bool) count($this->remove);
+    }
+
+    /**
+     * Returns if there are pending operations.
+     *
+     * @return boolean If there are pending operations.
+     */
+    public function hasPending()
+    {
+        return $this->hasPendingForPersist() || $this->hasPendingForRemove();
+    }
+
+    /**
      * Clear the pending operations
      */
     public function clear()
