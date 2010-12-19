@@ -245,9 +245,9 @@ class Mondongo
      *
      * @see Mondongo\Repository::find()
      */
-    public function find($documentClass, array $options = array())
+    public function find($documentClass, array $query = array(), array $options = array())
     {
-        return $this->getRepository($documentClass)->find($options);
+        return $this->getRepository($documentClass)->find($query, $options);
     }
 
     /**
@@ -257,9 +257,9 @@ class Mondongo
      *
      * @see Mondongo\Repository::findOne()
      */
-    public function findOne($documentClass, array $options = array())
+    public function findOne($documentClass, array $query = array(), array $options = array())
     {
-        return $this->getRepository($documentClass)->findOne($options);
+        return $this->getRepository($documentClass)->findOne($query, $options);
     }
 
     /**

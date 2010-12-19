@@ -162,31 +162,26 @@ abstract class Repository
      *
      * Options:
      *
-     *   * query:  the query (array)
      *   * fields: the fields (array)
-     *   * sort:   the sort
+     *   * sort:   the sort (array)
      *   * limit:  the limit
      *   * skip:   the skip
      *   * one:    if returns one result (incompatible with limit)
      *
-     * @param array $options An array of options.
+     * @param array $query   The query (optional, an empty array by default)
+     * @param array $options An array of options (optional).
      *
      * @return mixed The document/s found within the parameters.
      */
-    public function find(array $options = array())
+    public function find(array $query = array(), array $options = array())
     {
-        // query
-        if (!isset($options['query'])) {
-            $options['query'] = array();
-        }
-
         // fields
         if (!isset($options['fields'])) {
             $options['fields'] = array();
         }
 
         // cursor
-        $cursor = $this->getCollection()->find($options['query'], $options['fields']);
+        $cursor = $this->getCollection()->find($query, $options['fields']);
 
         // sort
         if (isset($options['sort'])) {
@@ -241,15 +236,16 @@ abstract class Repository
     /**
      * Find one document.
      *
-     * @param array $options An array of options.
+     * @param array $query   The query (optional, an empty array by default)
+     * @param array $options An array of options (optional).
      *
      * @return mixed The document found within the parameters.
      *
      * @see ::find()
      */
-    public function findOne(array $options = array())
+    public function findOne(array $query = array(), array $options = array())
     {
-        return $this->find(array_merge($options, array('one' => true)));
+        return $this->find($query, array_merge($options, array('one' => true)));
     }
 
     /**
@@ -265,7 +261,7 @@ abstract class Repository
             $id = new \MongoId($id);
         }
 
-        return $this->find(array('query' => array('_id' => $id), 'one' => true));
+        return $this->find(array('_id' => $id), array('one' => true));
     }
 
     /**

@@ -178,10 +178,7 @@ class MondongoTest extends TestCase
     {
         $articles = $this->createArticles(10);
 
-        $this->assertEquals($articles[3], $this->mondongo->find('Model\Article', array(
-            'query' => array('_id' => $articles[3]->getId()),
-            'one'   => true,
-        )));
+        $this->assertEquals($articles[3], $this->mondongo->find('Model\Article', array('_id' => $articles[3]->getId()), array('one' => true)));
     }
 
     public function testFindOne()
@@ -190,9 +187,7 @@ class MondongoTest extends TestCase
 
         $this->assertEquals($articles[0], $this->mondongo->findOne('Model\Article'));
 
-        $this->assertEquals($articles[3], $this->mondongo->findOne('Model\Article', array(
-            'query' => array('_id' => $articles[3]->getId()),
-        )));
+        $this->assertEquals($articles[3], $this->mondongo->findOne('Model\Article', array('_id' => $articles[3]->getId())));
     }
 
     public function testFindOneById()

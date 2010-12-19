@@ -150,7 +150,7 @@ class RepositoryTest extends TestCase
 
         $repository->getIdentityMap()->clear();
 
-        $image  = $repository->find(array('one' => true));
+        $image  = $repository->findOne();
         $result = $this->db->getGridFS('image')->findOne();
 
         $this->assertEquals($result, $image->getFile());
@@ -175,7 +175,7 @@ class RepositoryTest extends TestCase
 
         $repository->getIdentityMap()->clear();
 
-        $results = $repository->find(array('fields' => array('content' => 1)));
+        $results = $repository->find(array(), array('fields' => array('content' => 1)));
 
         $this->assertNull($results[0]->getTitle());
         $this->assertNull($results[0]->getIsActive());
@@ -188,7 +188,7 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(11);
 
-        $results = $repository->find(array('sort' => array('title' => -1)));
+        $results = $repository->find(array(), array('sort' => array('title' => -1)));
 
         $this->assertSame('Article 9', $results[0]->getTitle());
         $this->assertSame('Article 8', $results[1]->getTitle());
@@ -202,8 +202,8 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertSame(4, count($repository->find(array('limit' => 4))));
-        $this->assertSame(6, count($repository->find(array('limit' => 6))));
+        $this->assertSame(4, count($repository->find(array(), array('limit' => 4))));
+        $this->assertSame(6, count($repository->find(array(), array('limit' => 6))));
     }
 
     public function testFindOptionSkip()
@@ -211,12 +211,8 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals(array($articles[8], $articles[9]), $repository->find(array(
-            'skip' => 8,
-        )));
-        $this->assertEquals(array($articles[6], $articles[7], $articles[8], $articles[9]), $repository->find(array(
-            'skip' => 6,
-        )));
+        $this->assertEquals(array($articles[8], $articles[9]), $repository->find(array(), array('skip' => 8)));
+        $this->assertEquals(array($articles[6], $articles[7], $articles[8], $articles[9]), $repository->find(array(), array('skip' => 6)));
     }
 
     public function testFindOptionOne()
@@ -224,8 +220,8 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals($articles[0], $repository->find(array('query' => array('_id' => $articles[0]->getId()), 'one' => true)));
-        $this->assertEquals($articles[4], $repository->find(array('query' => array('_id' => $articles[4]->getId()), 'one' => true)));
+        $this->assertEquals($articles[0], $repository->find(array('_id' => $articles[0]->getId()), array('one' => true)));
+        $this->assertEquals($articles[4], $repository->find(array('_id' => $articles[4]->getId()), array('one' => true)));
     }
 
     public function testFindOne()
@@ -552,7 +548,7 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertSame($articles[1], $repository->find(array('query' => array('_id' => $articles[1]->getId()), 'one' => true)));
+        $this->assertSame($articles[1], $repository->find(array('_id' => $articles[1]->getId()), array('one' => true)));
     }
 
     public function testIdentityMapFindQuering()

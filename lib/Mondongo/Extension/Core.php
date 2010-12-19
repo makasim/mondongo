@@ -838,9 +838,10 @@ EOF;
             \$group = new \Mondongo\Group();
 
             if (\$ids = \$this->$fieldGetter()) {
-                \$value = \\Mondongo\Container::get()->getRepository('{$reference['class']}')->find(array(
-                    'query' => array('_id' => array('\$in' => \$ids)),
-                ));
+                \$value = \\Mondongo\Container::get()
+                    ->getRepository('{$reference['class']}')
+                    ->find(array('_id' => array('\$in' => \$ids)))
+                ;
                 if (!\$value || count(\$value) != count(\$ids)) {
                     throw new \RuntimeException('The reference "$name" does not exists');
                 }
@@ -1078,10 +1079,10 @@ EOF
             if ('one' == $relation['type']) {
                 $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::get('{$relation['class']}')->getRepository('{$relation['class']}')->find(array(
-                'query' => array('{$relation['field']}' => \$this->getId()),
-                'one'   => true,
-            ));
+            \$this->data['relations']['$name'] = \Mondongo\Container::get('{$relation['class']}')
+                ->getRepository('{$relation['class']}')
+                ->findOne(array('{$relation['field']}' => \$this->getId()))
+            ;
         }
 
         return \$this->data['relations']['$name'];
@@ -1099,9 +1100,10 @@ EOF;
             } else {
                 $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::get('{$relation['class']}')->getRepository('{$relation['class']}')->find(array(
-                'query' => array('{$relation['field']}' => \$this->getId()),
-            ));
+            \$this->data['relations']['$name'] = \Mondongo\Container::get('{$relation['class']}')
+                ->getRepository('{$relation['class']}')
+                ->find(array('{$relation['field']}' => \$this->getId()))
+            ;
         }
 
         return \$this->data['relations']['$name'];
