@@ -21,39 +21,39 @@
 
 namespace Mondongo\Tests;
 
-use Mondongo\Data;
+use Mondongo\DataLoader;
 use Mondongo\Mondongo;
 use Model\Author;
 
-class DataTest extends TestCase
+class DataLoaderTest extends TestCase
 {
     public function testConstructor()
     {
-        $data = new Data($mondongo = new Mondongo(), $datum = array('foo' => 'bar'));
+        $dataLoader = new DataLoader($mondongo = new Mondongo(), $datum = array('foo' => 'bar'));
 
-        $this->assertSame($mondongo, $data->getMondongo());
-        $this->assertSame($datum, $data->getData());
+        $this->assertSame($mondongo, $dataLoader->getMondongo());
+        $this->assertSame($datum, $dataLoader->getData());
     }
 
     public function testSetGetMondongo()
     {
-        $data = new Data(new Mondongo());
-        $data->setMondongo($mondongo = new Mondongo());
+        $dataLoader = new DataLoader(new Mondongo());
+        $dataLoader->setMondongo($mondongo = new Mondongo());
 
-        $this->assertSame($mondongo, $data->getMondongo());
+        $this->assertSame($mondongo, $dataLoader->getMondongo());
     }
 
     public function testSetGetData()
     {
-        $data = new Data(new Mondongo());
-        $data->setData($datum = array('foo' => 'bar', 'bar' => 'foo'));
+        $dataLoader = new DataLoader(new Mondongo());
+        $dataLoader->setData($datum = array('foo' => 'bar', 'bar' => 'foo'));
 
-        $this->assertSame($datum, $data->getData());
+        $this->assertSame($datum, $dataLoader->getData());
     }
 
     public function testLoad()
     {
-        $data = new Data($this->mondongo, array(
+        $dataLoader = new DataLoader($this->mondongo, array(
             'Model\Article' => array(
                 'article_1' => array(
                     'title'   => 'Article 1',
@@ -94,7 +94,7 @@ class DataTest extends TestCase
                 ),
             ),
         ));
-        $data->load(true);
+        $dataLoader->load(true);
 
         $articleRepository = $this->mondongo->getRepository('Model\Article');
         $authorRepository  = $this->mondongo->getRepository('Model\Author');
@@ -135,7 +135,7 @@ class DataTest extends TestCase
             $connection->getMongoDB()->drop();
         }
 
-        $data = new Data($this->mondongo, array(
+        $dataLoader = new DataLoader($this->mondongo, array(
             'Model\Author' => array(
                 'pablodip' => array(
                     'name' => 'Pablo',
@@ -145,16 +145,16 @@ class DataTest extends TestCase
 
         $authorRepository = $this->mondongo->getRepository('Model\Author');
 
-        $data->load();
+        $dataLoader->load();
         $this->assertSame(1, $authorRepository->count());
 
-        $data->load();
+        $dataLoader->load();
         $this->assertSame(2, $authorRepository->count());
 
-        $data->load(false);
+        $dataLoader->load(false);
         $this->assertSame(3, $authorRepository->count());
 
-        $data->load(true);
+        $dataLoader->load(true);
         $this->assertSame(1, $authorRepository->count());
     }
 
@@ -167,7 +167,7 @@ class DataTest extends TestCase
         $author->setName('Pablo');
         $this->mondongo->persist($author);
 
-        $data = new Data($this->mondongo);
-        $data->load();
+        $dataLoader = new DataLoader($this->mondongo);
+        $dataLoader->load();
     }
 }

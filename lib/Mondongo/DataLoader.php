@@ -22,12 +22,12 @@
 namespace Mondongo;
 
 /**
- * The Mondongo Data.
+ * The Mondongo DataLoader.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class Data
+class DataLoader
 {
     protected $mondongo;
     protected $data;
