@@ -265,10 +265,6 @@ abstract class Repository
             $id = new \MongoId($id);
         }
 
-        if ($this->identityMap->hasById($id)) {
-            return $this->identityMap->getById($id);
-        }
-
         return $this->find(array('query' => array('_id' => $id), 'one' => true));
     }
 
