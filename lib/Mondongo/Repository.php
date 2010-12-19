@@ -255,12 +255,16 @@ abstract class Repository
     /**
      * Find one document by mongo id.
      *
-     * @param \MongoId $id The document \MongoId.
+     * @param \MongoId|string $id The document \MongoId or the identifier string.
      *
      * @return mixed The document or NULL if it does not exists.
      */
     public function findOneById($id)
     {
+        if (is_string($id)) {
+            $id = new \MongoId($id);
+        }
+
         if ($this->identityMap->hasById($id)) {
             return $this->identityMap->getById($id);
         }

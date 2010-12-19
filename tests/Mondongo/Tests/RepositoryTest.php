@@ -247,6 +247,9 @@ class RepositoryTest extends TestCase
         $this->assertEquals($articles[2], $repository->findOneById($articles[2]->getId()));
         $this->assertEquals($articles[5], $repository->findOneById($articles[5]->getId()));
 
+        $this->assertEquals($articles[2], $repository->findOneById($articles[2]->getId()->__toString()));
+        $this->assertEquals($articles[5], $repository->findOneById($articles[5]->getId()->__toString()));
+
         $this->assertNull($repository->findOneById(new \MongoId('123')));
     }
 
