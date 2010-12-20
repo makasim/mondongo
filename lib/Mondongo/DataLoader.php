@@ -162,7 +162,7 @@ class DataLoader
         } while ($data && $change);
 
         if (!$change) {
-            throw new RuntimeException('Unable to process everything.');
+            throw new \RuntimeException('Unable to process everything.');
         }
 
         $this->mondongo->flush();
