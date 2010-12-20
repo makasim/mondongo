@@ -129,6 +129,26 @@ class DataLoaderTest extends TestCase
         $this->assertSame(4, $categoryRepository->count());
     }
 
+    public function testLoadReferencingToSameClass()
+    {
+        $dataLoader = new DataLoader($this->mondongo, array(
+            'Model\Message' => array(
+                'message_1' => array(
+                    'author' => 'pablodip',
+                ),
+                'message_2' => array(
+                    'author'   => 'Pablo',
+                    'reply_to' => 'message_1',
+                ),
+            ),
+        ));
+        $dataLoader->load(true);
+
+        $repository = $this->mondongo->getRepository('Model\Message');
+
+        $this->assertSame(2, $repository->count());
+    }
+
     public function testLoadPrune()
     {
         foreach ($this->mondongo->getConnections() as $connection) {

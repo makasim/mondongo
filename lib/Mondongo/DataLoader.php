@@ -105,66 +105,80 @@ class DataLoader
             }
         }
 
-        // process
-        $data = $this->data;
+        // vars
+        $mondongo  = $this->mondongo;
+        $data      = $this->data;
         $documents = array();
-        do {
-            $change = false;
-            foreach ($data as $class => $datum) {
-                $map = $class::getDataMap();
 
-                // references processed?
-                foreach ($map['references'] as $name => $reference) {
-                    if (!isset($documents[$reference['class']])) {
-                        foreach ($datum as $value) {
-                            if (isset($value[$name])) {
-                                continue 3;
-                            }
-                        }
-                    }
-                }
-
-                // create
-                foreach ($datum as $key => $value) {
-                    // references
-                    foreach ($map['references'] as $name => $reference) {
-                        if (!isset($value[$name])) {
-                            continue;
-                        }
-
-                        // one
-                        if ('one' == $reference['type']) {
-                            if (!isset($documents[$reference['class']][$value[$name]])) {
-                                throw new \RuntimeException(sprintf('The reference "%s" (%s) for the class "%s" does not exists.', $value[$name], $name, $class));
-                            }
-                            $value[$name] = $documents[$reference['class']][$value[$name]];
-                        // many
-                        } else {
-                            $refs = array();
-                            foreach ($value[$name] as $valum) {
-                                if (!isset($documents[$reference['class']][$valum])) {
-                                    throw new \RuntimeException(sprintf('The reference "%s" (%s) for the class "%s" does not exists.', $valum, $name, $class));
-                                }
-                                $refs[] = $documents[$reference['class']][$valum];
-                            }
-                            $value[$name] = $refs;
-                        }
-                    }
-
-                    $documents[$class][$key] = $document = new $class();
-                    $document->fromArray($value);
-                    $this->mondongo->persist($document);
-                }
-
-                $change = true;
-                unset($data[$class]);
-            }
-        } while ($data && $change);
-
-        if (!$change) {
-            throw new \RuntimeException('Unable to process everything.');
+        $maps = array();
+        foreach ($data as $class => $datum) {
+            $maps[$class] = $class::getDataMap();
         }
 
+        // process function
+        $process = function ($class, $key) use (&$process, $mondongo, &$data, &$documents, &$maps) {
+            static $processed = array();
+
+            if (isset($processed[$class][$key])) {
+                return;
+            }
+
+            if (!isset($data[$class][$key])) {
+                throw new \RuntimeException(sprintf('The document "%s" of the class "%s" does not exist.', $key, $class));
+            }
+            $datum = $data[$class][$key];
+
+            // references
+            foreach ($maps[$class]['references'] as $name => $reference) {
+                if (!isset($datum[$name])) {
+                    continue;
+                }
+
+                // one
+                if ('one' == $reference['type']) {
+                    $process($reference['class'], $datum[$name]);
+
+                    if (!isset($documents[$reference['class']][$datum[$name]])) {
+                        throw new \RuntimeException(sprintf('The reference "%s" (%s) for the class "%s" does not exists.', $datum[$name], $name, $class));
+                    }
+                    $datum[$name] = $documents[$reference['class']][$datum[$name]];
+                // many
+                } else {
+                    $refs = array();
+                    foreach ($datum[$name] as $value) {
+                        $process($reference['class'], $value);
+
+                        if (!isset($documents[$reference['class']][$value])) {
+                            throw new \RuntimeException(sprintf('The reference "%s" (%s) for the class "%s" does not exists.', $value, $name, $class));
+                        }
+                        $refs[] = $documents[$reference['class']][$value];
+                    }
+                    $datum[$name] = $refs;
+                }
+            }
+
+            // document
+            $documents[$class][$key] = $document = new $class();
+            $document->fromArray($datum);
+            $mondongo->persist($document);
+
+            $processed[$class][$key] = true;
+            unset($data[$class][$key]);
+        };
+
+        // process
+        foreach ($data as $class => $datum) {
+            foreach ($datum as $key => $value) {
+                $process($class, $key);
+            }
+        }
+
+        // flush
         $this->mondongo->flush();
+    }
+
+    protected function processDocument($class, $value, $references, &$documents)
+    {
+        # code...
     }
 }
