@@ -30,6 +30,7 @@ use Model\Author;
 use Model\Category;
 use Model\Events;
 use Model\Image;
+use Model\Message;
 
 class Repository extends RepositoryBase
 {
@@ -394,6 +395,24 @@ class RepositoryTest extends TestCase
         foreach ($categories as $category) {
             $this->assertFalse($category->isNew());
         }
+    }
+
+    public function testSaveWithSaveReferencesReferingToHimself()
+    {
+        $messages = array();
+
+        $messages[1] = $message = new Message();
+        $message->setAuthor('pablodip');
+
+        $messages[2] = $message = new Message();
+        $message->setAuthor('Pablo');
+        $message->setReplyTo($messages[1]);
+
+        $repository = $this->mondongo->getRepository('Model\Message');
+
+        $repository->save($messages);
+
+        $this->assertSame(2, $repository->count());
     }
 
     public function testSaveInsertGridFSSaveFile()

@@ -119,6 +119,16 @@ $configClasses = array(
             'is_active' => array('type' => 'boolean', 'default' => true),
         ),
     ),
+    'Model\Message' => array(
+        'fields' => array(
+            'author'      => 'string',
+            'text'        => 'string',
+            'reply_to_id' => 'reference_one',
+        ),
+        'references' => array(
+            'reply_to' => array('class' => 'Model\Message', 'field' => 'reply_to_id', 'type' => 'one'),
+        ),
+    ),
     'Model\Image' => array(
         'is_file'    => true,
         'collection' => 'image',

@@ -61,6 +61,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
             'news',
             'summary',
             'user',
+            'model_message',
             'image.files',
             'image.chunks',
         ) as $collectionName) {

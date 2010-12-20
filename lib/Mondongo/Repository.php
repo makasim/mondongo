@@ -301,23 +301,33 @@ abstract class Repository
             $documents = array($documents);
         }
 
-        $inserts = array();
-        $updates = array();
+        do {
+            $inserts = array();
+            $updates = array();
 
-        foreach ($documents as $document) {
-            $document->saveReferences();
+            $change = false;
+            foreach ($documents as $document) {
+                $documentData = $document->getDocumentData();
 
-            // only modified
-            if (!$document->isModified()) {
-                continue;
+                $document->saveReferences();
+
+                if ($document->getDocumentData() !== $documentData) {
+                    $change = true;
+                    break;
+                }
+
+                // only modified
+                if (!$document->isModified()) {
+                    continue;
+                }
+
+                if ($document->isNew()) {
+                    $inserts[spl_object_hash($document)] = $document;
+                } else {
+                    $updates[] = $document;
+                }
             }
-
-            if ($document->isNew()) {
-                $inserts[spl_object_hash($document)] = $document;
-            } else {
-                $updates[] = $document;
-            }
-        }
+        } while ($change);
 
         // insert
         if ($inserts) {
