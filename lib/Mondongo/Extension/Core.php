@@ -888,7 +888,7 @@ EOF;
 
             // getter
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
-            $method->setDocComment($setterDocComment);
+            $method->setDocComment($getterDocComment);
             $this->definitions['document_base']->addMethod($method);
 
             // update
