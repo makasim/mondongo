@@ -281,11 +281,11 @@ abstract class Repository
      *
      * @param array $query The query (optional, by default an empty array).
      *
-     * @return void
+     * @return mixed The result of the remove collection method.
      */
     public function remove(array $query = array())
     {
-        $this->getCollection()->remove($query, array('safe' => true));
+        return $this->getCollection()->remove($query, array('safe' => true));
     }
 
     /**

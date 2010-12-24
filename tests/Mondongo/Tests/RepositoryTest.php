@@ -289,7 +289,7 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $repository->remove();
+        $this->assertTrue(is_array($repository->remove()));
 
         $this->assertSame(0, $this->db->article->find()->count());
     }
@@ -302,7 +302,7 @@ class RepositoryTest extends TestCase
         $articles[3]->setTitle('No');
         $articles[3]->save();
 
-        $repository->remove(array('title' => new \MongoRegex('/^Article/')));
+        $this->assertTrue(is_array($repository->remove(array('title' => new \MongoRegex('/^Article/')))));
 
         $this->assertSame(1, $this->db->article->find()->count());
         $this->assertSame(1, $this->db->article->find(array('_id' => $articles[3]->getId()))->count());
