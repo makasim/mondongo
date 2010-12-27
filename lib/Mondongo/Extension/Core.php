@@ -679,6 +679,16 @@ EOF
     protected function processDocumentFields()
     {
         foreach ($this->configClass['fields'] as $name => $field) {
+            $referenceCode = '';
+            foreach ($this->configClass['references'] as $referenceName => $reference) {
+                if ($name == $reference['field']) {
+                    $referenceCode = <<<EOF
+        \$this->data['references']['$referenceName'] = null;
+EOF;
+                    break;
+                }
+            }
+
             // set method
             $method = new Method('public', 'set'.Inflector::camelize($name), '$value', <<<EOF
         if (\$value === \$this->data['fields']['$name']) {
@@ -691,6 +701,8 @@ EOF
         }
 
         \$this->data['fields']['$name'] = \$value;
+
+$referenceCode
 EOF
             );
             $method->setDocComment(<<<EOF
@@ -743,13 +755,13 @@ EOF
             if ('one' == $reference['type']) {
                 // setter
                 $setterCode = <<<EOF
-        if (!\$value instanceof \\{$reference['class']}) {
+        if (null !== \$value && !\$value instanceof \\{$reference['class']}) {
             throw new \InvalidArgumentException('The reference "$name" is not an instance of "{$reference['class']}".');
         }
-        if (!\$value->isNew()) {
-            \$this->{$fieldSetter}(\$value->getId());
-        } else if (\$this->{$fieldGetter}()) {
+        if (null === \$value || \$value->isNew()) {
             \$this->{$fieldSetter}(null);
+        } else if (null !== \$value) {
+            \$this->{$fieldSetter}(\$value->getId());
         }
 
         \$this->data['references']['$name'] = \$value;
@@ -802,21 +814,23 @@ EOF;
             } else {
                 // setter
                 $setterCode = <<<EOF
-        if (!\$value instanceof \Mondongo\Group && !is_array(\$value)) {
-            throw new \InvalidArgumentException('The reference "$name" is not an instance of Mondongo\Group or an array.');
-        }
-        if (is_array(\$value)) {
-            \$value = new \Mondongo\Group(\$value);
-        }
-        \$value->setChangeCallback(array(\$this, '$updateMethodName'));
-
         \$ids = array();
-        foreach (\$value as \$document) {
-            if (!\$document instanceof \\{$reference['class']}) {
-                throw new \InvalidArgumentException('Some document in the reference "$name" is not an instance of "{$reference['class']}".');
+        if (null !== \$value) {
+            if (!\$value instanceof \Mondongo\Group && !is_array(\$value)) {
+                throw new \InvalidArgumentException('The reference "$name" is not an instance of Mondongo\Group or an array.');
             }
-            if (!\$document->isNew()) {
-                \$ids[] = \$document->getId();
+            if (is_array(\$value)) {
+                \$value = new \Mondongo\Group(\$value);
+            }
+            \$value->setChangeCallback(array(\$this, '$updateMethodName'));
+
+            foreach (\$value as \$document) {
+                if (!\$document instanceof \\{$reference['class']}) {
+                    throw new \InvalidArgumentException('Some document in the reference "$name" is not an instance of "{$reference['class']}".');
+                }
+                if (!\$document->isNew()) {
+                    \$ids[] = \$document->getId();
+                }
             }
         }
 

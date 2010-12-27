@@ -197,6 +197,57 @@ class CoreTest extends TestCase
         $this->assertNull($article->getAuthorId());
     }
 
+    public function testDocumentReferenceOneFieldSetAnother()
+    {
+        $author1 = new Author();
+        $author1->setName('Pablo');
+        $author1->save();
+
+        $author2 = new Author();
+        $author2->setName('pablodip');
+        $author2->save();
+
+        $article = new Article();
+        $article->setTitle('Mon');
+        $article->setAuthor($author1);
+        $article->save();
+
+        $article->setAuthorId($author2->getId());
+        $this->assertSame($author2, $article->getAuthor());
+    }
+
+    public function testDocumentReferenceOneFieldSetNull()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+
+        $article = new Article();
+        $article->setTitle('Mon');
+        $article->setAuthor($author);
+        $article->save();
+
+        $article->setAuthorId(null);
+        $this->assertNull($article->getAuthorId());
+        $this->assertNull($article->getAuthor());
+    }
+
+    public function testDocumentReferenceOneReferenceSetNull()
+    {
+        $author = new Author();
+        $author->setName('Pablo');
+        $author->save();
+
+        $article = new Article();
+        $article->setTitle('Mon');
+        $article->setAuthor($author);
+        $article->save();
+
+        $article->setAuthor(null);
+        $this->assertNull($article->getAuthor());
+        $this->assertNull($article->getAuthorId());
+    }
+
     /**
      * @expectedException \InvalidArgumentException
      */
@@ -313,6 +364,66 @@ class CoreTest extends TestCase
         $article = new Article();
         $article->setCategories($categories);
 
+        $this->assertNull($article->getCategoryIds());
+    }
+
+    public function testDocumentReferenceManyFieldSetAnothers()
+    {
+        $categories = array();
+        $ids = array();
+        for ($i = 1; $i <= 8; $i++) {
+            $categories[$i] = $category = new Category();
+            $category->setName('Category '.$i);
+            $category->save();
+            $ids[$i] = $category->getId();
+        }
+
+        $article = new Article();
+        $article->setTitle('Mon');
+        $article->setCategories(array($categories[3], $categories[5]));
+        $article->save();
+
+        $article->setCategoryIds(array($categories[2]->getId(), $categories[6]->getId()));
+        $this->assertEquals(array($categories[2], $categories[6]), $article->getCategories()->getElements());
+    }
+
+    public function testDocumentReferenceManyFieldSetNull()
+    {
+        $categories = array();
+        $ids = array();
+        for ($i = 1; $i <= 8; $i++) {
+            $categories[$i] = $category = new Category();
+            $category->setName('Category '.$i);
+            $category->save();
+            $ids[$i] = $category->getId();
+        }
+
+        $article = new Article();
+        $article->setTitle('Mon');
+        $article->setCategories(array($categories[3], $categories[5]));
+        $article->save();
+
+        $article->setCategoryIds(null);
+        $this->assertEquals(array(), $article->getCategories()->getElements());
+    }
+
+    public function testDocumentReferenceManyReferenceSetNull()
+    {
+        $categories = array();
+        $ids = array();
+        for ($i = 1; $i <= 8; $i++) {
+            $categories[$i] = $category = new Category();
+            $category->setName('Category '.$i);
+            $category->save();
+            $ids[$i] = $category->getId();
+        }
+
+        $article = new Article();
+        $article->setTitle('Mon');
+        $article->setCategories(array($categories[3], $categories[5]));
+        $article->save();
+
+        $article->setCategories(null);
         $this->assertNull($article->getCategoryIds());
     }
 
