@@ -84,14 +84,10 @@ abstract class Document extends EmbeddedDocument
             throw new \LogicException('The document is new.');
         }
 
-        foreach ($this->data['fields'] as $name => &$value) {
-            $value = null;
-        }
-        foreach ($this->data['references'] as $name => &$value) {
-            $value = null;
-        }
-        foreach ($this->data['embeddeds'] as $name => &$value) {
-            $value = null;
+        foreach ($this->data as $type => &$values) {
+            foreach ($values as &$value) {
+                $value = null;
+            }
         }
 
         $this->setDocumentData($this->getRepository()->getCollection()->findOne(array('_id' => $this->getId())));
