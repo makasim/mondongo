@@ -24,6 +24,7 @@ namespace Mondongo\Tests\Document;
 use Mondongo\Tests\TestCase;
 use Mondongo\Document\Document as DocumentBase;
 use Model\Article;
+use Model\Author;
 use Model\Comment;
 use Model\Source;
 use Model\MultipleEmbeds;
@@ -73,6 +74,53 @@ class DocumentTest extends TestCase
         $this->assertSame('My Content', $article->getContent());
     }
 
+    public function testRefreshChangedValues()
+    {
+        $article = new Article();
+        $article->setTitle('foo');
+        $article->setContent('bar');
+        $article->save();
+
+        $article->setTitle('Ups');
+        $article->refresh();
+        $this->assertSame('foo', $article->getTitle());
+    }
+
+    public function testRefreshDeletingValues()
+    {
+        $article = new Article();
+        $article->setTitle('foo');
+        $article->setContent('bar');
+        $article->save();
+
+        $article->getCollection()->update(array('_id' => $article->getId()), array('$unset' => array('content' => 1)));
+
+        $article->refresh();
+        $this->assertNull($article->getContent());
+    }
+
+    public function testRefreshWithReferences()
+    {
+        $author1 = new Author();
+        $author1->setName('Pablo');
+        $author1->save();
+
+        $author2 = new Author();
+        $author2->setName('pablodip');
+        $author2->save();
+
+        $article = new Article();
+        $article->setTitle('Mon');
+        $article->setAuthor($author1);
+        $article->save();
+
+        $article->getCollection()->update(array('_id' => $article->getId()), array('author_id' => $author2->getId()));
+
+        $article->refresh();
+        $this->assertEquals($author2->getId(), $article->getAuthorId());
+        $this->assertSame($author2, $article->getAuthor());
+    }
+
     public function testRefreshWithEmbeddeds()
     {
         $article = new Article();
@@ -85,6 +133,19 @@ class DocumentTest extends TestCase
         $article->refresh();
         $this->assertSame('My Title', $article->getTitle());
         $this->assertSame('My Name', $article->getSource()->getName());
+    }
+
+    public function testRefreshWithEmbeddedsDeleting()
+    {
+        $article = new Article();
+        $article->setTitle('My Title');
+        $article->getSource()->setName('My Name');
+        $article->save();
+
+        $article->getCollection()->update(array('_id' => $article->getId()), array('$unset' => array('source' => 1)));
+
+        $article->refresh();
+        $this->assertEquals(new Source(), $article->getSource());
     }
 
     /**
