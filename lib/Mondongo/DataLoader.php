@@ -176,9 +176,4 @@ class DataLoader
         // flush
         $this->mondongo->flush();
     }
-
-    protected function processDocument($class, $value, $references, &$documents)
-    {
-        # code...
-    }
 }
