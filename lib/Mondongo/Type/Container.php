@@ -112,7 +112,7 @@ class Container
      *
      * @throws \InvalidArgumentException If the type does not exists.
      */
-    public function removeType($name)
+    static public function removeType($name)
     {
         if (!self::hasType($name)) {
             throw new \InvalidArgumentException(sprintf('The type "%s" does not exists.', $name));
