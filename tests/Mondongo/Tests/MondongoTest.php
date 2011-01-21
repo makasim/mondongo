@@ -90,8 +90,25 @@ class MondongoTest extends TestCase
         $mondongo->setConnections($connections);
         $mondongo->setDefaultConnectionName('global');
         $this->assertSame($connections['global'], $mondongo->getDefaultConnection());
-        $mondongo->setDefaultConnectionName(null);
-        $this->assertSame($connections['local'], $mondongo->getDefaultConnection());
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testGetDefaultConnectionWithoutDefaultConnectionName()
+    {
+        $mondongo = new Mondongo();
+        $mondongo->getDefaultConnection();
+    }
+
+    /**
+     * @expectedException RuntimeException
+     */
+    public function testGetDefaultConnectionConnectionDoesNotExist()
+    {
+        $mondongo = new Mondongo();
+        $mondongo->setConnection('global', new Connection('localhost', 'mondongo_tests'));
+        $mondongo->getDefaultConnection();
     }
 
     public function testSetConnectionLoggerCallable()

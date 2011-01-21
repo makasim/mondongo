@@ -198,22 +198,20 @@ class Mondongo
      *
      * @return Mondongo\Connection The default connection.
      *
+     * @throws \RuntimeException If there is not default connection name.
      * @throws \RuntimeException If the default connection does not exists.
-     * @throws \RuntimeException If there is not connections.
      */
     public function getDefaultConnection()
     {
-        if (null !== $this->defaultConnectionName) {
-            if (!isset($this->connections[$this->defaultConnectionName])) {
-                throw new \RuntimeException(sprintf('The default connection "%s" does not exists.', $this->defaultConnectionName));
-            }
-
-            $connection = $this->connections[$this->defaultConnectionName];
-        } elseif (!$connection = reset($this->connections)) {
-            throw new \RuntimeException('There is not connections.');
+        if (null === $this->defaultConnectionName) {
+            throw new \RuntimeException('There is not default connection name.');
         }
 
-        return $connection;
+        if (!isset($this->connections[$this->defaultConnectionName])) {
+            throw new \RuntimeException(sprintf('The default connection "%s" does not exists.', $this->defaultConnectionName));
+        }
+
+        return $this->connections[$this->defaultConnectionName];
     }
 
     /**
