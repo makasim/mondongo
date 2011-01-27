@@ -34,7 +34,7 @@ class InitDefinition extends Extension
         ));
     }
 
-    protected function doProcess()
+    protected function doClassProcess()
     {
         $this->definitions[$this->getOption('definition_name')] = new Definition($this->getOption('class_name'));
     }

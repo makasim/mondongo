@@ -26,7 +26,7 @@ use Mondongo\Mondator\Extension;
 
 class ProcessOthersFromArray extends Extension
 {
-    protected function doProcess()
+    protected function doClassProcess()
     {
         if (isset($this->configClass['extensions'])) {
             $this->processExtensionsFromArray($this->configClass['extensions']);

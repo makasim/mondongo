@@ -40,7 +40,7 @@ class NewConfigClass extends Extension
         ));
     }
 
-    protected function doProcess()
+    protected function doClassProcess()
     {
         $newClassName = $this->class.$this->getOption('suffix');
 

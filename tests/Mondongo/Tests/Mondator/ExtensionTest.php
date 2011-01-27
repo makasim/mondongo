@@ -38,10 +38,6 @@ class ExtensionTesting extends Extension
             'bar'      => null,
         ));
     }
-
-    protected function doProcess()
-    {
-    }
 }
 
 class ExtensionTest extends \PHPUnit_Framework_TestCase
@@ -161,7 +157,7 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
             ),
         ));
 
-        $extension->process($container, $class, $configClass, new \ArrayObject());
+        $extension->classProcess($container, $class, $configClass, new \ArrayObject());
 
         $definitions = $container->getDefinitions();
 

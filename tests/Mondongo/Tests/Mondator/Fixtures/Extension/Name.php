@@ -26,7 +26,7 @@ use Mondongo\Mondator\Extension;
 
 class Name extends Extension
 {
-    protected function doProcess()
+    protected function doClassProcess()
     {
         $this->definitions['name'] = new Definition($this->configClass['name']);
     }

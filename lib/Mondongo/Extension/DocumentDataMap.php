@@ -36,7 +36,7 @@ class DocumentDataMap extends Extension
     /**
      * @inheritdoc
      */
-    protected function doProcess()
+    protected function doClassProcess()
     {
         $dataMap = array();
 

@@ -106,7 +106,8 @@ class MondatorTest extends \PHPUnit_Framework_TestCase
 
         $containers = $mondator->generateContainers();
 
-        $this->assertSame(2, count($containers));
+        $this->assertSame(3, count($containers));
+        $this->assertTrue(isset($containers['_global']));
         $this->assertTrue(isset($containers['Article']));
         $this->assertTrue(isset($containers['Category']));
         $this->assertInstanceOf('Mondongo\Mondator\Container', $containers['Article']);
@@ -155,7 +156,8 @@ class MondatorTest extends \PHPUnit_Framework_TestCase
 
         $containers = $mondator->generateContainers();
 
-        $this->assertSame(4, count($containers));
+        $this->assertSame(5, count($containers));
+        $this->assertTrue(isset($containers['_global']));
         $this->assertTrue(isset($containers['Article']));
         $this->assertTrue(isset($containers['ArticleTranslation']));
         $this->assertTrue(isset($containers['ArticleTranslationMultiple']));

@@ -52,7 +52,7 @@ class Core extends Extension
     /**
      * @inheritdoc
      */
-    protected function doProcess()
+    protected function doClassProcess()
     {
         // is embedded
         $this->configClass['is_embedded'] = isset($this->configClass['is_embedded']) ? (bool) $this->configClass['is_embedded'] : false;

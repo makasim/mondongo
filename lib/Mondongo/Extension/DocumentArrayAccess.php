@@ -35,7 +35,7 @@ class DocumentArrayAccess extends Extension
     /**
      * @inheritdoc
      */
-    protected function doProcess()
+    protected function doClassProcess()
     {
         $this->definitions['document_base']->addInterface('\ArrayAccess');
 

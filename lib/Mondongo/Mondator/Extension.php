@@ -186,7 +186,36 @@ abstract class Extension
     }
 
     /**
-     * Process the extension.
+     * Global process of the extension.
+     *
+     * @param Mondongo\Mondator\Container $container     The global container.
+     * @param \ArrayObject                $configClasses The config classes.
+     *
+     * @return void
+     */
+    public function globalProcess(Container $container, \ArrayObject $configClasses)
+    {
+        $this->container     = $container;
+        $this->configClasses = $configClasses;
+
+        $this->definitions = $container->getDefinitions();
+        $this->outputs     = $container->getOutputs();
+
+        $this->doGlobalProcess();
+
+        $this->container     = null;
+        $this->configClasses = null;
+    }
+
+    /**
+     * Do the global process.
+     */
+    protected function doGlobalProcess()
+    {
+    }
+
+    /**
+     * Class process of the extension.
      *
      * @param Mondongo\Mondator\Container $container        The container.
      * @param string                      $class            The class.
@@ -195,7 +224,7 @@ abstract class Extension
      *
      * @return void
      */
-    public function process(Container $container, $class, \ArrayObject $configClass, \ArrayObject $newConfigClasses)
+    public function classProcess(Container $container, $class, \ArrayObject $configClass, \ArrayObject $newConfigClasses)
     {
         $this->container   = $container;
         $this->class       = $class;
@@ -206,7 +235,7 @@ abstract class Extension
         $this->definitions = $container->getDefinitions();
         $this->outputs     = $container->getOutputs();
 
-        $this->doProcess();
+        $this->doClassProcess();
 
         $this->container   = null;
         $this->class       = null;
@@ -218,7 +247,12 @@ abstract class Extension
         $this->outputs     = null;
     }
 
-    abstract protected function doProcess();
+    /**
+     * Do the class process.
+     */
+    protected function doClassProcess()
+    {
+    }
 
     /*
      * Tools.
@@ -230,7 +264,7 @@ abstract class Extension
                 throw new \InvalidArgumentException(sprintf('The extension "%s" does not have class.', $data['class']));
             }
             $extension = new $data['class'](isset($data['options']) ? $data['options'] : array());
-            $extension->process($this->container, $this->class, $this->configClass, $this->newConfigClasses);
+            $extension->classProcess($this->container, $this->class, $this->configClass, $this->newConfigClasses);
         }
     }
 

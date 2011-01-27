@@ -1222,7 +1222,7 @@ class CoreTest extends TestCase
     public function testDoesNotHaveOutput()
     {
         $extension = new Core(array());
-        $extension->process(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
+        $extension->classProcess(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
     }
 
     /**
@@ -1231,7 +1231,7 @@ class CoreTest extends TestCase
     public function testIsFileNotBoolean()
     {
         $extension = new Core();
-        $extension->process(new Container(), 'Article', new \ArrayObject(array(
+        $extension->classProcess(new Container(), 'Article', new \ArrayObject(array(
             'is_file' => 1,
         )), new \ArrayObject());
     }
@@ -1243,7 +1243,7 @@ class CoreTest extends TestCase
     public function testFieldNotStringNorArray($type)
     {
         $extension = new Core();
-        $extension->process(new Container(), 'Article', new \ArrayObject(array(
+        $extension->classProcess(new Container(), 'Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => $type,
             ),
@@ -1265,7 +1265,7 @@ class CoreTest extends TestCase
     public function testFieldDoesNotHaveType()
     {
         $extension = new Core();
-        $extension->process(new Container(), 'Article', new \ArrayObject(array(
+        $extension->classProcess(new Container(), 'Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => array('default' => 'default'),
             ),
@@ -1278,7 +1278,7 @@ class CoreTest extends TestCase
     public function testFieldTypeDoesNotExists()
     {
         $extension = new Core();
-        $extension->process(new Container(), 'Article', new \ArrayObject(array(
+        $extension->classProcess(new Container(), 'Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => array('type' => 'no'),
             ),

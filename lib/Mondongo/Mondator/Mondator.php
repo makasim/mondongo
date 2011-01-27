@@ -155,13 +155,20 @@ class Mondator
             $configClasses[$class] = new \ArrayObject($configClass);
         }
 
-        // process
-        $this->processConfigClasses($containers, $configClasses);
+        // global process
+        $globalContainer = new Container();
+        foreach ($this->getExtensions() as $extension) {
+            $extension->globalProcess($globalContainer, $configClasses);
+        }
+        $containers['_global'] = $globalContainer;
+
+        // class process
+        $this->classProcess($containers, $configClasses);
 
         return $containers;
     }
 
-    protected function processConfigClasses(&$containers, \ArrayObject $configClasses)
+    protected function classProcess(&$containers, \ArrayObject $configClasses)
     {
         foreach ($configClasses as $class => $configClass) {
             if (isset($containers[$class])) {
@@ -173,7 +180,7 @@ class Mondator
             foreach ($this->getExtensions() as $extension) {
                 $newConfigClasses = new \ArrayObject();
 
-                $extension->process($container, $class, $configClass, $newConfigClasses);
+                $extension->classProcess($container, $class, $configClass, $newConfigClasses);
 
                 if ($newConfigClasses) {
                     foreach ($newConfigClasses as &$newConfigClass) {
@@ -181,7 +188,7 @@ class Mondator
                             $newConfigClass = new \ArrayObject($newConfigClass);
                         }
                     }
-                    $this->processConfigClasses($containers, $newConfigClasses);
+                    $this->classProcess($containers, $newConfigClasses);
                 }
             }
         }

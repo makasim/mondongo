@@ -44,7 +44,7 @@ class AddProperty extends Extension
         ));
     }
 
-    protected function doProcess()
+    protected function doClassProcess()
     {
         $property = new Property($this->getOption('visibility'), $this->getOption('name'), $this->getOption('value'));
 
