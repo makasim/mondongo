@@ -38,6 +38,13 @@ class DocumentDataMap extends Extension
      */
     protected function doClassProcess()
     {
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function doReverseClassProcess()
+    {
         $dataMap = array();
 
         // fields

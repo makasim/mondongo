@@ -148,6 +148,10 @@ class Mondator
     public function generateContainers()
     {
         $containers = array();
+        $containers['_global'] = new Container();
+
+        // global extensions
+        $globalExtensions = $this->getExtensions();
 
         // configClasses
         $configClasses = new \ArrayObject();
@@ -155,41 +159,78 @@ class Mondator
             $configClasses[$class] = new \ArrayObject($configClass);
         }
 
-        // global process
-        $globalContainer = new Container();
-        foreach ($this->getExtensions() as $extension) {
-            $extension->globalProcess($globalContainer, $configClasses);
+        // classes extensions
+        $classesExtensions = new \ArrayObject();
+        $this->generateContainersClassesExtensions($globalExtensions, $classesExtensions, $configClasses);
+
+        // pre global process
+        foreach ($globalExtensions as $globalExtension) {
+            $globalExtension->preGlobalProcess($containers['_global'], $configClasses);
         }
-        $containers['_global'] = $globalContainer;
 
         // class process
-        $this->classProcess($containers, $configClasses);
+        foreach ($configClasses as $class => $configClass) {
+            $containers[$class] = $container = new Container();
+            foreach ($classesExtensions[$class] as $extension) {
+                $extension->classProcess($container, $class, $configClass);
+            }
+        }
+
+        // reverse class process
+        foreach ($classesExtensions as $class => $extensions) {
+            foreach ($extensions as $extension) {
+                $extension->reverseClassProcess($containers[$class], $class, $configClasses[$class]);
+            }
+        }
+
+        // post global process
+        foreach ($globalExtensions as $globalExtension) {
+            $globalExtension->postGlobalProcess($containers['_global'], $configClasses);
+        }
 
         return $containers;
     }
 
-    protected function classProcess(&$containers, \ArrayObject $configClasses)
+    protected function generateContainersClassesExtensions(array $extensions, \ArrayObject $classesExtensions, \ArrayObject $configClasses)
     {
         foreach ($configClasses as $class => $configClass) {
-            if (isset($containers[$class])) {
-                throw new \RuntimeException(sprintf('The class "%s" has several config class.', $class));
+            if (isset($classesExtensions[$class])) {
+                continue;
             }
 
-            $containers[$class] = $container = new Container();
+            $classesExtensions[$class] = $classExtensions = new \ArrayObject($extensions);
+            $this->generateContainersNewClassExtensions($configClass, $classExtensions);
 
-            foreach ($this->getExtensions() as $extension) {
-                $newConfigClasses = new \ArrayObject();
+            foreach ($classExtensions as $extension) {
+                $newConfigClasses = $extension->getNewConfigClasses($class, $configClass);
 
-                $extension->classProcess($container, $class, $configClass, $newConfigClasses);
-
-                if ($newConfigClasses) {
-                    foreach ($newConfigClasses as &$newConfigClass) {
-                        if (is_array($newConfigClass)) {
-                            $newConfigClass = new \ArrayObject($newConfigClass);
-                        }
+                foreach ($newConfigClasses as $newClass => $newConfigClass) {
+                    if (isset($classesExtensions[$newClass])) {
+                        throw new \RuntimeException(sprintf('The class "%s" has several config classes.', $class));
                     }
-                    $this->classProcess($containers, $newConfigClasses);
+                    $configClasses[$newClass] = new \ArrayObject($newConfigClass);
                 }
+
+                $this->generateContainersClassesExtensions($extensions, $classesExtensions, $configClasses);
+            }
+        }
+    }
+
+    protected function generateContainersNewClassExtensions(\ArrayObject $configClass, \ArrayObject $classExtensions)
+    {
+        foreach ($classExtensions as $class => $extension) {
+            $newClassExtensions = $extension->getNewClassExtensions($class, $configClass);
+
+            foreach ($newClassExtensions as $newClassExtension) {
+                if (!$newClassExtension instanceof ClassExtension) {
+                    throw new \RuntimeException(sprintf('Some class extension of the class "%s" in the extension "%s" is not an instance of ClassExtension.', $class, get_class($extension)));
+                }
+                if ($newClassExtension instanceof Extension) {
+                    throw new \RuntimeException(sprintf('Some class extension of the class "%s" in the extension "%s" is a instance of Extension, and it can be only a instance of ClassExtension.', $class, get_class($extension)));
+                }
+
+                $classExtensions[] = $newClassExtension;
+                $this->generateContainersNewClassExtensions($configClass, new \ArrayObject(array($newClassExtension)));
             }
         }
     }

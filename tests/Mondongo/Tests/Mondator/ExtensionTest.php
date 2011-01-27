@@ -38,6 +38,10 @@ class ExtensionTesting extends Extension
             'bar'      => null,
         ));
     }
+
+    protected function doClassProcess()
+    {
+    }
 }
 
 class ExtensionTest extends \PHPUnit_Framework_TestCase
@@ -128,43 +132,5 @@ class ExtensionTest extends \PHPUnit_Framework_TestCase
     {
         $extension = new ExtensionTesting(array('required' => 'value'));
         $extension->getOption('foobar');
-    }
-
-    public function testProcessExtensionsAsArray()
-    {
-        $extension = new \Mondongo\Tests\Mondator\Fixtures\Extension\ProcessOthersFromArray();
-
-        $container   = new Container();
-        $class       = 'Article';
-        $configClass = new \ArrayObject(array(
-            'extensions' => array(
-                array(
-                    'class'   => 'Mondongo\Tests\Mondator\Fixtures\Extension\InitDefinition',
-                    'options' => array(
-                        'definition_name' => 'mydefinition',
-                        'class_name'      => 'MyClassName',
-                    ),
-                ),
-                array(
-                    'class'   => 'Mondongo\Tests\Mondator\Fixtures\Extension\AddProperty',
-                    'options' => array(
-                        'definition' => 'mydefinition',
-                        'visibility' => 'MyClassName',
-                        'name'       => 'myVar',
-                        'value'      => 'foo',
-                    ),
-                ),
-            ),
-        ));
-
-        $extension->classProcess($container, $class, $configClass, new \ArrayObject());
-
-        $definitions = $container->getDefinitions();
-
-        $this->assertSame(1, count($definitions->getDefinitions()));
-        $this->assertTrue(isset($definitions['mydefinition']));
-        $properties = $definitions['mydefinition']->getProperties();
-        $this->assertSame(1, count($properties));
-        $this->assertSame('myVar', $properties[0]->getName());
     }
 }

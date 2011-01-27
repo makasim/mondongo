@@ -50,6 +50,31 @@ class Core extends Extension
     }
 
     /**
+     * @ineritdoc
+     */
+    public function getNewClassExtensions($class, \ArrayObject $configClass)
+    {
+        $classExtensions = array();
+
+        // default behaviors
+        foreach ($this->getOption('default_behaviors') as $behavior) {
+            if (!empty($configClass['is_embedded']) && !empty($behavior['not_with_embeddeds'])) {
+                continue;
+            }
+            $classExtensions[] = $this->createClassExtensionFromArray($behavior);
+        }
+
+        // behaviors
+        if (isset($configClass['behaviors'])) {
+            foreach ($configClass['behaviors'] as $behavior) {
+                $classExtensions[] = $this->createClassExtensionFromArray($behavior);
+            }
+        }
+
+        return $classExtensions;
+    }
+
+    /**
      * @inheritdoc
      */
     protected function doClassProcess()
@@ -78,20 +103,13 @@ class Core extends Extension
         }
 
         $this->processInitExtensionsEvents();
+    }
 
-        // default behaviors
-        foreach ($this->getOption('default_behaviors') as $behavior) {
-            if ($this->configClass['is_embedded'] && isset($extension['not_with_embeddeds']) && $extension['not_with_embeddeds']) {
-                continue;
-            }
-            $this->processExtensionsFromArray(array($behavior));
-        }
-
-        // behaviors
-        if (isset($this->configClass['behaviors'])) {
-            $this->processExtensionsFromArray($this->configClass['behaviors']);
-        }
-
+    /**
+     * @inheritdoc
+     */
+    protected function doReverseClassProcess()
+    {
         // is_file
         $this->processIsFile();
 
