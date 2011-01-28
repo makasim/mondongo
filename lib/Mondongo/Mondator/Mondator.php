@@ -163,6 +163,13 @@ class Mondator
         $classesExtensions = new \ArrayObject();
         $this->generateContainersClassesExtensions($globalExtensions, $classesExtensions, $configClasses);
 
+        // config class process
+        foreach ($classesExtensions as $class => $classExtensions) {
+            foreach ($classExtensions as $classExtension) {
+                $classExtension->configClassProcess($class, $configClasses[$class]);
+            }
+        }
+
         // pre global process
         foreach ($globalExtensions as $globalExtension) {
             $globalExtension->preGlobalProcess($containers['_global'], $configClasses);
@@ -173,13 +180,6 @@ class Mondator
             $containers[$class] = $container = new Container();
             foreach ($classesExtensions[$class] as $extension) {
                 $extension->classProcess($container, $class, $configClass);
-            }
-        }
-
-        // reverse class process
-        foreach ($classesExtensions as $class => $extensions) {
-            foreach ($extensions as $extension) {
-                $extension->reverseClassProcess($containers[$class], $class, $configClasses[$class]);
             }
         }
 
@@ -202,7 +202,8 @@ class Mondator
             $this->generateContainersNewClassExtensions($configClass, $classExtensions);
 
             foreach ($classExtensions as $extension) {
-                $newConfigClasses = $extension->getNewConfigClasses($class, $configClass);
+                $newConfigClasses = new \ArrayObject();
+                $extension->newConfigClassesProcess($class, $configClass, $newConfigClasses);
 
                 foreach ($newConfigClasses as $newClass => $newConfigClass) {
                     if (isset($classesExtensions[$newClass])) {
@@ -219,7 +220,8 @@ class Mondator
     protected function generateContainersNewClassExtensions(\ArrayObject $configClass, \ArrayObject $classExtensions)
     {
         foreach ($classExtensions as $class => $extension) {
-            $newClassExtensions = $extension->getNewClassExtensions($class, $configClass);
+            $newClassExtensions = new \ArrayObject();
+            $extension->newClassExtensionsProcess($class, $configClass, $newClassExtensions);
 
             foreach ($newClassExtensions as $newClassExtension) {
                 if (!$newClassExtension instanceof ClassExtension) {

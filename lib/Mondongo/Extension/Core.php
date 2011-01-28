@@ -103,13 +103,7 @@ class Core extends Extension
         }
 
         $this->processInitExtensionsEvents();
-    }
 
-    /**
-     * @inheritdoc
-     */
-    protected function doReverseClassProcess()
-    {
         // is_file
         $this->processIsFile();
 

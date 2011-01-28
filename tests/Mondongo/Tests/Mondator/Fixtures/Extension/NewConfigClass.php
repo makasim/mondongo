@@ -22,9 +22,9 @@
 namespace Mondongo\Tests\Mondator\Fixtures\Extension;
 
 use Mondongo\Mondator\Definition\Definition;
-use Mondongo\Mondator\Extension;
+use Mondongo\Mondator\ClassExtension;
 
-class NewConfigClass extends Extension
+class NewConfigClass extends ClassExtension
 {
     protected function setUp()
     {
@@ -40,7 +40,7 @@ class NewConfigClass extends Extension
         ));
     }
 
-    protected function doClassProcess()
+    protected function doNewConfigClassesProcess()
     {
         $newClassName = $this->class.$this->getOption('suffix');
 

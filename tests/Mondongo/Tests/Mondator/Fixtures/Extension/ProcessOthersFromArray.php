@@ -26,20 +26,12 @@ use Mondongo\Mondator\Extension;
 
 class ProcessOthersFromArray extends Extension
 {
-    public function getNewClassExtensions(\ArrayObject $configClass)
+    protected function doNewClassExtensionsProcess()
     {
-        $classExtensions = array();
-        if (isset($configClass['extensions'])) {
-            foreach ($configClass['extensions'] as $extension) {
-                $classExtensions[] = $this->createExtensionFromArray($extension);
+        if (isset($this->configClass['extensions'])) {
+            foreach ($this->configClass['extensions'] as $extension) {
+                $this->newClassExtensions[] = $this->createClassExtensionFromArray($extension);
             }
         }
-
-
-        return $classExtensions;
-    }
-
-    protected function doClassProcess()
-    {
     }
 }

@@ -37,6 +37,9 @@ abstract class ClassExtension
     protected $class;
     protected $configClass;
 
+    protected $newClassExtensions;
+    protected $newConfigClasses;
+
     protected $definitions;
     protected $outputs;
 
@@ -185,33 +188,97 @@ abstract class ClassExtension
     }
 
     /**
-     * Returns the array of the new class extensions (any by default).
+     * New class extensions process.
      *
-     * @param string       $class       The class.
-     * @param \ArrayObject $configClass The config class.
-     *
-     * @return array The new class extensions.
+     * @param string       $class              The class.
+     * @param \ArrayObject $configClass        The config class.
+     * @param \ArrayObject $newClassExtensions The new class extensions.
      */
-    public function getNewClassExtensions($class, \ArrayObject $configClass)
+    public function newClassExtensionsProcess($class, \ArrayObject $configClass, \ArrayObject $newClassExtensions)
     {
-        return array();
+        $this->newClassExtensions = $newClassExtensions;
+
+        $this->class       = $class;
+        $this->configClass = $configClass;
+
+        $this->doNewClassExtensionsProcess();
+
+        $this->newClassExtensions = null;
+
+        $this->class       = null;
+        $this->configClass = null;
     }
 
     /**
-     * Returns the new config classes (any by default).
+     * Do the new class extensions process.
      *
-     * @param string       $class       The class.
-     * @param \ArrayObject $configClass The config class.
-     *
-     * @return array The new config classes.
+     * Here you can add new class extensions.
      */
-    public function getNewConfigClasses($class, \ArrayObject $configClass)
+    protected function doNewClassExtensionsProcess()
     {
-        return array();
     }
 
     /**
-     * Class process of the extension.
+     * New config classes process.
+     *
+     * @param string       $class            The class.
+     * @param \ArrayObject $configClass      The config class.
+     * @param \ArrayObject $newConfigClasses The new config classes.
+     */
+    public function newConfigClassesProcess($class, \ArrayObject $configClass, \ArrayObject $newConfigClasses)
+    {
+        $this->newConfigClasses = $newConfigClasses;
+
+        $this->class       = $class;
+        $this->configClass = $configClass;
+
+        $this->doNewConfigClassesProcess();
+
+        $this->newConfigClasses = null;
+
+        $this->class       = null;
+        $this->configClass = null;
+    }
+
+    /**
+     * Do the new config classes process.
+     *
+     * Here you can add new config classes, and change the config classes
+     * if it is necessary to build the new config classes.
+     */
+    protected function doNewConfigClassesProcess()
+    {
+    }
+
+    /**
+     * Process the config class.
+     *
+     * @param string       $class       The class.
+     * @param \ArrayObject $configClass The config class.
+     */
+    public function configClassProcess($class, \ArrayObject $configClass)
+    {
+        $this->class       = $class;
+        $this->configClass = $configClass;
+
+        $this->doConfigClassProcess();
+
+        $this->class       = null;
+        $this->configClass = null;
+    }
+
+    /**
+     * Do the config class process.
+     *
+     * Here you can modify the config class.
+     */
+    protected function doConfigClassProcess()
+    {
+    }
+
+
+    /**
+     * Process the class.
      *
      * @param Mondongo\Mondator\Container $container        The container.
      * @param string                      $class            The class.
@@ -241,40 +308,7 @@ abstract class ClassExtension
     /**
      * Do the class process.
      */
-    abstract protected function doClassProcess();
-
-    /**
-     * Reverse class process of the extension.
-     *
-     * @param Mondongo\Mondator\Container $container        The container.
-     * @param string                      $class            The class.
-     * @param \ArrayObject                $configClass      The config class.
-     *
-     * @return void
-     */
-    public function reverseClassProcess(Container $container, $class, \ArrayObject $configClass)
-    {
-        $this->container   = $container;
-        $this->class       = $class;
-        $this->configClass = $configClass;
-
-        $this->definitions = $container->getDefinitions();
-        $this->outputs     = $container->getOutputs();
-
-        $this->doReverseClassProcess();
-
-        $this->container   = null;
-        $this->class       = null;
-        $this->configClass = null;
-
-        $this->definitions = null;
-        $this->outputs     = null;
-    }
-
-    /**
-     * Do the reverse class process.
-     */
-    protected function doReverseClassProcess()
+    protected function doClassProcess()
     {
     }
 
