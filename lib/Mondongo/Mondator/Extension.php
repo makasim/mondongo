@@ -76,7 +76,7 @@ abstract class Extension extends ClassExtension
         $this->definitions = $container->getDefinitions();
         $this->outputs     = $container->getOutputs();
 
-        $this->doPreGlobalProcess();
+        $this->doPostGlobalProcess();
 
         $this->container     = null;
         $this->configClasses = null;
