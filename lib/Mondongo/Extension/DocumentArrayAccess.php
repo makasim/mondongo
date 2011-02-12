@@ -33,7 +33,7 @@ use Mondongo\Mondator\Extension;
 class DocumentArrayAccess extends Extension
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function doClassProcess()
     {

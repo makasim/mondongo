@@ -33,7 +33,7 @@ use Mondongo\Mondator\Extension;
 class DocumentPropertyOverloading extends Extension
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function doClassProcess()
     {

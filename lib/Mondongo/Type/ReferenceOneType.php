@@ -30,7 +30,7 @@ namespace Mondongo\Type;
 class ReferenceOneType extends Type
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toMongo($value)
     {
@@ -42,7 +42,7 @@ class ReferenceOneType extends Type
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toPHP($value)
     {
@@ -50,7 +50,7 @@ class ReferenceOneType extends Type
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toMongoInString()
     {
@@ -63,7 +63,7 @@ EOF;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toPHPInString()
     {

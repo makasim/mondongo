@@ -30,7 +30,7 @@ namespace Mondongo\Type;
 class IntegerType extends Type
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toMongo($value)
     {
@@ -38,7 +38,7 @@ class IntegerType extends Type
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toPHP($value)
     {
@@ -46,7 +46,7 @@ class IntegerType extends Type
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toMongoInString()
     {
@@ -54,7 +54,7 @@ class IntegerType extends Type
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toPHPInString()
     {

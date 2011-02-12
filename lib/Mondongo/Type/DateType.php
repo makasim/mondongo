@@ -30,7 +30,7 @@ namespace Mondongo\Type;
 class DateType extends Type
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toMongo($value)
     {
@@ -44,7 +44,7 @@ class DateType extends Type
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toPHP($value)
     {
@@ -55,7 +55,7 @@ class DateType extends Type
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toMongoInString()
     {
@@ -63,7 +63,7 @@ class DateType extends Type
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toPHPInString()
     {

@@ -34,7 +34,7 @@ use Mondongo\Mondator\Extension;
 class DocumentDataMap extends Extension
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function doClassProcess()
     {

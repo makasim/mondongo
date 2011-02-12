@@ -38,7 +38,7 @@ use Mondongo\Inflector;
 class Core extends Extension
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function setup()
     {
@@ -74,7 +74,7 @@ class Core extends Extension
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function doConfigClassProcess()
     {
@@ -112,7 +112,7 @@ class Core extends Extension
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function doClassProcess()
     {
