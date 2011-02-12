@@ -123,9 +123,9 @@ class UnitOfWorkTest extends TestCase
             $this->assertFalse($category->isModified());
         }
         foreach ($categoriesForRemove as $category) {
-            $this->assertNull($category->getCollection()->findOne(array('_id' => $category->getId())));
+            $this->assertNull(Category::collection()->findOne(array('_id' => $category->getId())));
         }
-        $this->assertNull($authorForRemove->getCollection()->findOne(array('_id' => $authorForRemove->getId())));
+        $this->assertNull(Author::collection()->findOne(array('_id' => $authorForRemove->getId())));
     }
 
     public function testCommitOnlyReferencedDocuments()
