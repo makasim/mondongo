@@ -29,62 +29,41 @@ use Model\Article;
 
 class TestCase extends \PHPUnit_Framework_TestCase
 {
+    static protected $sConnection;
+    static protected $sMondongo;
+
     protected $server = 'mongodb://localhost';
-
     protected $dbName = 'mondongo_tests';
-
+    protected $connection;
+    protected $mondongo;
+    protected $unitOfWork;
     protected $mongo;
-
     protected $db;
 
-    protected $connection;
-
-    protected $mondongo;
-
-    protected $unitOfWork;
-
-    public function setUp()
+    protected function setUp()
     {
         Container::clear();
 
-        TypeContainer::resetTypes();
-
-        $this->mongo = new \Mongo($this->server);
-
-        $this->db = $this->mongo->selectDB($this->dbName);
-
-        foreach (array(
-            'author',
-            'author_telephone',
-            'category',
-            'article',
-            'news',
-            'summary',
-            'user',
-            'model_message',
-            'image.files',
-            'image.chunks',
-        ) as $collectionName) {
-            $collection = $this->db->selectCollection($collectionName);
-
-            // documents
-            if ($collection->find()->count()) {
-                $collection->drop();
-            }
-
-            // indexes
-            if ($collection->getIndexInfo()) {
-                $collection->deleteIndexes();
-            }
+        if (!static::$sConnection) {
+            static::$sConnection = new Connection($this->server, $this->dbName);
         }
+        $this->connection = static::$sConnection;
 
-        $this->connection = new Connection('localhost', 'mondongo_tests');
-
-        $this->mondongo = new Mondongo(function($log) {});
-        $this->mondongo->setConnection('default', $this->connection);
-        $this->mondongo->setDefaultConnectionName('default');
+        if (!static::$sMondongo) {
+            static::$sMondongo = new Mondongo(function($log) {});
+            static::$sMondongo->setConnection('default', $this->connection);
+            static::$sMondongo->setDefaultConnectionName('default');
+        }
+        $this->mondongo = static::$sMondongo;
 
         $this->unitOfWork = $this->mondongo->getUnitOfWork();
+
+        $this->mongo = $this->connection->getMongo();
+        $this->db = $this->connection->getMongoDB();
+
+        foreach ($this->db->listCollections() as $collection) {
+            $collection->drop();
+        }
 
         Container::set('default', $this->mondongo);
         Container::setDefaultName('default');

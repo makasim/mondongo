@@ -159,6 +159,8 @@ class UnitOfWorkTest extends TestCase
 
         $this->unitOfWork->persist($author);
         $this->assertTrue($this->unitOfWork->hasPendingForPersist());
+
+        $this->unitOfWork->clear();
     }
 
     public function testHasPendingForRemove()
@@ -175,6 +177,8 @@ class UnitOfWorkTest extends TestCase
 
         $this->unitOfWork->remove($author);
         $this->assertTrue($this->unitOfWork->hasPendingForRemove());
+
+        $this->unitOfWork->clear();
     }
 
     public function testHasPending()
