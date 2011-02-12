@@ -36,9 +36,9 @@ abstract class Document extends EmbeddedDocument
      *
      * @return \MongoCollection The collection.
      */
-    public function getCollection()
+    static public function collection()
     {
-        return $this->getRepository()->getCollection();
+        return static::repository()->getCollection();
     }
 
     /**
@@ -90,7 +90,7 @@ abstract class Document extends EmbeddedDocument
             }
         }
 
-        $this->setDocumentData($this->getRepository()->getCollection()->findOne(array('_id' => $this->getId())));
+        $this->setDocumentData(static::collection()->findOne(array('_id' => $this->getId())));
     }
 
     /**
@@ -100,7 +100,7 @@ abstract class Document extends EmbeddedDocument
      */
     public function save()
     {
-        $this->getRepository()->save($this);
+        static::repository()->save($this);
     }
 
     /**
@@ -110,7 +110,7 @@ abstract class Document extends EmbeddedDocument
      */
     public function delete()
     {
-        $this->getRepository()->delete($this);
+        static::repository()->delete($this);
     }
 
     /**

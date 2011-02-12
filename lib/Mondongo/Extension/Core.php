@@ -130,8 +130,8 @@ class Core extends Extension
 
         // document
         if (!$this->configClass['is_embedded']) {
-            $this->processDocumentGetMondongoMethod();
-            $this->processDocumentGetRepositoryMethod();
+            $this->processDocumentMondongoMethod();
+            $this->processDocumentRepositoryMethod();
         }
 
         $this->processDocumentDataProperty();
@@ -469,19 +469,20 @@ EOF
     }
 
     /*
-     * Document "getMondongo" method.
+     * Document "mondongo" method.
      */
-    public function processDocumentGetMondongoMethod()
+    public function processDocumentMondongoMethod()
     {
-        $method = new Method('public', 'getMondongo', '', <<<EOF
+        $method = new Method('public', 'mondongo', '', <<<EOF
         return \Mondongo\Container::get();
 EOF
         );
+        $method->setIsStatic(true);
         $method->setDocComment(<<<EOF
     /**
-     * Returns the Mondongo of the document.
+     * Returns the mondongo of the document.
      *
-     * @return Mondongo\Mondongo The Mondongo of the document.
+     * @return Mondongo\Mondongo The mondongo of the document.
      */
 EOF
         );
@@ -490,14 +491,15 @@ EOF
     }
 
     /*
-     * Document "getRepository" method.
+     * Document "repository" method.
      */
-    public function processDocumentGetRepositoryMethod()
+    public function processDocumentRepositoryMethod()
     {
-        $method = new Method('public', 'getRepository', '', <<<EOF
-        return \$this->getMondongo()->getRepository('{$this->configClass['final_class']}');
+        $method = new Method('public', 'repository', '', <<<EOF
+        return static::mondongo()->getRepository('{$this->configClass['final_class']}');
 EOF
         );
+        $method->setIsStatic(true);
         $method->setDocComment(<<<EOF
     /**
      * Returns the repository of the document.

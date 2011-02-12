@@ -37,11 +37,9 @@ class Document extends DocumentBase
 
 class DocumentTest extends TestCase
 {
-    public function testGetCollection()
+    public function testCollection()
     {
-        $article = new Article();
-
-        $this->assertSame($article->getRepository()->getCollection(), $article->getCollection());
+        $this->assertSame(Article::repository()->getCollection(), Article::collection());
     }
 
     public function testId()
@@ -93,7 +91,7 @@ class DocumentTest extends TestCase
         $article->setContent('bar');
         $article->save();
 
-        $article->getCollection()->update(array('_id' => $article->getId()), array('$unset' => array('content' => 1)));
+        Article::collection()->update(array('_id' => $article->getId()), array('$unset' => array('content' => 1)));
 
         $article->refresh();
         $this->assertNull($article->getContent());
@@ -114,7 +112,7 @@ class DocumentTest extends TestCase
         $article->setAuthor($author1);
         $article->save();
 
-        $article->getCollection()->update(array('_id' => $article->getId()), array('author_id' => $author2->getId()));
+        Article::collection()->update(array('_id' => $article->getId()), array('author_id' => $author2->getId()));
 
         $article->refresh();
         $this->assertEquals($author2->getId(), $article->getAuthorId());
@@ -142,7 +140,7 @@ class DocumentTest extends TestCase
         $article->getSource()->setName('My Name');
         $article->save();
 
-        $article->getCollection()->update(array('_id' => $article->getId()), array('$unset' => array('source' => 1)));
+        Article::collection()->update(array('_id' => $article->getId()), array('$unset' => array('source' => 1)));
 
         $article->refresh();
         $this->assertEquals(new Source(), $article->getSource());
@@ -163,7 +161,7 @@ class DocumentTest extends TestCase
         $article = new Article();
         $article->setTitle('$document->save()');
         $article->save();
-        $this->assertEquals($article, $article->getRepository()->findOneById($article->getId()));
+        $this->assertEquals($article, Article::repository()->findOneById($article->getId()));
     }
 
     public function testDelete()
@@ -172,7 +170,7 @@ class DocumentTest extends TestCase
         $article->setTitle('$document->delete()');
         $article->save();
         $article->delete();
-        $this->assertNull($article->getRepository()->findOneById($article->getId()));
+        $this->assertNull(Article::repository()->findOneById($article->getId()));
     }
 
     public function testQueryForSaveInsert()

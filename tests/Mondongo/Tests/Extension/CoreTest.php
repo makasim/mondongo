@@ -50,31 +50,25 @@ class CoreTest extends TestCase
         $this->assertFalse($r->isSubclassOf('Mondongo\Document\Document'));
     }
 
-    public function testDocumentBaseGetMondongoMethodNamespaced()
+    public function testDocumentBaseMondongoMethodNamespaced()
     {
-        $article = new Article();
-        $this->assertSame($this->mondongo, $article->getMondongo());
+        $this->assertSame($this->mondongo, Article::mondongo());
     }
 
-    public function testDocumentBaseGetMondongoMethodNotNamespaced()
+    public function testDocumentBaseMondongoMethodNotNamespaced()
     {
-        $article = new \Article();
-        $this->assertSame($this->mondongo, $article->getMondongo());
+        $this->assertSame($this->mondongo, \Article::mondongo());
     }
 
-    public function testDocumentBaseGetRepositoryMethodNamespaced()
+    public function testDocumentBaseRepositoryMethodNamespaced()
     {
-        $article = new Article();
-        $this->assertSame($this->mondongo->getRepository('Model\Article'), $article->getRepository());
-
-        $user = new User();
-        $this->assertSame($this->mondongo->getRepository('Model\User'), $user->getRepository());
+        $this->assertSame($this->mondongo->getRepository('Model\Article'), Article::repository());
+        $this->assertSame($this->mondongo->getRepository('Model\User'), User::repository());
     }
 
-    public function testDocumentBaseGetRepositoryMethodNotNamespaced()
+    public function testDocumentBaseRepositoryMethodNotNamespaced()
     {
-        $article = new \Article();
-        $this->assertSame($this->mondongo->getRepository('Article'), $article->getRepository());
+        $this->assertSame($this->mondongo->getRepository('Article'), \Article::repository());
     }
 
     public function testEmbedNotRepository()
