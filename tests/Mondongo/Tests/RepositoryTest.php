@@ -79,6 +79,7 @@ class RepositoryTest extends TestCase
             'local'  => $local  = new Connection('localhost', 'mondongo_tests_local'),
             'global' => $global = new Connection('localhost', 'mondongo_tests_global'),
         ));
+        $mondongo->setDefaultConnectionName('local');
 
         $this->assertSame($local, $mondongo->getRepository('Model\Article')->getConnection());
         $this->assertSame($global, $mondongo->getRepository('Model\ConnectionGlobal')->getConnection());
@@ -88,6 +89,7 @@ class RepositoryTest extends TestCase
     {
         $mondongo = new Mondongo();
         $mondongo->setConnection('default', $this->connection);
+        $mondongo->setDefaultConnectionName('default');
 
         $collection = $mondongo->getRepository('Model\Article')->getCollection();
 
@@ -99,6 +101,8 @@ class RepositoryTest extends TestCase
     {
         $mondongo = new Mondongo($loggerCallable = function() {});
         $mondongo->setConnection('default', $this->connection);
+        $mondongo->setDefaultConnectionName('default');
+
         $collection = $mondongo->getRepository('Model\Article')->getCollection();
 
         $this->assertSame('Mondongo\Logger\LoggableMongoCollection', get_class($collection));
@@ -109,6 +113,8 @@ class RepositoryTest extends TestCase
     {
         $mondongo = new Mondongo();
         $mondongo->setConnection('default', $this->connection);
+        $mondongo->setDefaultConnectionName('default');
+
         $collection = $mondongo->getRepository('Model\Image')->getCollection();
 
         $this->assertSame('MongoGridFS', get_class($collection));
@@ -119,6 +125,8 @@ class RepositoryTest extends TestCase
     {
         $mondongo = new Mondongo($loggerCallable = function() {});
         $mondongo->setConnection('default', $this->connection);
+        $mondongo->setDefaultConnectionName('default');
+
         $collection = $mondongo->getRepository('Model\Image')->getCollection();
 
         $this->assertSame('Mondongo\Logger\LoggableMongoGridFS', get_class($collection));
@@ -141,6 +149,8 @@ class RepositoryTest extends TestCase
 
         $mondongo = new Mondongo();
         $mondongo->setConnection('default', $this->connection);
+        $mondongo->setDefaultConnectionName('default');
+
         $repository = $mondongo->getRepository('Model\Image');
 
         $image = new Image();
