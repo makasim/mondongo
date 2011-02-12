@@ -89,6 +89,7 @@ class Core extends Extension
         $this->processInitFinalClass();
 
         if (!$this->configClass['is_embedded']) {
+            $this->processInitMondongo();
             $this->processInitConnectionName();
             $this->processInitCollectionName();
             $this->processInitIndexes();
@@ -268,6 +269,16 @@ EOF
     {
         if (!isset($this->configClass['final_class'])) {
             $this->configClass['final_class'] = $this->class;
+        }
+    }
+
+    /*
+     * Mondongo.
+     */
+    protected function processInitMondongo()
+    {
+        if (!isset($this->configClass['mondongo'])) {
+            $this->configClass['mondongo'] = null;
         }
     }
 
@@ -473,8 +484,13 @@ EOF
      */
     public function processDocumentMondongoMethod()
     {
+        $mondongo = '';
+        if ($this->configClass['mondongo']) {
+            $mondongo = "'".$this->configClass['mondongo']."'";
+        }
+
         $method = new Method('public', 'mondongo', '', <<<EOF
-        return \Mondongo\Container::get();
+        return \Mondongo\Container::get($mondongo);
 EOF
         );
         $method->setIsStatic(true);

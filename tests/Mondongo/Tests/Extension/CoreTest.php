@@ -22,6 +22,7 @@
 namespace Mondongo\Tests\Extension;
 
 use Mondongo\Tests\TestCase;
+use Mondongo\Container as MondongoContainer;
 use Mondongo\Extension\Core;
 use Mondongo\Group;
 use Mondongo\Mondator\Container;
@@ -77,16 +78,24 @@ class CoreTest extends TestCase
         $this->assertFalse(class_exists('Model\Repository\Base\EmbedNot'));
     }
 
-    public function testEmbedNotDocumentGetMondongoMethod()
+    public function testEmbedNotDocumentMondongoMethod()
     {
         $embedNot = new EmbedNot();
         $this->assertFalse(method_exists($embedNot, 'getMondongo'));
     }
 
-    public function testEmbedNotDocumentGetRepositoryMethod()
+    public function testEmbedNotDocumentRepositoryMethod()
     {
         $embedNot = new EmbedNot();
         $this->assertFalse(method_exists($embedNot, 'getRepository'));
+    }
+
+    public function testMondongoCustom()
+    {
+        $foobar = new Mondongo();
+        MondongoContainer::set('foobar', $foobar);
+
+        $this->assertSame($foobar, \Model\CustomMondongo::mondongo());
     }
 
     public function testDocumentDataProperty()

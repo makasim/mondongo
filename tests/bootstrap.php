@@ -178,6 +178,12 @@ $configClasses = array(
             'field2' => 'string',
         ),
     ),
+    'Model\CustomMondongo' => array(
+        'mondongo' => 'foobar',
+        'fields' => array(
+            'field' => 'string',
+        ),
+    ),
 );
 
 $mondator = new Mondator();
