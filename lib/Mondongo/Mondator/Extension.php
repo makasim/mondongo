@@ -34,23 +34,20 @@ abstract class Extension extends ClassExtension
     /**
      * Pre global process of the extension.
      *
-     * @param Mondongo\Mondator\Container $container     The global container.
      * @param \ArrayObject                $configClasses The config classes.
+     * @param Mondongo\Mondator\Container $container     The global container.
      *
      * @return void
      */
-    public function preGlobalProcess(Container $container, \ArrayObject $configClasses)
+    public function preGlobalProcess(\ArrayObject $configClasses, Container $container)
     {
-        $this->container     = $container;
         $this->configClasses = $configClasses;
-
-        $this->definitions = $container->getDefinitions();
-        $this->outputs     = $container->getOutputs();
+        $this->definitions   = $container;
 
         $this->doPreGlobalProcess();
 
-        $this->container     = null;
         $this->configClasses = null;
+        $this->definitions   = null;
     }
 
     /**
@@ -63,23 +60,20 @@ abstract class Extension extends ClassExtension
     /**
      * Post global process of the extension.
      *
-     * @param Mondongo\Mondator\Container $container     The global container.
      * @param \ArrayObject                $configClasses The config classes.
+     * @param Mondongo\Mondator\Container $container     The global container.
      *
      * @return void
      */
-    public function postGlobalProcess(Container $container, \ArrayObject $configClasses)
+    public function postGlobalProcess(\ArrayObject $configClasses, Container $container)
     {
-        $this->container     = $container;
         $this->configClasses = $configClasses;
-
-        $this->definitions = $container->getDefinitions();
-        $this->outputs     = $container->getOutputs();
+        $this->definitions   = $container;
 
         $this->doPostGlobalProcess();
 
-        $this->container     = null;
         $this->configClasses = null;
+        $this->definitions   = null;
     }
 
     /**

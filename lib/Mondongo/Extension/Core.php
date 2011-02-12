@@ -21,12 +21,11 @@
 
 namespace Mondongo\Extension;
 
-use Mondongo\Mondator\Definition\Container;
-use Mondongo\Mondator\Definition\Definition;
+use Mondongo\Mondator\Extension;
+use Mondongo\Mondator\Definition;
 use Mondongo\Mondator\Definition\Method;
 use Mondongo\Mondator\Definition\Property;
-use Mondongo\Mondator\Extension;
-use Mondongo\Mondator\Output\Output;
+use Mondongo\Mondator\Output;
 use Mondongo\Type\Container as TypeContainer;
 use Mondongo\Inflector;
 
@@ -182,7 +181,16 @@ class Core extends Extension
          */
 
         // document
-        $this->definitions['document'] = $definition = new Definition($classes['document']);
+        $dir = $this->getOption('default_output');
+        if (isset($this->configClass['output'])) {
+            $dir = $this->configClass['output'];
+        }
+        if (!$dir) {
+            throw new \RuntimeException(sprintf('The document of the class "%s" does not have output.', $this->class));
+        }
+        $output = new Output($dir);
+
+        $this->definitions['document'] = $definition = new Definition($classes['document'], $output);
         $definition->setParentClass('\\'.$classes['document_base']);
         $definition->setDocComment(<<<EOF
 /**
@@ -192,7 +200,9 @@ EOF
         );
 
         // document_base
-        $this->definitions['document_base'] = $definition = new Definition($classes['document_base']);
+        $output = new Output($this->definitions['document']->getOutput()->getDir().'/Base', true);
+
+        $this->definitions['document_base'] = $definition = new Definition($classes['document_base'], $output);
         $definition->setIsAbstract(true);
         if ($this->configClass['is_embedded']) {
             $definition->setParentClass('\Mondongo\Document\EmbeddedDocument');
@@ -208,7 +218,16 @@ EOF
 
         if (!$this->configClass['is_embedded']) {
             // repository
-            $this->definitions['repository'] = $definition = new Definition($classes['repository']);
+            $dir = $this->getOption('default_output');
+            if (isset($this->configClass['output'])) {
+                $dir = $this->configClass['output'];
+            }
+            if (!$dir) {
+                throw new \RuntimeException(sprintf('The repository of the class "%s" does not have output.', $this->class));
+            }
+            $output = new Output($dir);
+
+            $this->definitions['repository'] = $definition = new Definition($classes['repository'], $output);
             $definition->setParentClass('\\'.$classes['repository_base']);
             $definition->setDocComment(<<<EOF
 /**
@@ -218,7 +237,9 @@ EOF
             );
 
             // repository_base
-            $this->definitions['repository_base'] = $definition = new Definition($classes['repository_base']);
+            $output = new Output($this->definitions['repository']->getOutput()->getDir().'/Base', true);
+
+            $this->definitions['repository_base'] = $definition = new Definition($classes['repository_base'], $output);
             $definition->setIsAbstract(true);
             $definition->setParentClass('\\Mondongo\\Repository');
             $definition->setDocComment(<<<EOF
@@ -228,38 +249,6 @@ EOF
 EOF
             );
         }
-
-        /*
-         * Outputs
-         */
-
-        // document
-        $dir = $this->getOption('default_output');
-        if (isset($this->configClass['output'])) {
-            $dir = $this->configClass['output'];
-        }
-        if (!$dir) {
-            throw new \RuntimeException(sprintf('The document of the class "%s" does not have output.', $this->class));
-        }
-
-        $this->outputs['document'] = new Output($dir);
-
-        // document_base
-        $this->outputs['document_base'] = new Output($this->outputs['document']->getDir().'/Base', true);
-
-        // repository
-        $dir = $this->getOption('default_output');
-        if (isset($this->configClass['output'])) {
-            $dir = $this->configClass['output'];
-        }
-        if (!$dir) {
-            throw new \RuntimeException(sprintf('The repository of the class "%s" does not have output.', $this->class));
-        }
-
-        $this->outputs['repository'] = new Output($dir);
-
-        // repository_base
-        $this->outputs['repository_base'] = new Output($this->outputs['repository']->getDir().'/Base', true);
     }
 
     /*

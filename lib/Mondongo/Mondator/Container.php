@@ -21,53 +21,78 @@
 
 namespace Mondongo\Mondator;
 
-use Mondongo\Mondator\Definition\Container as DefinitionContainer;
-use Mondongo\Mondator\Output\Container as OutputContainer;
-
 /**
- * The Mondator Container.
- *
- * The container store definitions and outputs.
+ * Container of definitions.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class Container
+class Container implements \ArrayAccess, \Countable, \IteratorAggregate
 {
-    protected $definitions;
-
-    protected $outputs;
+    protected $definitions = array();
 
     /**
-     * Constructor.
+     * Returns if a definition name exists.
      *
-     * @param Mondongo\Mondator\Definition\Container $definitions A definition container (optional, null by default).
-     * @param Mondongo\Mondator\Output\Container     $outputs     A output container (optional, null by default).
+     * @param string $name The definition name.
+     *
+     * @return bool Returns if the definition name exists.
+     */
+    public function hasDefinition($name)
+    {
+        return isset($this->definitions[$name]);
+    }
+
+    /**
+     * Set a definition.
+     *
+     * @param string                       $name       The definition name.
+     * @param Mondongo\Mondator\Definition $definition The definition.
      *
      * @return void
      */
-    public function __construct(DefinitionContainer $definitions = null, OutputContainer $outputs = null)
+    public function setDefinition($name, Definition $definition)
     {
-        $this->definitions = $definitions ? $definitions : new DefinitionContainer();
-        $this->outputs     = $outputs     ? $outputs     : new OutputContainer();
+        $this->definitions[$name] = $definition;
     }
 
     /**
      * Set the definitions.
      *
-     * @param Mondongo\Mondator\Definition\Container $definitions A definition container.
+     * @param array $definitions An array of definitions.
      *
      * @return void
      */
-    public function setDefinitions(DefinitionContainer $definitions)
+    public function setDefinitions(array $definitions)
     {
-        $this->definitions = $definitions;
+        $this->definitions = array();
+        foreach ($definitions as $name => $definition) {
+            $this->setDefinition($name, $definition);
+        }
+    }
+
+    /**
+     * Returns a definition by name.
+     *
+     * @param string $name The definition name.
+     *
+     * @return Mondongo\Mondator\Definition The definition.
+     *
+     * @throws \InvalidArgumentException If the definition does not exists.
+     */
+    public function getDefinition($name)
+    {
+        if (!$this->hasDefinition($name)) {
+            throw new \InvalidArgumentException(sprintf('The definition "%s" does not exists.', $name));
+        }
+
+        return $this->definitions[$name];
     }
 
     /**
      * Returns the definitions.
      *
-     * @return \ArrayObject The definitions.
+     * @return arary The definitions.
      */
     public function getDefinitions()
     {
@@ -75,24 +100,73 @@ class Container
     }
 
     /**
-     * Set the outputs.
+     * Remove a definition
      *
-     * @param Mondongo\Mondator\Output\Container $outputs A output container.
+     * @param string $name The definition name
      *
      * @return void
+     *
+     * @throws \InvalidArgumentException If the definition does not exists.
      */
-    public function setOutputs(OutputContainer $outputs)
+    public function removeDefinition($name)
     {
-        $this->outputs = $outputs;
+        if (!$this->hasDefinition($name)) {
+            throw new \InvalidArgumentException(sprintf('The definition "%s" does not exists.', $name));
+        }
+
+        unset($this->definitions[$name]);
     }
 
     /**
-     * Returns the outputs.
+     * Clear the definitions.
      *
-     * @return \ArrayObject The outptus.
+     * @return void
      */
-    public function getOutputs()
+    public function clearDefinitions()
     {
-        return $this->outputs;
+        $this->definitions = array();
+    }
+
+    /*
+     * \ArrayAccess interface.
+     */
+    public function offsetExists($name)
+    {
+        return $this->hasDefinition($name);
+    }
+
+    public function offsetSet($name, $definition)
+    {
+        $this->setDefinition($name, $definition);
+    }
+
+    public function offsetGet($name)
+    {
+        return $this->getDefinition($name);
+    }
+
+    public function offsetUnset($name)
+    {
+        $this->removeDefinition($name);
+    }
+
+    /**
+     * Returns the number of definitions (implements the \Countable interface).
+     *
+     * @return integer The number of definitions.
+     */
+    public function count()
+    {
+        return count($this->definitions);
+    }
+
+    /**
+     * Returns an \ArrayIterator with the definitions (implements \IteratorAggregate interface).
+     *
+     * @return \ArrayIterator An \ArrayIterator with the definitions.
+     */
+    public function getIterator()
+    {
+        return new \ArrayIterator($this->definitions);
     }
 }

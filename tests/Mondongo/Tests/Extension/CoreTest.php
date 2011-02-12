@@ -1222,7 +1222,7 @@ class CoreTest extends TestCase
     public function testDoesNotHaveOutput()
     {
         $extension = new Core(array());
-        $extension->classProcess(new Container(), 'Article', new \ArrayObject(), new \ArrayObject());
+        $extension->classProcess('Article', new \ArrayObject(), new Container());
     }
 
     /**
@@ -1231,9 +1231,9 @@ class CoreTest extends TestCase
     public function testIsFileNotBoolean()
     {
         $extension = new Core();
-        $extension->classProcess(new Container(), 'Article', new \ArrayObject(array(
+        $extension->classProcess('Article', new \ArrayObject(array(
             'is_file' => 1,
-        )), new \ArrayObject());
+        )), new Container());
     }
 
     /**
@@ -1243,11 +1243,11 @@ class CoreTest extends TestCase
     public function testFieldNotStringNorArray($type)
     {
         $extension = new Core();
-        $extension->classProcess(new Container(), 'Article', new \ArrayObject(array(
+        $extension->classProcess('Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => $type,
             ),
-        )), new \ArrayObject());
+        )), new Container());
     }
 
     public function providerFieldNotStringNorArray()
@@ -1265,11 +1265,11 @@ class CoreTest extends TestCase
     public function testFieldDoesNotHaveType()
     {
         $extension = new Core();
-        $extension->classProcess(new Container(), 'Article', new \ArrayObject(array(
+        $extension->classProcess('Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => array('default' => 'default'),
             ),
-        )), new \ArrayObject());
+        )), new Container());
     }
 
     /**
@@ -1278,10 +1278,10 @@ class CoreTest extends TestCase
     public function testFieldTypeDoesNotExists()
     {
         $extension = new Core();
-        $extension->classProcess(new Container(), 'Article', new \ArrayObject(array(
+        $extension->classProcess('Article', new \ArrayObject(array(
             'fields' => array(
                 'field' => array('type' => 'no'),
             ),
-        )), new \ArrayObject());
+        )), new Container());
     }
 }

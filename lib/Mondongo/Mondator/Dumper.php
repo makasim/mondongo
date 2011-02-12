@@ -21,7 +21,7 @@
 
 namespace Mondongo\Mondator;
 
-use Mondongo\Mondator\Definition\Definition;
+use Mondongo\Mondator\Definition\Definition as BaseDefinition;
 
 /**
  * The Mondator Dumper.
@@ -40,7 +40,7 @@ class Dumper
      *
      * @return void
      */
-    public function __construct(Definition $definition)
+    public function __construct(BaseDefinition $definition)
     {
         $this->setDefinition($definition);
     }
@@ -52,7 +52,7 @@ class Dumper
      *
      * @return void
      */
-    public function setDefinition(Definition $definition)
+    public function setDefinition(BaseDefinition $definition)
     {
         $this->definition = $definition;
     }

@@ -19,10 +19,10 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Mondator\Output;
+namespace Mondongo\Mondator;
 
 /**
- * Represents a output for a definition type.
+ * Represents a output for a definition.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
@@ -37,7 +37,7 @@ class Output
      * Constructor.
      *
      * @param string $dir      The dir.
-     * @param bool   $override The override. It indicate if override files (optional, false by).
+     * @param bool   $override The override. It indicate if override files (optional, false by default).
      *
      * @return void
      */

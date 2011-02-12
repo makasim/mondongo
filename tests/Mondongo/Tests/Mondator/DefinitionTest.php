@@ -19,34 +19,31 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\Mondator\Output;
+namespace Mondongo\Tests\Mondator;
 
-use Mondongo\Mondator\Output\Output;
+use Mondongo\Mondator\Definition;
+use Mondongo\Mondator\Output;
 
-class OutputTest extends \PHPUnit_Framework_TestCase
+class DefinitionTest extends \PHPUnit_Framework_TestCase
 {
     public function testConstructor()
     {
         $output = new Output('foo', true);
-        $this->assertEquals('foo', $output->getDir());
-        $this->assertTrue($output->getOverride());
+        $definition = new Definition('Model\User', $output);
+
+        $this->assertSame('Model\User', $definition->getClass());
+        $this->assertSame($output, $definition->getOutput());
     }
 
-    public function testDir()
+    public function testSetGetOutput()
     {
-        $output = new Output('foo');
-        $this->assertEquals('foo', $output->getDir());
-        $output->setDir('bar');
-        $this->assertEquals('bar', $output->getDir());
-    }
+        $output1 = new Output('foo');
+        $output2 = new Output('bar');
 
-    public function testOverride()
-    {
-        $output = new Output('foo');
-        $this->assertFalse($output->getOverride());
-        $output->setOverride(true);
-        $this->assertTrue($output->getOverride());
-        $output->setOverride(1);
-        $this->assertTrue($output->getOverride());
+        $definition = new Definition('User', $output1);
+
+        $this->assertSame($output1, $definition->getOutput());
+        $definition->setOutput($output2);
+        $this->assertSame($output2, $definition->getOutput());
     }
 }

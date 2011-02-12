@@ -172,20 +172,20 @@ class Mondator
 
         // pre global process
         foreach ($globalExtensions as $globalExtension) {
-            $globalExtension->preGlobalProcess($containers['_global'], $configClasses);
+            $globalExtension->preGlobalProcess($configClasses, $containers['_global']);
         }
 
         // class process
         foreach ($configClasses as $class => $configClass) {
             $containers[$class] = $container = new Container();
             foreach ($classesExtensions[$class] as $extension) {
-                $extension->classProcess($container, $class, $configClass);
+                $extension->classProcess($class, $configClass, $container);
             }
         }
 
         // post global process
         foreach ($globalExtensions as $globalExtension) {
-            $globalExtension->postGlobalProcess($containers['_global'], $configClasses);
+            $globalExtension->postGlobalProcess($configClasses, $containers['_global']);
         }
 
         return $containers;
@@ -249,7 +249,7 @@ class Mondator
         // directories
         foreach ($containers as $container) {
             foreach ($container->getDefinitions() as $name => $definition) {
-                $output = $container->getOutputs()->getOutput($name);
+                $output = $definition->getOutput();
                 $dir    = $output->getDir();
 
                 if (!file_exists($dir) && false === @mkdir($dir, 0777, true)) {
@@ -265,7 +265,7 @@ class Mondator
         // output
         foreach ($containers as $container) {
             foreach ($container->getDefinitions() as $name => $definition) {
-                $output = $container->getOutputs()->getOutput($name);
+                $output = $definition->getOutput($name);
                 $dir    = $output->getDir();
 
                 $file = $dir.DIRECTORY_SEPARATOR.$definition->getClassName().'.php';

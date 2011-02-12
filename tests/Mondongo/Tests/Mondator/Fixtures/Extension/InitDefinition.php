@@ -21,8 +21,9 @@
 
 namespace Mondongo\Tests\Mondator\Fixtures\Extension;
 
-use Mondongo\Mondator\Definition\Definition;
 use Mondongo\Mondator\Extension;
+use Mondongo\Mondator\Definition;
+use Mondongo\Mondator\Output;
 
 class InitDefinition extends Extension
 {
@@ -36,6 +37,6 @@ class InitDefinition extends Extension
 
     protected function doClassProcess()
     {
-        $this->definitions[$this->getOption('definition_name')] = new Definition($this->getOption('class_name'));
+        $this->definitions[$this->getOption('definition_name')] = new Definition($this->getOption('class_name'), new Output(sys_get_temp_dir()));
     }
 }

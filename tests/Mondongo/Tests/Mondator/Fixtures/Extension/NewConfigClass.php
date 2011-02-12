@@ -21,7 +21,6 @@
 
 namespace Mondongo\Tests\Mondator\Fixtures\Extension;
 
-use Mondongo\Mondator\Definition\Definition;
 use Mondongo\Mondator\ClassExtension;
 
 class NewConfigClass extends ClassExtension

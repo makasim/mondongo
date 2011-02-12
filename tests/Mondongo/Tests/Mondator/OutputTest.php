@@ -19,16 +19,34 @@
  * along with Mondongo. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Mondongo\Tests\Mondator\Fixtures\Extension;
+namespace Mondongo\Tests\Mondator;
 
-use Mondongo\Mondator\Extension;
-use Mondongo\Mondator\Definition;
 use Mondongo\Mondator\Output;
 
-class Name extends Extension
+class OutputTest extends \PHPUnit_Framework_TestCase
 {
-    protected function doClassProcess()
+    public function testConstructor()
     {
-        $this->definitions['name'] = new Definition($this->configClass['name'], new Output(sys_get_temp_dir()));
+        $output = new Output('foo', true);
+        $this->assertEquals('foo', $output->getDir());
+        $this->assertTrue($output->getOverride());
+    }
+
+    public function testDir()
+    {
+        $output = new Output('foo');
+        $this->assertEquals('foo', $output->getDir());
+        $output->setDir('bar');
+        $this->assertEquals('bar', $output->getDir());
+    }
+
+    public function testOverride()
+    {
+        $output = new Output('foo');
+        $this->assertFalse($output->getOverride());
+        $output->setOverride(true);
+        $this->assertTrue($output->getOverride());
+        $output->setOverride(1);
+        $this->assertTrue($output->getOverride());
     }
 }

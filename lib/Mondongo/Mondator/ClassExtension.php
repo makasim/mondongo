@@ -32,16 +32,13 @@ abstract class ClassExtension
     protected $options         = array();
     protected $requiredOptions = array();
 
-    protected $container;
+    protected $definitions;
 
     protected $class;
     protected $configClass;
 
     protected $newClassExtensions;
     protected $newConfigClasses;
-
-    protected $definitions;
-    protected $outputs;
 
     /**
      * Constructor.
@@ -280,29 +277,23 @@ abstract class ClassExtension
     /**
      * Process the class.
      *
-     * @param Mondongo\Mondator\Container $container        The container.
-     * @param string                      $class            The class.
-     * @param \ArrayObject                $configClass      The config class.
+     * @param string                      $class       The class.
+     * @param \ArrayObject                $configClass The config class.
+     * @param Mondongo\Mondator\Container $container   The container.
      *
      * @return void
      */
-    public function classProcess(Container $container, $class, \ArrayObject $configClass)
+    public function classProcess($class, \ArrayObject $configClass, Container $container)
     {
-        $this->container   = $container;
         $this->class       = $class;
         $this->configClass = $configClass;
-
-        $this->definitions = $container->getDefinitions();
-        $this->outputs     = $container->getOutputs();
+        $this->definitions = $container;
 
         $this->doClassProcess();
 
-        $this->container   = null;
         $this->class       = null;
         $this->configClass = null;
-
         $this->definitions = null;
-        $this->outputs     = null;
     }
 
     /**

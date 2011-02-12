@@ -113,13 +113,13 @@ class MondatorTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Mondongo\Mondator\Container', $containers['Article']);
         $this->assertInstanceOf('Mondongo\Mondator\Container', $containers['Category']);
 
-        $definitions = $containers['Article']->getDefinitions();
+        $definitions = $containers['Article'];
         $this->assertSame(2, count($definitions->getDefinitions()));
         $this->assertTrue(isset($definitions['name']));
         $this->assertTrue(isset($definitions['myclass']));
         $this->assertSame('foo', $definitions['name']->getClassName());
 
-        $definitions = $containers['Category']->getDefinitions();
+        $definitions = $containers['Category'];
         $this->assertSame(2, count($definitions->getDefinitions()));
         $this->assertTrue(isset($definitions['name']));
         $this->assertTrue(isset($definitions['myclass']));
