@@ -22,83 +22,187 @@
 namespace Mondongo;
 
 /**
- * Container of the Mondongo.
+ * Container of mondongos.
  *
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
 class Container
 {
-    static protected $mondongo;
-
-    static protected $loader;
+    static protected $mondongos = array();
+    static protected $defaultName;
+    static protected $loaders = array();
 
     /**
-     * Set the Mondongo.
+     * Set a mondongo by name.
      *
-     * @param \Mondongo\Mondongo $mondongo The Mondongo.
+     * @param string             $string   The name.
+     * @param \Mondongo\Mondongo $mondongo The mondongo.
      */
-    static public function set(Mondongo $mondongo)
+    static public function set($name, Mondongo $mondongo)
     {
-        self::$mondongo = $mondongo;
+        static::$mondongos[$name] = $mondongo;
     }
 
     /**
-     * Returns the Mondongo.
+     * Returns a mondongo by name.
      *
-     * @return \Mondongo\Mondongo The Mondongo.
+     * If the name is null the default name is used.
      *
-     * @throws \RuntimeException If there is loader and the loader does not return an instaoce of \Mondongo\Mondongo.
+     * @param string|null $name The name (opcional, null by default).
+     *
+     * @return \Mondongo\Mondongo A mondongo.
+     *
+     * @throws \RuntimeException If there is not name either default name.
+     * @throws \RuntimeException If there is loader and the loader does not return an instance of \Mondongo\Mondongo.
      * @throws \RuntimeException If there is not Mondongo.
      */
-    static public function get()
+    static public function get($name = null)
     {
-        if (null !== self::$loader) {
-            self::$mondongo = call_user_func(self::$loader);
-            if (!self::$mondongo instanceof Mondongo) {
-                throw new \RuntimeException('The mondongo is not an instance of \Mondongo\Mondongo.');
+        // not name
+        if (null === $name) {
+            // even not default name
+            if (null === static::$defaultName) {
+                throw new \RuntimeException('There is not name either default name.');
             }
+
+            $name = static::$defaultName;
         }
 
-        if (null === self::$mondongo) {
-            throw new \RuntimeException('There is not Mondongo.');
+        // not mondongo
+        if (!isset(static::$mondongos[$name])) {
+            // even not loader
+            if (!isset(static::$loaders[$name])) {
+                throw new \RuntimeException(sprintf('The mondongo "%s" does not exist.', $name));
+            }
+
+            // loader
+            $mondongo = call_user_func(static::$loaders[$name]);
+            if (!$mondongo instanceof Mondongo) {
+                throw new \RuntimeException(sprintf('The Mondongo "%s" loaded is not an instance of \Mondongo\Mondongo.', $name));
+            }
+            static::$mondongos[$name] = $mondongo;
         }
 
-        return self::$mondongo;
+        return static::$mondongos[$name];
     }
 
     /**
-     * Set the loader.
+     * Returns if a mondongo exists.
      *
-     * @param mixed $loader The loader.
-     *
-     * @throws \RuntimeException If there is Mondongo already.
+     * @param string $name The name.
      */
-    static public function setLoader($loader)
+    static public function has($name)
     {
-        if (null !== self::$mondongo) {
-            throw new \RuntimeException('There is Mondongo already.');
-        }
-
-        self::$loader = $loader;
+        return isset(static::$mondongos[$name]);
     }
 
     /**
-     * Returns the loader.
+     * Remove a mondongo.
+     *
+     * @param string $name The name.
+     *
+     * @throws \InvalidArgumentException If the mondongo does not exist.
+     */
+    static public function remove($name)
+    {
+        if (!isset(static::$mondongos[$name])) {
+            throw new \InvalidArgumentException(sprintf('The mondongo "%s" does not exist.', $name));
+        }
+
+        unset(static::$mondongos[$name]);
+    }
+
+    /**
+     * Set the default name.
+     *
+     * @param string|null $name The default name.
+     */
+    static public function setDefaultName($name)
+    {
+        static::$defaultName = $name;
+    }
+
+    /**
+     * Returns the default name.
+     *
+     * @return string|null The default name.
+     */
+    static public function getDefaultName()
+    {
+        return static::$defaultName;
+    }
+
+    /**
+     * Returns if there is default name.
+     */
+    static public function hasDefaultName()
+    {
+        return null !== static::$defaultName;
+    }
+
+    /**
+     * Set a loader by name.
+     *
+     * @param string $name   The name.
+     * @param mixed  $loader The loader.
+     */
+    static public function setLoader($name, $loader)
+    {
+        static::$loaders[$name] = $loader;
+    }
+
+    /**
+     * Returns a loader by name.
+     *
+     * @param string $name The name.
      *
      * @return mixed The loader.
+     *
+     * @throws \InvalidArgumentException If the loader does not exist.
      */
-    static public function getLoader()
+    static public function getLoader($name)
     {
-        return self::$loader;
+        if (!isset(static::$loaders[$name])) {
+            throw new \InvalidArgumentException(sprintf('The loader "%s" does not exist.', $name));
+        }
+
+        return static::$loaders[$name];
     }
 
     /**
-     * Clear the Mondongo and the loader.
+     * Returns if a loader exists.
+     *
+     * @param string $name The name.
+     */
+    static public function hasLoader($name)
+    {
+        return isset(static::$loaders[$name]);
+    }
+
+    /**
+     * Remove a loader.
+     *
+     * @param string $name The name.
+     *
+     * @throws \InvalidArgumentException If the loader does not exist
+     */
+    static public function removeLoader($name)
+    {
+        if (!isset(static::$loaders[$name])) {
+            throw new \InvalidArgumentException(sprintf('The loader "%s" does not exist.', $name));
+        }
+
+        unset(static::$loaders[$name]);
+    }
+
+    /**
+     * Clear the mondongos, default name and loaders.
      */
     static public function clear()
     {
-        self::$mondongo = null;
-        self::$loader = null;
+        static::$mondongos = array();
+        static::$defaultName = null;
+        static::$loaders = array();
     }
 }

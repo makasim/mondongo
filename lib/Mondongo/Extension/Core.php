@@ -1104,7 +1104,7 @@ EOF
             if ('one' == $relation['type']) {
                 $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::get('{$relation['class']}')
+            \$this->data['relations']['$name'] = \Mondongo\Container::get()
                 ->getRepository('{$relation['class']}')
                 ->findOne(array('{$relation['field']}' => \$this->getId()))
             ;
@@ -1125,7 +1125,7 @@ EOF;
             } else {
                 $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::get('{$relation['class']}')
+            \$this->data['relations']['$name'] = \Mondongo\Container::get()
                 ->getRepository('{$relation['class']}')
                 ->find(array('{$relation['field']}' => \$this->getId()))
             ;

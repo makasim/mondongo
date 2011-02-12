@@ -86,7 +86,8 @@ class TestCase extends \PHPUnit_Framework_TestCase
 
         $this->unitOfWork = $this->mondongo->getUnitOfWork();
 
-        Container::set($this->mondongo);
+        Container::set('default', $this->mondongo);
+        Container::setDefaultName('default');
     }
 
     protected function createArticles($nb)

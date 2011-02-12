@@ -26,6 +26,7 @@ use Mondongo\Extension\Core;
 use Mondongo\Group;
 use Mondongo\Mondator\Container;
 use Mondongo\Mondongo;
+use Mondongo\Mondator\Mondator;
 use Model\Article;
 use Model\Author;
 use Model\AuthorTelephone;
@@ -1221,8 +1222,10 @@ class CoreTest extends TestCase
      */
     public function testDoesNotHaveOutput()
     {
-        $extension = new Core(array());
-        $extension->classProcess('Article', new \ArrayObject(), new Container());
+        $mondator = new Mondator();
+        $mondator->setConfigClasses(array('Article' => array()));
+        $mondator->addExtension(new Core(array()));
+        $mondator->process();
     }
 
     /**
@@ -1230,10 +1233,10 @@ class CoreTest extends TestCase
      */
     public function testIsFileNotBoolean()
     {
-        $extension = new Core();
-        $extension->classProcess('Article', new \ArrayObject(array(
-            'is_file' => 1,
-        )), new Container());
+        $mondator = new Mondator();
+        $mondator->setConfigClasses(array('Article' => array('is_file' => 1)));
+        $mondator->addExtension(new Core(array()));
+        $mondator->process();
     }
 
     /**
@@ -1242,12 +1245,14 @@ class CoreTest extends TestCase
      */
     public function testFieldNotStringNorArray($type)
     {
-        $extension = new Core();
-        $extension->classProcess('Article', new \ArrayObject(array(
-            'fields' => array(
-                'field' => $type,
+        $mondator = new Mondator();
+        $mondator->setConfigClasses(array('Article' => array(
+            'files' => array(
+                'field' => $type
             ),
-        )), new Container());
+        )));
+        $mondator->addExtension(new Core(array()));
+        $mondator->process();
     }
 
     public function providerFieldNotStringNorArray()
@@ -1264,12 +1269,14 @@ class CoreTest extends TestCase
      */
     public function testFieldDoesNotHaveType()
     {
-        $extension = new Core();
-        $extension->classProcess('Article', new \ArrayObject(array(
-            'fields' => array(
+        $mondator = new Mondator();
+        $mondator->setConfigClasses(array('Article' => array(
+            'files' => array(
                 'field' => array('default' => 'default'),
             ),
-        )), new Container());
+        )));
+        $mondator->addExtension(new Core(array()));
+        $mondator->process();
     }
 
     /**
@@ -1277,11 +1284,13 @@ class CoreTest extends TestCase
      */
     public function testFieldTypeDoesNotExists()
     {
-        $extension = new Core();
-        $extension->classProcess('Article', new \ArrayObject(array(
-            'fields' => array(
+        $mondator = new Mondator();
+        $mondator->setConfigClasses(array('Article' => array(
+            'files' => array(
                 'field' => array('type' => 'no'),
             ),
-        )), new Container());
+        )));
+        $mondator->addExtension(new Core(array()));
+        $mondator->process();
     }
 }

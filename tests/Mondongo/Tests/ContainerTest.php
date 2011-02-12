@@ -26,66 +26,140 @@ use Mondongo\Mondongo;
 
 class ContainerTest extends \PHPUnit_Framework_TestCase
 {
-    protected $mondongo;
-
     public function setUp()
     {
         Container::clear();
     }
 
-    public function testSetGet()
+    public function testSetGetHasRemove()
     {
-        Container::set($mondongo = new Mondongo());
-        $this->assertSame($mondongo, Container::get());
+        Container::set('foo', $foo = new Mondongo());
+        Container::set('bar', $bar = new Mondongo());
+
+        $this->assertTrue(Container::has('foo'));
+        $this->assertTrue(Container::has('bar'));
+        $this->assertFalse(Container::has('foobar'));
+
+        $this->assertSame($foo, Container::get('foo'));
+        $this->assertSame($bar, Container::get('bar'));
+
+        Container::remove('foo');
+
+        $this->assertFalse(Container::has('foo'));
+        $this->assertTrue(Container::has('bar'));
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testGetThereIsNotMondongo()
+    public function testGetDefaultName()
     {
-        Container::get();
+        Container::set('foo', $foo = new Mondongo());
+        Container::set('bar', $bar = new Mondongo());
+
+        Container::setDefaultName('bar');
+
+        $this->assertSame($bar, Container::get());
     }
 
     public function testGetWithLoader()
     {
-        Container::setLoader(array($this, 'load'));
-        $this->mondongo = new Mondongo();
+        $foo = new Mondongo();
+        $bar = new Mondongo();
 
-        $this->assertSame($this->mondongo, Container::get());
+        Container::setLoader('foo', function() use ($foo) { return $foo; });
+        Container::setLoader('bar', function() use ($bar) { return $bar; });
+
+        $this->assertSame($foo, Container::get('foo'));
+        $this->assertSame($bar, Container::get('bar'));
     }
 
     /**
      * @expectedException \RuntimeException
      */
-    public function testGetWithLoaderDoesNotReturnAMondongoInstance()
+    public function testGetNotExist()
     {
-        Container::setLoader(array($this, 'load'));
-        $this->mondongo = 'ups';
+        Container::set('foo', new Mondongo());
 
-        Container::get();
-    }
-
-    public function load()
-    {
-        return $this->mondongo;
-    }
-
-    public function testSetLoaderGetLoader()
-    {
-        Container::setLoader($loader = array($this, 'load'));
-
-        $this->assertSame($loader, Container::getLoader());
+        Container::get('bar');
     }
 
     /**
      * @expectedException \RuntimeException
      */
+    public function testGetWithLoaderNotReturnMondongoInstance()
+    {
+        Container::setLoader('foo', function() { return 'ups'; });
+
+        Container::get('foo');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveNotExist()
+    {
+        Container::set('foo', new Mondongo());
+
+        Container::remove('bar');
+    }
+
+    public function testDefaultName()
+    {
+        $this->assertFalse(Container::hasDefaultName());
+        $this->assertNull(Container::getDefaultName());
+
+        Container::setDefaultName('foo');
+
+        $this->assertTrue(Container::hasDefaultName());
+        $this->assertSame('foo', Container::getDefaultName());
+    }
+
+    public function testSetGetHasRemoveLoader()
+    {
+        Container::setLoader('foo', $foo = function() { });
+        Container::setLoader('bar', $bar = function() { });
+
+        $this->assertTrue(Container::hasLoader('foo'));
+        $this->assertTrue(Container::hasLoader('bar'));
+        $this->assertFalse(Container::hasLoader('foobar'));
+
+        $this->assertSame($foo, Container::getLoader('foo'));
+        $this->assertSame($bar, Container::getLoader('bar'));
+
+        Container::removeLoader('foo');
+
+        $this->assertFalse(Container::hasLoader('foo'));
+        $this->assertTrue(Container::hasLoader('bar'));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetLoaderNotExist()
+    {
+        Container::setLoader('foo', $foo = function() { });
+
+        Container::getLoader('bar');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testRemoveLoaderNotExist()
+    {
+        Container::setLoader('foo', $foo = function() { });
+
+        Container::removeLoader('bar');
+    }
+
     public function testClear()
     {
-        Container::set(new Mondongo());
+        Container::set('foo', new Mondongo());
+        Container::setDefaultName('foo');
+        Container::setLoader('foo', function() { });
+
         Container::clear();
 
-        Container::get();
+        $this->assertFalse(Container::has('foo'));
+        $this->assertFalse(Container::hasDefaultName());
+        $this->assertFalse(Container::hasLoader('foo'));
     }
 }
