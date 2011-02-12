@@ -76,13 +76,14 @@ class Core extends Extension
     /**
      * @inheritdoc
      */
-    protected function doClassProcess()
+    protected function doConfigClassProcess()
     {
         // is embedded
-        $this->configClass['is_embedded'] = isset($this->configClass['is_embedded']) ? (bool) $this->configClass['is_embedded'] : false;
-
-        // definitions and outputs
-        $this->processInitDefinitionsAndOutputs();
+        if (isset($this->configClass['is_embedded'])) {
+            $this->configClass['is_embedded'] = (bool) $this->configClass['is_embedded'];
+        } else {
+            $this->configClass['is_embedded'] = false;
+        }
 
         // init
         $this->processInitFinalClass();
@@ -108,7 +109,13 @@ class Core extends Extension
 
         // parse fields
         $this->processParseFields();
+    }
 
+    /**
+     * @inheritdoc
+     */
+    protected function doClassProcess()
+    {
         // check
         $this->checkFields();
         $this->checkReferences();
@@ -117,6 +124,9 @@ class Core extends Extension
             $this->checkRelations();
         }
         $this->checkDataNames();
+
+        // definitions
+        $this->processInitDefinitions();
 
         // document
         if (!$this->configClass['is_embedded']) {
@@ -156,9 +166,9 @@ class Core extends Extension
     }
 
     /*
-     * Init Definitions and Outputs.
+     * Init Definitions.
      */
-    protected function processInitDefinitionsAndOutputs()
+    protected function processInitDefinitions()
     {
         /*
          * Classes.
