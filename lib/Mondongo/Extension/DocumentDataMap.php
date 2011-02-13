@@ -44,14 +44,18 @@ class DocumentDataMap extends Extension
         $dataMap['fields'] = $this->configClass['fields'];
 
         // references
-        $dataMap['references'] = $this->configClass['references'];
+        $dataMap['references_one'] = $this->configClass['references_one'];
+        $dataMap['references_many'] = $this->configClass['references_many'];
 
         // embeddeds
-        $dataMap['embeddeds'] = $this->configClass['embeddeds'];
+        $dataMap['embeddeds_one'] = $this->configClass['embeddeds_one'];
+        $dataMap['embeddeds_many'] = $this->configClass['embeddeds_many'];
 
         // relations
         if (!$this->configClass['is_embedded']) {
-            $dataMap['relations'] = $this->configClass['relations'];
+            $dataMap['relations_one'] = $this->configClass['relations_one'];
+            $dataMap['relations_many'] = $this->configClass['relations_many'];
+            $dataMap['relations_many_through'] = $this->configClass['relations_many_through'];
         }
 
         $dataMap = \Mondongo\Mondator\Dumper::exportArray($dataMap, 12);

@@ -23,30 +23,29 @@ use \Mondongo\Mondator\Output\Output;
 $configClasses = array(
     'Model\Author' => array(
         'fields' => array(
-            'name'         => 'string',
-            'telephone_id' => 'reference_one',
+            'name' => 'string',
         ),
-        'references' => array(
-            'telephone' => array('class' => 'Model\AuthorTelephone', 'field' => 'telephone_id', 'type' => 'one'),
+        'references_one' => array(
+            'telephone' => array('class' => 'Model\AuthorTelephone', 'field' => 'telephone_id'),
         ),
-        'relations' => array(
-            'articles' => array('class' => 'Model\Article', 'field' => 'author_id', 'type' => 'many'),
+        'relations_many' => array(
+            'articles' => array('class' => 'Model\Article', 'field' => 'author_id'),
         ),
     ),
     'Model\AuthorTelephone' => array(
         'fields' => array(
             'number' => 'string',
         ),
-        'relations' => array(
-            'author' => array('class' => 'Model\Author', 'field' => 'telephone_id', 'type' => 'one'),
+        'relations_one' => array(
+            'author' => array('class' => 'Model\Author', 'field' => 'telephone_id'),
         ),
     ),
     'Model\Category' => array(
         'fields' => array(
             'name' => 'string',
         ),
-        'relations' => array(
-            'articles' => array('class' => 'Model\Article', 'field' => 'category_ids', 'type' => 'many'),
+        'relations_many' => array(
+            'articles' => array('class' => 'Model\Article'),
         ),
     ),
     'Model\Comment' => array(
@@ -70,20 +69,24 @@ $configClasses = array(
             'slug'         => 'string',
             'content'      => 'string',
             'is_active'    => 'boolean',
-            'author_id'    => 'reference_one',
-            'category_ids' => 'reference_many',
         ),
-        'references' => array(
-            'author'     => array('class' => 'Model\Author', 'field' => 'author_id', 'type' => 'one'),
-            'categories' => array('class' => 'Model\Category', 'field' => 'category_ids', 'type' => 'many'),
+        'references_one' => array(
+            'author' => array('class' => 'Model\Author'),
         ),
-        'embeddeds' => array(
-            'source'   => array('class' => 'Model\Source', 'type' => 'one'),
-            'comments' => array('class' => 'Model\Comment', 'type' => 'many'),
+        'references_many' => array(
+            'categories' => array('class' => 'Model\Category'),
         ),
-        'relations' => array(
-            'summary' => array('class' => 'Model\Summary', 'field' => 'article_id', 'type' => 'one'),
-            'news'    => array('class' => 'Model\News', 'field' => 'article_id', 'type' => 'many'),
+        'embeddeds_one' => array(
+            'source'   => array('class' => 'Model\Source'),
+        ),
+        'embeddeds_many' => array(
+            'comments' => array('class' => 'Model\Comment'),
+        ),
+        'relations_one' => array(
+            'summary' => array('class' => 'Model\Summary'),
+        ),
+        'relations_many' => array(
+            'news' => array('class' => 'Model\News', 'field' => 'article_id'),
         ),
         'indexes' => array(
             array(
@@ -97,20 +100,18 @@ $configClasses = array(
     ),
     'Model\News' => array(
         'fields' => array(
-            'title'      => 'string',
-            'article_id' => 'reference_one',
+            'title' => 'string',
         ),
-        'references' => array(
-            'article' => array('class' => 'Model\Article', 'field' => 'article_id', 'type' => 'one'),
+        'references_one' => array(
+            'article' => array('class' => 'Model\Article'),
         ),
     ),
     'Model\Summary' => array(
         'fields' => array(
-            'article_id' => 'reference_one',
-            'text'       => 'string',
+            'text' => 'string',
         ),
-        'references' => array(
-            'article' => array('class' => 'Model\Article', 'field' => 'article_id', 'type' => 'one'),
+        'references_one' => array(
+            'article' => array('class' => 'Model\Article'),
         ),
     ),
     'Model\User' => array(
@@ -121,12 +122,11 @@ $configClasses = array(
     ),
     'Model\Message' => array(
         'fields' => array(
-            'author'      => 'string',
-            'text'        => 'string',
-            'reply_to_id' => 'reference_one',
+            'author' => 'string',
+            'text'   => 'string',
         ),
-        'references' => array(
-            'reply_to' => array('class' => 'Model\Message', 'field' => 'reply_to_id', 'type' => 'one'),
+        'references_one' => array(
+            'reply_to' => array('class' => 'Model\Message', 'field' => 'reply_to_id'),
         ),
     ),
     'Model\Image' => array(
@@ -150,8 +150,8 @@ $configClasses = array(
     ),
     'Model\EmbedNot' => array(
         'is_embedded' => true,
-        'relations' => array(
-            'article' => array('class' => 'Model\Article', 'field' => 'embed_not_id', 'type' => 'one'),
+        'relations_one' => array(
+            'article' => array('class' => 'Model\Article'),
         ),
     ),
     'Model\MultipleEmbeds' => array(
@@ -159,8 +159,8 @@ $configClasses = array(
             'title'   => 'string',
             'content' => 'string',
         ),
-        'embeddeds' => array(
-            'embeddeds1' => array('class' => 'Model\MultipleEmbedsEmbedded1', 'type' => 'many'),
+        'embeddeds_many' => array(
+            'embeddeds1' => array('class' => 'Model\MultipleEmbedsEmbedded1'),
         ),
     ),
     'Model\MultipleEmbedsEmbedded1' => array(
@@ -168,8 +168,8 @@ $configClasses = array(
             'name'    => 'string',
             'surname' => 'string',
         ),
-        'embeddeds' => array(
-            'embeddeds2' => array('class' => 'Model\MultipleEmbedsEmbedded2', 'type' => 'many'),
+        'embeddeds_many' => array(
+            'embeddeds2' => array('class' => 'Model\MultipleEmbedsEmbedded2'),
         ),
     ),
     'Model\MultipleEmbedsEmbedded2' => array(

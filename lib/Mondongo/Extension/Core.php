@@ -107,9 +107,6 @@ class Core extends Extension
 
         // is_file
         $this->processIsFile();
-
-        // parse fields
-        $this->processParseFields();
     }
 
     /**
@@ -117,12 +114,12 @@ class Core extends Extension
      */
     protected function doClassProcess()
     {
-        // check
-        $this->checkFields();
-        $this->checkReferences();
-        $this->checkEmbeddeds();
+        // parse and check
+        $this->parseAndCheckFields();
+        $this->parseAndCheckReferences();
+        $this->parseAndCheckEmbeddeds();
         if (!$this->configClass['is_embedded']) {
-            $this->checkRelations();
+            $this->parseAndCheckRelations();
         }
         $this->checkDataNames();
 
@@ -327,8 +324,11 @@ EOF
      */
     protected function processInitReferences()
     {
-        if (!isset($this->configClass['references'])) {
-            $this->configClass['references'] = array();
+        if (!isset($this->configClass['references_one'])) {
+            $this->configClass['references_one'] = array();
+        }
+        if (!isset($this->configClass['references_many'])) {
+            $this->configClass['references_many'] = array();
         }
     }
 
@@ -337,8 +337,11 @@ EOF
      */
     protected function processInitEmbeddeds()
     {
-        if (!isset($this->configClass['embeddeds'])) {
-            $this->configClass['embeddeds'] = array();
+        if (!isset($this->configClass['embeddeds_one'])) {
+            $this->configClass['embeddeds_one'] = array();
+        }
+        if (!isset($this->configClass['embeddeds_many'])) {
+            $this->configClass['embeddeds_many'] = array();
         }
     }
 
@@ -347,8 +350,14 @@ EOF
      */
     protected function processInitRelations()
     {
-        if (!isset($this->configClass['relations'])) {
-            $this->configClass['relations'] = array();
+        if (!isset($this->configClass['relations_one'])) {
+            $this->configClass['relations_one'] = array();
+        }
+        if (!isset($this->configClass['relations_many'])) {
+            $this->configClass['relations_many'] = array();
+        }
+        if (!isset($this->configClass['relations_many_through'])) {
+            $this->configClass['relations_many_through'] = array();
         }
     }
 
@@ -385,22 +394,17 @@ EOF
     }
 
     /*
-     * Parse Fields.
+     * Parse and Check.
      */
-    protected function processParseFields()
+    protected function parseAndCheckFields()
     {
         foreach ($this->configClass['fields'] as $name => &$field) {
             if (is_string($field)) {
                 $field = array('type' => $field);
             }
         }
-    }
+        unset($field);
 
-    /*
-     * Check.
-     */
-    protected function checkFields()
-    {
         foreach ($this->configClass['fields'] as $name => $field) {
             if (!is_array($field)) {
                 throw new \RuntimeException(sprintf('The field "%s" of the class "%s" is not a string or array.', $name, $this->class));
@@ -414,53 +418,77 @@ EOF
         }
     }
 
-    protected function checkReferences()
+    protected function parseAndCheckReferences()
     {
-        foreach ($this->configClass['references'] as $name => $reference) {
-            if (!isset($reference['class'])) {
-                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have class.', $name, $this->class));
-            }
+        // one
+        foreach ($this->configClass['references_one'] as $name => &$reference) {
+            $this->parseAndCheckAssociationClass($reference, $name);
+
             if (!isset($reference['field'])) {
-                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have field.', $name, $this->class));
+                $reference['field'] = Inflector::fieldForClass($reference['class']);
             }
-            if (!isset($reference['type'])) {
-                throw new \RuntimeException(sprintf('The reference "%s" of the class "%s" does not have type.', $name, $this->class));
-            }
-            if (!in_array($reference['type'], array('one', 'many'))) {
-                throw new \RuntimeException(sprintf('The type "%s" of the reference "%s" of the class "%s" is not valid.', $reference['type'], $name, $this->class));
+        }
+
+        // many
+        foreach ($this->configClass['references_many'] as $name => &$reference) {
+            $this->parseAndCheckAssociationClass($reference, $name);
+
+            if (!isset($reference['field'])) {
+                $reference['field'] = Inflector::pluralFieldForClass($reference['class']);
             }
         }
     }
 
-    protected function checkEmbeddeds()
+    protected function parseAndCheckEmbeddeds()
     {
-        foreach ($this->configClass['embeddeds'] as $name => $embedded) {
-            if (!isset($embedded['class'])) {
-                throw new \RuntimeException(sprintf('The embedded "%s" of the class "%s" does not have class.', $name, $this->class));
-            }
-            if (!isset($embedded['type'])) {
-                throw new \RuntimeException(sprintf('The embedded "%s" of the class "%s" does not have type.', $name, $this->class));
-            }
-            if (!in_array($embedded['type'], array('one', 'many'))) {
-                throw new \RuntimeException(sprintf('The type "%s" of the embedded "%s" of the class "%s" is not valid.', $embedded['type'], $name, $this->class));
-            }
+        // one
+        foreach ($this->configClass['embeddeds_one'] as $name => &$embedded) {
+            $this->parseAndCheckAssociationClass($embedded, $name);
+        }
+
+        // many
+        foreach ($this->configClass['embeddeds_many'] as $name => &$embedded) {
+            $this->parseAndCheckAssociationClass($embedded, $name);
         }
     }
 
-    protected function checkRelations()
+    protected function parseAndCheckRelations()
     {
-        foreach ($this->configClass['relations'] as $name => $relation) {
-            if (!isset($relation['class'])) {
-                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have class.', $name, $this->class));
-            }
+        // one
+        foreach ($this->configClass['relations_one'] as $name => &$relation) {
+            $this->parseAndCheckAssociationClass($relation, $name);
+
             if (!isset($relation['field'])) {
-                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have field.', $name, $this->class));
+                $relation['field'] = Inflector::fieldForClass($this->class);
             }
-            if (!isset($relation['type'])) {
-                throw new \RuntimeException(sprintf('The relation "%s" of the class "%s" does not have type.', $name, $this->class));
+        }
+
+        // many
+        foreach ($this->configClass['relations_many'] as $name => &$relation) {
+            $this->parseAndCheckAssociationClass($relation, $name);
+
+            if (!isset($relation['field'])) {
+                $relation['field'] = Inflector::pluralFieldForClass($this->class);
             }
-            if (!in_array($relation['type'], array('one', 'many'))) {
-                throw new \RuntimeException(sprintf('The type "%s" of the relation "%s" of the class "%s" is not valid.', $relation['type'], $name, $this->class));
+        }
+
+        // many_through
+        foreach ($this->configClass['relations_many_through'] as $name => &$relation) {
+            if (!is_array($relation)) {
+                throw new \RuntimeException(sprintf('The relation_many_through "%s" of the class "%s" is not an array.', $name, $this->class));
+            }
+            if (!isset($relation['class'])) {
+                throw new \RuntimeException(sprintf('The relation_many_through "%s" of the class "%s" does not have class.', $name, $this->class));
+            }
+            if (!isset($relation['through'])) {
+                throw new \RuntimeException(sprintf('The relation_many_through "%s" of the class "%s" does not have through.', $name, $this->class));
+            }
+
+            if (!isset($relation['local_field'])) {
+                $relation['local_field'] = Inflector::fieldForClass($this->class);
+            }
+            if (!isset($relation['foreign_field'])) {
+                $relation['foreign_field'] = Inflector::fieldForClass($relation['class']);
             }
         }
     }
@@ -469,9 +497,13 @@ EOF
     {
         foreach (array_merge(
             array_keys($this->configClass['fields']),
-            array_keys($this->configClass['references']),
-            array_keys($this->configClass['embeddeds']),
-            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations']) : array()
+            array_keys($this->configClass['references_one']),
+            array_keys($this->configClass['references_many']),
+            array_keys($this->configClass['embeddeds_one']),
+            array_keys($this->configClass['embeddeds_many']),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_one']) : array(),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many']) : array(),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many_through']) : array()
         ) as $name) {
             if (in_array($name, array('mondongo', 'repository', 'collection', 'id', 'query_for_save', 'fields_modified', 'document_data'))) {
                 throw new \RuntimeException(sprintf('The document cannot be a data with the name "%s".', $name));
@@ -536,23 +568,33 @@ EOF
         $data = array();
 
         // fields
-        foreach ($this->configClass['fields'] as $name => $field) {
+        foreach ($this->fieldsToProcess() as $name => $field) {
             $data['fields'][$name] = isset($field['default']) ? $field['default'] : null;
         }
 
         // references
-        foreach ($this->configClass['references'] as $name => $reference) {
+        foreach (array_merge(
+            $this->configClass['references_one'],
+            $this->configClass['references_many']
+        ) as $name => $reference) {
             $data['references'][$name] = null;
         }
 
         // embeddeds
-        foreach ($this->configClass['embeddeds'] as $name => $embed) {
+        foreach (array_merge(
+            $this->configClass['embeddeds_one'],
+            $this->configClass['embeddeds_many']
+        ) as $name => $embed) {
             $data['embeddeds'][$name] = null;
         }
 
         // relations
         if (!$this->configClass['is_embedded']) {
-            foreach ($this->configClass['relations'] as $name => $relation) {
+            foreach (array_merge(
+                $this->configClass['relations_one'],
+                $this->configClass['relations_many'],
+                $this->configClass['relations_many_through']
+            ) as $name => $relation) {
                 $data['relations'][$name] = null;
             }
         }
@@ -595,7 +637,7 @@ EOF;
 
         // fields
         $fieldsCode = '';
-        foreach ($this->configClass['fields'] as $name => $field) {
+        foreach ($this->fieldsToProcess() as $name => $field) {
             $typeCode = str_replace("\n", "\n            ", strtr(TypeContainer::getType($field['type'])->toPHPInString(), array(
                 '%from%' => "\$data['$name']",
                 '%to%'   => "\$this->data['fields']['$name']",
@@ -611,34 +653,34 @@ EOF;
 
         // embeddeds
         $embeddedsCode = '';
-        foreach ($this->configClass['embeddeds'] as $name => $embed) {
-            $embedSetter = 'set'.Inflector::camelize($name);
-            // one
-            if ('one' == $embed['type']) {
-                $embeddedsCode .= <<<EOF
+        foreach ($this->configClass['embeddeds_one'] as $name => $embedded) {
+            $embeddedSetter = 'set'.Inflector::camelize($name);
+
+            $embeddedsCode .= <<<EOF
         if (isset(\$data['$name'])) {
-            \$embed = new \\{$embed['class']}();
+            \$embed = new \\{$embedded['class']}();
             \$embed->setDocumentData(\$data['$name']);
-            \$this->$embedSetter(\$embed);
+            \$this->$embeddedSetter(\$embed);
         }
 
 EOF;
-            // many
-            } elseif ('many' == $embed['type']) {
-                $embeddedsCode .= <<<EOF
+        }
+        foreach ($this->configClass['embeddeds_many'] as $name => $embedded) {
+            $embeddedSetter = 'set'.Inflector::camelize($name);
+
+            $embeddedsCode .= <<<EOF
         if (isset(\$data['$name'])) {
             \$elements = array();
             foreach (\$data['$name'] as \$datum) {
-                \$elements[] = \$element = new \\{$embed['class']}();
+                \$elements[] = \$element = new \\{$embedded['class']}();
                 \$element->setDocumentData(\$datum);
             }
             \$group = new \Mondongo\Group(\$elements);
             \$group->saveOriginalElements();
-            \$this->$embedSetter(\$group);
+            \$this->$embeddedSetter(\$group);
         }
 
 EOF;
-            }
         }
 
         $resetFieldsModified = $this->fieldsModified ? "\$this->fieldsModified = array();" : '';
@@ -707,18 +749,15 @@ EOF
      */
     protected function processDocumentFields()
     {
-        foreach ($this->configClass['fields'] as $name => $field) {
+        foreach ($this->fieldsToProcess() as $name => $field) {
             $referenceCode = '';
-            foreach ($this->configClass['references'] as $referenceName => $reference) {
-                if ($name == $reference['field']) {
-                    $referenceCode = <<<EOF
-        \$this->data['references']['$referenceName'] = null;
+            if (isset($field['reference'])) {
+                $referenceCode = <<<EOF
+        \$this->data['references']['{$field['reference']}'] = null;
 EOF;
-                    break;
-                }
             }
 
-            // set method
+            // setter
             $method = new Method('public', 'set'.Inflector::camelize($name), '$value', <<<EOF
         if (\$value === \$this->data['fields']['$name']) {
             return;
@@ -747,7 +786,7 @@ EOF
 
             $this->definitions['document_base']->addMethod($method);
 
-            // get method
+            // getter
             $method = new Method('public', 'get'.Inflector::camelize($name), '', <<<EOF
         return \$this->data['fields']['$name'];
 EOF
@@ -770,20 +809,17 @@ EOF
      */
     protected function processDocumentReferences()
     {
-        $saveReferencesCode = '';
+        $saveReferencesCode = array();
 
-        foreach ($this->configClass['references'] as $name => $reference) {
+        /*
+         * one
+         */
+        foreach ($this->configClass['references_one'] as $name => $reference) {
             $fieldSetter = 'set'.Inflector::camelize($reference['field']);
             $fieldGetter = 'get'.Inflector::camelize($reference['field']);
 
-            $updateMethodName = 'update'.Inflector::camelize($name);
-
-            /*
-             * One
-             */
-            if ('one' == $reference['type']) {
-                // setter
-                $setterCode = <<<EOF
+            // setter
+            $setterCode = <<<EOF
         if (null !== \$value && !\$value instanceof \\{$reference['class']}) {
             throw new \InvalidArgumentException('The reference "$name" is not an instance of "{$reference['class']}".');
         }
@@ -795,17 +831,20 @@ EOF
 
         \$this->data['references']['$name'] = \$value;
 EOF;
-                $setterDocComment = <<<EOF
+            $setterDocComment = <<<EOF
     /**
      * Set the "$name" reference.
      *
      * @param {$reference['class']} \$value The value.
-     *
-     * @return void
      */
 EOF;
-                // getter
-                $getterCode = <<<EOF
+
+            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
+            $method->setDocComment($setterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+
+            // getter
+            $getterCode = <<<EOF
         if (null === \$this->data['references']['$name'] && null !== \$this->$fieldGetter()) {
             \$value = \\Mondongo\Container::get()
                 ->getRepository('{$reference['class']}')
@@ -819,15 +858,20 @@ EOF;
 
         return \$this->data['references']['$name'];
 EOF;
-                $getterDocComment = <<<EOF
+            $getterDocComment = <<<EOF
     /**
      * Returns the "$name" reference.
      *
      * @return {$reference['class']} The "$name" reference.
      */
 EOF;
-                // save references
-                $saveReferencesCode .= <<<EOF
+
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setDocComment($getterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+
+            // save references
+            $saveReferencesCode[] = <<<EOF
         \$reference = \$this->data['references']['$name'];
         if (null !== \$reference) {
             \$reference->save();
@@ -835,14 +879,20 @@ EOF;
                 \$this->$fieldSetter(\$reference->getId());
             }
         }
-
 EOF;
-            /*
-             * Many
-             */
-            } else {
-                // setter
-                $setterCode = <<<EOF
+        }
+
+        /*
+         * many
+         */
+        foreach ($this->configClass['references_many'] as $name => $reference) {
+            $fieldSetter = 'set'.Inflector::camelize($reference['field']);
+            $fieldGetter = 'get'.Inflector::camelize($reference['field']);
+
+            $updateMethodName = 'update'.Inflector::camelize($name);
+
+            // setter
+            $setterCode = <<<EOF
         \$ids = array();
         if (null !== \$value) {
             if (!\$value instanceof \Mondongo\Group && !is_array(\$value)) {
@@ -866,7 +916,7 @@ EOF;
         \$this->{$fieldSetter}(count(\$ids) ? \$ids : null);
         \$this->data['references']['$name'] = \$value;
 EOF;
-                $setterDocComment = <<<EOF
+            $setterDocComment = <<<EOF
     /**
      * Set the "$name" reference.
      *
@@ -875,8 +925,13 @@ EOF;
      * @return void
      */
 EOF;
-                // getter
-                $getterCode = <<<EOF
+
+            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
+            $method->setDocComment($setterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+
+            // getter
+            $getterCode = <<<EOF
         if (null === \$this->data['references']['$name']) {
             \$group = new \Mondongo\Group();
 
@@ -898,15 +953,20 @@ EOF;
 
         return \$this->data['references']['$name'];
 EOF;
-                $getterDocComment = <<<EOF
+            $getterDocComment = <<<EOF
     /**
      * Returns the "$name" reference.
      *
      * @return Mondongo\Group The "$name" reference.
      */
 EOF;
-                // save references
-                $saveReferencesCode .= <<<EOF
+
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setDocComment($getterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+
+            // save references
+            $saveReferencesCode[] = <<<EOF
         if (\$this->data['references']['$name']) {
             \$ids = array();
             foreach (\$this->data['references']['$name'] as \$reference) {
@@ -920,23 +980,10 @@ EOF;
                 \$this->$fieldSetter(\$ids);
             }
         }
-
 EOF;
-            }
-
-            // setter
-            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
-            $method->setDocComment($setterDocComment);
-            $this->definitions['document_base']->addMethod($method);
-
-            // getter
-            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
-            $method->setDocComment($getterDocComment);
-            $this->definitions['document_base']->addMethod($method);
 
             // update
-            if ('many' == $reference['type']) {
-                $updateCode = <<<EOF
+            $updateCode = <<<EOF
         if (null !== \$this->data['references']['$name']) {
             \$ids = array();
             foreach (\$this->data['references']['$name'] as \$document) {
@@ -953,27 +1000,22 @@ EOF;
             }
         }
 EOF;
-                $updateDocComment = <<<EOF
+            $updateDocComment = <<<EOF
     /**
      * Update the "$name" reference.
-     *
-     * @return void
      */
 EOF;
 
-                $method = new Method('public', $updateMethodName, '', $updateCode);
-                $method->setDocComment($updateDocComment);
-                $this->definitions['document_base']->addMethod($method);
-            }
+            $method = new Method('public', 'update'.Inflector::camelize($name), '', $updateCode);
+            $method->setDocComment($updateDocComment);
+            $this->definitions['document_base']->addMethod($method);
         }
 
         // save references
-        $method = new Method('public', 'saveReferences', '', $saveReferencesCode);
+        $method = new Method('public', 'saveReferences', '', implode("\n\n", $saveReferencesCode));
         $method->setDocComment(<<<EOF
     /**
      * Save the references.
-     *
-     * @return void
      */
 EOF
         );
@@ -985,51 +1027,61 @@ EOF
      */
     protected function processEmbeddedDocuments()
     {
-        foreach ($this->configClass['embeddeds'] as $name => $embed) {
-            /*
-             * one
-             */
-            if ('one' == $embed['type']) {
-                // setter
-                $setterCode = <<<EOF
-        if (!\$value instanceof \\{$embed['class']}) {
-            throw new \InvalidArgumentException('The embed "$name" is not an instance of "{$embed['class']}".');
+        /*
+         * one
+         */
+        foreach ($this->configClass['embeddeds_one'] as $name => $embedded) {
+            // setter
+            $setterCode = <<<EOF
+        if (!\$value instanceof \\{$embedded['class']}) {
+            throw new \InvalidArgumentException('The embed "$name" is not an instance of "{$embedded['class']}".');
         }
 
         \$this->data['embeddeds']['$name'] = \$value;
 EOF;
-                $setterDocComment = <<<EOF
+            $setterDocComment = <<<EOF
     /**
      * Set the "$name" embed.
      *
-     * @param {$embed['class']} \$value The embed.
+     * @param {$embedded['class']} \$value The embed.
      *
      * @return void
      */
 EOF;
-                // getter
-                $getterCode = <<<EOF
+
+            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
+            $method->setDocComment($setterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+
+            // getter
+            $getterCode = <<<EOF
         if (null === \$this->data['embeddeds']['$name']) {
-            \$this->data['embeddeds']['$name'] = new \\{$embed['class']}();
+            \$this->data['embeddeds']['$name'] = new \\{$embedded['class']}();
         }
 
         return \$this->data['embeddeds']['$name'];
 EOF;
-                $getterDocComment = <<<EOF
+            $getterDocComment = <<<EOF
     /**
      * Returns the "$name" embed..
      *
-     * @return {$embed['class']} The "$name" embed.
+     * @return {$embedded['class']} The "$name" embed.
      */
 EOF;
-            /*
-             * many
-             */
-            } else {
-                $updateMethodName = 'update'.Inflector::camelize($name);
 
-                // setter
-                $setterCode = <<<EOF
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setDocComment($getterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+        }
+
+        /**
+         * many
+         */
+        foreach ($this->configClass['embeddeds_many'] as $name => $embedded) {
+            $updateMethodName = 'update'.Inflector::camelize($name);
+
+            // setter
+            $setterCode = <<<EOF
         if (!\$value instanceof \Mondongo\Group && !is_array(\$value)) {
             throw new \InvalidArgumentException('The embed "$name" is not an instance of "Mondongo\Group" or an array.');
         }
@@ -1038,8 +1090,8 @@ EOF;
         }
         \$value->setChangeCallback(array(\$this, '$updateMethodName'));
         foreach (\$value as \$embedded) {
-            if (!\$embedded instanceof \\{$embed['class']}) {
-                throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embed['class']}".');
+            if (!\$embedded instanceof \\{$embedded['class']}) {
+                throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embedded['class']}".');
             }
         }
         if (null !== \$this->data['embeddeds']['$name']) {
@@ -1048,7 +1100,7 @@ EOF;
 
         \$this->data['embeddeds']['$name'] = \$value;
 EOF;
-                $setterDocComment = <<<EOF
+            $setterDocComment = <<<EOF
     /**
      * Set the "$name" embed.
      *
@@ -1057,8 +1109,13 @@ EOF;
      * @return void
      */
 EOF;
-                // getter
-                $getterCode = <<<EOF
+
+            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
+            $method->setDocComment($setterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+
+            // getter
+            $getterCode = <<<EOF
         if (null === \$this->data['embeddeds']['$name']) {
             \$this->data['embeddeds']['$name'] = \$group = new \\Mondongo\Group();
             \$group->setChangeCallback(array(\$this, '$updateMethodName'));
@@ -1066,47 +1123,38 @@ EOF;
 
         return \$this->data['embeddeds']['$name'];
 EOF;
-                $getterDocComment = <<<EOF
+            $getterDocComment = <<<EOF
     /**
      * Returns the "$name" embed.
      *
      * @return Mondongo\Group The "$name" embed.
      */
 EOF;
-            }
 
-            // setter
-            $method = new Method('public', 'set'.Inflector::camelize($name), '$value', $setterCode);
-            $method->setDocComment($setterDocComment);
-            $this->definitions['document_base']->addMethod($method);
-
-            // getter
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
             $method->setDocComment($getterDocComment);
             $this->definitions['document_base']->addMethod($method);
 
             // update
-            if ('many' == $embed['type']) {
-                $method = new Method('public', $updateMethodName, '', <<<EOF
+            $method = new Method('public', $updateMethodName, '', <<<EOF
         if (null !== \$this->data['embeddeds']['$name']) {
             foreach (\$this->data['embeddeds']['$name'] as \$embedded) {
-                if (!\$embedded instanceof \\{$embed['class']}) {
-                    throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embed['class']}".');
+                if (!\$embedded instanceof \\{$embedded['class']}) {
+                    throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embedded['class']}".');
                 }
             }
         }
 EOF
-                );
-                $method->setDocComment(<<<EOF
+            );
+            $method->setDocComment(<<<EOF
     /**
      * Update the "$name" embedded.
      *
      * @return void
      */
 EOF
-                );
-                $this->definitions['document_base']->addMethod($method);
-            }
+            );
+            $this->definitions['document_base']->addMethod($method);
         }
     }
 
@@ -1115,12 +1163,11 @@ EOF
      */
     protected function processDocumentRelations()
     {
-        foreach ($this->configClass['relations'] as $name => $relation) {
-            /*
-             * one
-             */
-            if ('one' == $relation['type']) {
-                $getterCode = <<<EOF
+        /*
+         * one
+         */
+        foreach ($this->configClass['relations_one'] as $name => $relation) {
+            $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
             \$this->data['relations']['$name'] = \Mondongo\Container::get()
                 ->getRepository('{$relation['class']}')
@@ -1130,18 +1177,24 @@ EOF
 
         return \$this->data['relations']['$name'];
 EOF;
-                $getterDocComment = <<<EOF
+            $getterDocComment = <<<EOF
     /**
      * Returns the "$name" relation.
      *
      * @return {$relation['class']} The "$name" relation.
      */
 EOF;
-            /*
-             * many
-             */
-            } else {
-                $getterCode = <<<EOF
+
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setDocComment($getterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+        }
+
+        /*
+         * many
+         */
+        foreach ($this->configClass['relations_many'] as $name => $relation) {
+            $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
             \$this->data['relations']['$name'] = \Mondongo\Container::get()
                 ->getRepository('{$relation['class']}')
@@ -1151,14 +1204,13 @@ EOF;
 
         return \$this->data['relations']['$name'];
 EOF;
-                $getterDocComment = <<<EOF
+            $getterDocComment = <<<EOF
     /**
      * Returns the "$name" relation.
      *
      * @return array The "$name" relation.
      */
 EOF;
-            }
 
             $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
             $method->setDocComment($getterDocComment);
@@ -1174,9 +1226,11 @@ EOF;
         $code = '';
         // data
         foreach (array_merge(
-            array_keys($this->configClass['fields']),
-            array_keys($this->configClass['references']),
-            array_keys($this->configClass['embeddeds'])
+            array_keys($this->fieldsToProcess()),
+            array_keys($this->configClass['references_one']),
+            array_keys($this->configClass['references_many']),
+            array_keys($this->configClass['embeddeds_one']),
+            array_keys($this->configClass['embeddeds_many'])
         ) as $name) {
             $setter = 'set'.Inflector::camelize($name);
             $code .= <<<EOF
@@ -1217,9 +1271,14 @@ EOF
         // data
         foreach (array_merge(
             array_keys($this->configClass['fields']),
-            array_keys($this->configClass['references']),
-            array_keys($this->configClass['embeddeds']),
-            array_keys(!$this->configClass['is_embedded'] ? $this->configClass['relations'] : array())
+            array_keys($this->configClass['references_one']),
+            array_keys($this->configClass['references_many']),
+            array_keys($this->configClass['embeddeds_one']),
+            array_keys($this->configClass['embeddeds_many']),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_one']) : array(),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many']) : array(),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many_through']) : array()
+
         ) as $name) {
             $getter = 'get'.Inflector::camelize($name);
             $code .= <<<EOF
@@ -1258,7 +1317,7 @@ EOF
         $code = '';
 
         // fields
-        foreach ($this->configClass['fields'] as $name => $field) {
+        foreach ($this->fieldsToProcess() as $name => $field) {
             $code .= <<<EOF
         if (isset(\$array['$name'])) {
             \$this->set('$name', \$array['$name']);
@@ -1268,16 +1327,16 @@ EOF;
         }
 
         // references
-        foreach ($this->configClass['references'] as $name => $reference) {
-            if ('one' == $reference['type']) {
-                $code .= <<<EOF
+        foreach ($this->configClass['references_one'] as $name => $reference) {
+            $code .= <<<EOF
         if (isset(\$array['$name'])) {
             \$this->set('$name', \$array['$name']);
         }
 
 EOF;
-            } else {
-                $code .= <<<EOF
+        }
+        foreach ($this->configClass['references_many'] as $name => $reference) {
+            $code .= <<<EOF
         if (isset(\$array['$name'])) {
             \$reference = \$array['$name'];
             if (is_array(\$reference)) {
@@ -1287,34 +1346,36 @@ EOF;
         }
 
 EOF;
-            }
         }
 
         // embeddeds
-        foreach ($this->configClass['embeddeds'] as $name => $embed) {
-            if ('one' == $embed['type']) {
-                $typeCode = <<<EOF
+        foreach ($this->configClass['embeddeds_one'] as $name => $embedded) {
+            $code .= <<<EOF
+        if (isset(\$array['$name'])) {
+            if (is_array(\$array['$name'])) {
+                \$embed = \$this->get('$name');
                 \$embed->fromArray(\$array['$name']);
-EOF;
             } else {
-                $typeCode = <<<EOF
+                \$this->set('$name', \$array['$name']);
+            }
+        }
+
+EOF;
+        }
+        foreach ($this->configClass['embeddeds_many'] as $name => $embedded) {
+            $code .= <<<EOF
+        if (isset(\$array['$name'])) {
+            if (is_array(\$array['$name'])) {
+                \$embed = \$this->get('$name');
                 foreach (\$array['$name'] as \$a) {
                     if (is_array(\$a)) {
-                        \$e = new \\{$embed['class']}();
+                        \$e = new \\{$embedded['class']}();
                         \$e->fromArray(\$a);
                     } else {
                         \$e = \$a;
                     }
                     \$embed->add(\$e);
                 }
-EOF;
-            }
-
-            $code .= <<<EOF
-        if (isset(\$array['$name'])) {
-            if (is_array(\$array['$name'])) {
-                \$embed = \$this->get('$name');
-$typeCode
             } else {
                 \$this->set('$name', \$array['$name']);
             }
@@ -1356,22 +1417,20 @@ EOF;
 
         // embeddeds
         $embeddedsCode = '';
-        foreach ($this->configClass['embeddeds'] as $name => $embed) {
-            if ('one' == $embed['type']) {
-                $typeCode = <<<EOF
+        foreach ($this->configClass['embeddeds_one'] as $name => $embedded) {
+            $embeddedsCode .= <<<EOF
+            if (null !== \$this->data['embeddeds']['$name']) {
                 \$array['$name'] = \$this->data['embeddeds']['$name']->toArray();
+            }
+
 EOF;
-            } else {
-                $typeCode = <<<EOF
+        }
+        foreach ($this->configClass['embeddeds_many'] as $name => $embedded) {
+            $embeddedsCode .= <<<EOF
+            if (null !== \$this->data['embeddeds']['$name']) {
                 foreach (\$this->data['embeddeds']['$name'] as \$embed) {
                     \$array['$name'][] = \$embed->toArray();
                 }
-EOF;
-            }
-
-            $embeddedsCode .= <<<EOF
-            if (null !== \$this->data['embeddeds']['$name']) {
-$typeCode
             }
 
 EOF;
@@ -1489,5 +1548,35 @@ EOF
         );
 
         $this->definitions['repository_base']->addMethod($method);
+    }
+
+    protected function parseAndCheckAssociationClass(&$association, $name)
+    {
+        if (is_string($association)) {
+            $association = array('class' => $association);
+        }
+
+        if (!is_array($association)) {
+            throw new \RuntimeException(sprintf('The association "%s" of the class "%s" is not an array or string.', $name, $this->class));
+        }
+        if (!isset($association['class'])) {
+            throw new \RuntimeException(sprintf('The association "%s" of the class "%s" does not have class.', $name, $this->class));
+        }
+        if (!is_string($association['class'])) {
+            throw new \RuntimeException(sprintf('The class of the association "%s" of the class "%s" is not an string.', $name, $this->class));
+        }
+    }
+
+    protected function fieldsToProcess()
+    {
+        $fields = $this->configClass['fields'];
+        foreach ($this->configClass['references_one'] as $name => $reference) {
+            $fields[$reference['field']] = array('type' => 'reference_one', 'reference' => $name);
+        }
+        foreach ($this->configClass['references_many'] as $name => $reference) {
+            $fields[$reference['field']] = array('type' => 'reference_many', 'reference' => $name);
+        }
+
+        return $fields;
     }
 }

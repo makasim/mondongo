@@ -1170,6 +1170,7 @@ class CoreTest extends TestCase
     public function testDocumentFieldsToMongoMethod()
     {
         $user = new User();
+
         $this->assertSame(array(
             'username'  => '123456',
             'is_active' => true,

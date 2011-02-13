@@ -180,6 +180,7 @@ class DocumentTest extends TestCase
 
         $article->setTitle(1);
         $article->setIsActive(1);
+
         $this->assertSame(array('title' => '1', 'is_active' => true), $article->getQueryForSave());
     }
 

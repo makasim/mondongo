@@ -33,20 +33,27 @@ class DocumentDataMapTest extends \PHPUnit_Framework_TestCase
                 'slug'         => array('type' => 'string'),
                 'content'      => array('type' => 'string'),
                 'is_active'    => array('type' => 'boolean'),
-                'author_id'    => array('type' => 'reference_one'),
-                'category_ids' => array('type' => 'reference_many'),
             ),
-            'references' => array(
-                'author'     => array('class' => 'Model\Author', 'field' => 'author_id', 'type' => 'one'),
-                'categories' => array('class' => 'Model\Category', 'field' => 'category_ids', 'type' => 'many'),
+            'references_one' => array(
+                'author'     => array('class' => 'Model\Author', 'field' => 'author_id'),
             ),
-            'embeddeds' => array(
-                'source'   => array('class' => 'Model\Source', 'type' => 'one'),
-                'comments' => array('class' => 'Model\Comment', 'type' => 'many'),
+            'references_many' => array(
+                'categories' => array('class' => 'Model\Category', 'field' => 'category_ids'),
             ),
-            'relations' => array(
-                'summary' => array('class' => 'Model\Summary', 'field' => 'article_id', 'type' => 'one'),
-                'news'    => array('class' => 'Model\News', 'field' => 'article_id', 'type' => 'many'),
+            'embeddeds_one' => array(
+                'source'   => array('class' => 'Model\Source'),
+            ),
+            'embeddeds_many' => array(
+                'comments' => array('class' => 'Model\Comment'),
+            ),
+            'relations_one' => array(
+                'summary' => array('class' => 'Model\Summary', 'field' => 'article_id'),
+            ),
+            'relations_many' => array(
+                'news' => array('class' => 'Model\News', 'field' => 'article_id'),
+            ),
+            'relations_many_through' => array(
+
             ),
         ), Article::getDataMap());
     }

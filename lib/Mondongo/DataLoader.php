@@ -128,33 +128,36 @@ class DataLoader
             }
             $datum = $data[$class][$key];
 
-            // references
-            foreach ($maps[$class]['references'] as $name => $reference) {
+            // references_one
+            foreach ($maps[$class]['references_one'] as $name => $reference) {
                 if (!isset($datum[$name])) {
                     continue;
                 }
 
-                // one
-                if ('one' == $reference['type']) {
-                    $process($reference['class'], $datum[$name]);
+                $process($reference['class'], $datum[$name]);
 
-                    if (!isset($documents[$reference['class']][$datum[$name]])) {
-                        throw new \RuntimeException(sprintf('The reference "%s" (%s) for the class "%s" does not exists.', $datum[$name], $name, $class));
-                    }
-                    $datum[$name] = $documents[$reference['class']][$datum[$name]];
-                // many
-                } else {
-                    $refs = array();
-                    foreach ($datum[$name] as $value) {
-                        $process($reference['class'], $value);
-
-                        if (!isset($documents[$reference['class']][$value])) {
-                            throw new \RuntimeException(sprintf('The reference "%s" (%s) for the class "%s" does not exists.', $value, $name, $class));
-                        }
-                        $refs[] = $documents[$reference['class']][$value];
-                    }
-                    $datum[$name] = $refs;
+                if (!isset($documents[$reference['class']][$datum[$name]])) {
+                    throw new \RuntimeException(sprintf('The reference "%s" (%s) for the class "%s" does not exists.', $datum[$name], $name, $class));
                 }
+                $datum[$name] = $documents[$reference['class']][$datum[$name]];
+            }
+
+            // references_many
+            foreach ($maps[$class]['references_many'] as $name => $reference) {
+                if (!isset($datum[$name])) {
+                    continue;
+                }
+
+                $refs = array();
+                foreach ($datum[$name] as $value) {
+                    $process($reference['class'], $value);
+
+                    if (!isset($documents[$reference['class']][$value])) {
+                        throw new \RuntimeException(sprintf('The reference "%s" (%s) for the class "%s" does not exists.', $value, $name, $class));
+                    }
+                    $refs[] = $documents[$reference['class']][$value];
+                }
+                $datum[$name] = $refs;
             }
 
             // document
