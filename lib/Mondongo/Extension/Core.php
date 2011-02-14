@@ -353,8 +353,11 @@ EOF
         if (!isset($this->configClass['relations_one'])) {
             $this->configClass['relations_one'] = array();
         }
-        if (!isset($this->configClass['relations_many'])) {
-            $this->configClass['relations_many'] = array();
+        if (!isset($this->configClass['relations_many_one'])) {
+            $this->configClass['relations_many_one'] = array();
+        }
+        if (!isset($this->configClass['relations_many_many'])) {
+            $this->configClass['relations_many_many'] = array();
         }
         if (!isset($this->configClass['relations_many_through'])) {
             $this->configClass['relations_many_through'] = array();
@@ -463,8 +466,17 @@ EOF
             }
         }
 
-        // many
-        foreach ($this->configClass['relations_many'] as $name => &$relation) {
+        // many_one
+        foreach ($this->configClass['relations_many_one'] as $name => &$relation) {
+            $this->parseAndCheckAssociationClass($relation, $name);
+
+            if (!isset($relation['field'])) {
+                $relation['field'] = Inflector::fieldForClass($this->class);
+            }
+        }
+
+        // many_many
+        foreach ($this->configClass['relations_many_many'] as $name => &$relation) {
             $this->parseAndCheckAssociationClass($relation, $name);
 
             if (!isset($relation['field'])) {
@@ -502,7 +514,8 @@ EOF
             array_keys($this->configClass['embeddeds_one']),
             array_keys($this->configClass['embeddeds_many']),
             !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_one']) : array(),
-            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many']) : array(),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many_one']) : array(),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many_many']) : array(),
             !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many_through']) : array()
         ) as $name) {
             if (in_array($name, array('mondongo', 'repository', 'collection', 'id', 'query_for_save', 'fields_modified', 'document_data'))) {
@@ -592,7 +605,8 @@ EOF
         if (!$this->configClass['is_embedded']) {
             foreach (array_merge(
                 $this->configClass['relations_one'],
-                $this->configClass['relations_many'],
+                $this->configClass['relations_many_one'],
+                $this->configClass['relations_many_many'],
                 $this->configClass['relations_many_through']
             ) as $name => $relation) {
                 $data['relations'][$name] = null;
@@ -1191,9 +1205,36 @@ EOF;
         }
 
         /*
-         * many
+         * many_one
          */
-        foreach ($this->configClass['relations_many'] as $name => $relation) {
+        foreach ($this->configClass['relations_many_one'] as $name => $relation) {
+            $getterCode = <<<EOF
+        if (null === \$this->data['relations']['$name']) {
+            \$this->data['relations']['$name'] = \Mondongo\Container::get()
+                ->getRepository('{$relation['class']}')
+                ->find(array('{$relation['field']}' => \$this->getId()))
+            ;
+        }
+
+        return \$this->data['relations']['$name'];
+EOF;
+            $getterDocComment = <<<EOF
+    /**
+     * Returns the "$name" relation.
+     *
+     * @return array The "$name" relation.
+     */
+EOF;
+
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setDocComment($getterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+        }
+
+        /*
+         * many_many
+         */
+        foreach ($this->configClass['relations_many_many'] as $name => $relation) {
             $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
             \$this->data['relations']['$name'] = \Mondongo\Container::get()
@@ -1276,7 +1317,8 @@ EOF
             array_keys($this->configClass['embeddeds_one']),
             array_keys($this->configClass['embeddeds_many']),
             !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_one']) : array(),
-            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many']) : array(),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many_one']) : array(),
+            !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many_many']) : array(),
             !$this->configClass['is_embedded'] ? array_keys($this->configClass['relations_many_through']) : array()
 
         ) as $name) {

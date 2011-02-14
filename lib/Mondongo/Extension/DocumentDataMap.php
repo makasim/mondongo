@@ -54,7 +54,8 @@ class DocumentDataMap extends Extension
         // relations
         if (!$this->configClass['is_embedded']) {
             $dataMap['relations_one'] = $this->configClass['relations_one'];
-            $dataMap['relations_many'] = $this->configClass['relations_many'];
+            $dataMap['relations_many_one'] = $this->configClass['relations_many_one'];
+            $dataMap['relations_many_many'] = $this->configClass['relations_many_many'];
             $dataMap['relations_many_through'] = $this->configClass['relations_many_through'];
         }
 

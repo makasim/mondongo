@@ -28,8 +28,8 @@ $configClasses = array(
         'references_one' => array(
             'telephone' => array('class' => 'Model\AuthorTelephone', 'field' => 'telephone_id'),
         ),
-        'relations_many' => array(
-            'articles' => array('class' => 'Model\Article', 'field' => 'author_id'),
+        'relations_many_one' => array(
+            'articles' => array('class' => 'Model\Article'),
         ),
     ),
     'Model\AuthorTelephone' => array(
@@ -44,7 +44,7 @@ $configClasses = array(
         'fields' => array(
             'name' => 'string',
         ),
-        'relations_many' => array(
+        'relations_many_many' => array(
             'articles' => array('class' => 'Model\Article'),
         ),
     ),
@@ -85,8 +85,8 @@ $configClasses = array(
         'relations_one' => array(
             'summary' => array('class' => 'Model\Summary'),
         ),
-        'relations_many' => array(
-            'news' => array('class' => 'Model\News', 'field' => 'article_id'),
+        'relations_many_one' => array(
+            'news' => array('class' => 'Model\News'),
         ),
         'indexes' => array(
             array(

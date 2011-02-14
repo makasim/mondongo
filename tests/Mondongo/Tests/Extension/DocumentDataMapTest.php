@@ -49,11 +49,12 @@ class DocumentDataMapTest extends \PHPUnit_Framework_TestCase
             'relations_one' => array(
                 'summary' => array('class' => 'Model\Summary', 'field' => 'article_id'),
             ),
-            'relations_many' => array(
+            'relations_many_one' => array(
                 'news' => array('class' => 'Model\News', 'field' => 'article_id'),
             ),
+            'relations_many_many' => array(
+            ),
             'relations_many_through' => array(
-
             ),
         ), Article::getDataMap());
     }
