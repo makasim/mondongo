@@ -119,8 +119,9 @@ class CoreTest extends TestCase
                 'comments' => null,
             ),
             'relations' => array(
-                'summary' => null,
-                'news'    => null,
+                'summary'     => null,
+                'news'        => null,
+                'votes_users' => null,
             ),
         ), $article->getDocumentData());
     }
@@ -820,6 +821,38 @@ class CoreTest extends TestCase
         $this->assertEquals($articles, $results = $category->getArticles());
 
         $this->assertSame($results, $category->getArticles());
+    }
+
+    public function testDocuemntRelationsManyThrough()
+    {
+        $users = array();
+        for ($i=1; $i <= 10; $i++) {
+            $users[$i] = $user = new \Model\User();
+            $user->setUsername('user'.$i);
+            $this->mondongo->persist($user);
+        }
+
+        $articles = array();
+        $articlesVotes = array();
+        for ($i=1; $i <= 10; $i++) {
+            $articles[$i] = $article = new \Model\Article();
+            $article->setTitle('article'.$i);
+            $this->mondongo->persist($article);
+
+            for ($z=$i; $z <= 10; $z++) {
+                $articleVote = new \Model\ArticleVote();
+                $articleVote->setArticle($article);
+                $articleVote->setUser($users[$z]);
+                $this->mondongo->persist($articleVote);
+
+                $articlesVotes[$i][] = $articleVote->getUser();
+            }
+        }
+
+        $this->mondongo->flush();
+
+        $this->assertSame($articlesVotes[5], $articles[5]->getVotesUsers());
+        $this->assertSame($articlesVotes[8], $articles[8]->getVotesUsers());
     }
 
     public function testDocumentSetMethodFields()

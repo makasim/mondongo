@@ -496,11 +496,11 @@ EOF
                 throw new \RuntimeException(sprintf('The relation_many_through "%s" of the class "%s" does not have through.', $name, $this->class));
             }
 
-            if (!isset($relation['local_field'])) {
-                $relation['local_field'] = Inflector::fieldForClass($this->class);
+            if (!isset($relation['local'])) {
+                $relation['local'] = Inflector::fieldForClass($this->class);
             }
-            if (!isset($relation['foreign_field'])) {
-                $relation['foreign_field'] = Inflector::fieldForClass($relation['class']);
+            if (!isset($relation['foreign'])) {
+                $relation['foreign'] = Inflector::fieldForClass($relation['class']);
             }
         }
     }
@@ -1241,6 +1241,40 @@ EOF;
                 ->getRepository('{$relation['class']}')
                 ->find(array('{$relation['field']}' => \$this->getId()))
             ;
+        }
+
+        return \$this->data['relations']['$name'];
+EOF;
+            $getterDocComment = <<<EOF
+    /**
+     * Returns the "$name" relation.
+     *
+     * @return array The "$name" relation.
+     */
+EOF;
+
+            $method = new Method('public', 'get'.Inflector::camelize($name), '', $getterCode);
+            $method->setDocComment($getterDocComment);
+            $this->definitions['document_base']->addMethod($method);
+        }
+
+        /*
+         * many_through
+         */
+        foreach ($this->configClass['relations_many_through'] as $name => $relation) {
+            $getterCode = <<<EOF
+        if (null === \$this->data['relations']['$name']) {
+            \$ids = array();
+            foreach (\\{$relation['through']}::collection()
+                ->find(array('{$relation['local']}' => \$this->getId()), array('{$relation['foreign']}' => 1))
+            as \$value) {
+                \$ids[] = \$value['{$relation['foreign']}'];
+            }
+            if (\$ids) {
+                \$this->data['relations']['$name'] = \\{$relation['class']}::repository()
+                    ->find(array('_id' => array('\$in' => \$ids)))
+                ;
+            }
         }
 
         return \$this->data['relations']['$name'];

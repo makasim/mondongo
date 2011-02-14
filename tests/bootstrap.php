@@ -88,6 +88,9 @@ $configClasses = array(
         'relations_many_one' => array(
             'news' => array('class' => 'Model\News'),
         ),
+        'relations_many_through' => array(
+            'votes_users' => array('class' => 'Model\User', 'through' => 'Model\ArticleVote'),
+        ),
         'indexes' => array(
             array(
                 'keys'    => array('slug' => 1),
@@ -96,6 +99,12 @@ $configClasses = array(
             array(
                 'keys' => array('author_id' => 1, 'is_active' => 1),
             ),
+        ),
+    ),
+    'Model\ArticleVote' => array(
+        'references_one' => array(
+            'article' => 'Model\Article',
+            'user'    => 'Model\User',
         ),
     ),
     'Model\News' => array(

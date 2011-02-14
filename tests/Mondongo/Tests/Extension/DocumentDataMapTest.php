@@ -55,6 +55,7 @@ class DocumentDataMapTest extends \PHPUnit_Framework_TestCase
             'relations_many_many' => array(
             ),
             'relations_many_through' => array(
+                'votes_users' => array('class' => 'Model\User', 'through' => 'Model\ArticleVote', 'local' => 'article_id', 'foreign' => 'user_id')
             ),
         ), Article::getDataMap());
     }
