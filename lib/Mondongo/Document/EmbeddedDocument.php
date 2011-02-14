@@ -116,6 +116,7 @@ abstract class EmbeddedDocument
                         foreach ($embed as $e) {
                             $e->clearModified();
                         }
+                        $embed->saveOriginalElements();
                     }
                 }
             }

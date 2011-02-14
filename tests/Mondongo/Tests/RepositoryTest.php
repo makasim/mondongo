@@ -440,6 +440,24 @@ class RepositoryTest extends TestCase
         $this->assertSame(2, $repository->count());
     }
 
+    public function testSaveWithEmbeddedsSaveOriginalElements()
+    {
+        $article = new \Model\Article();
+        $article->setTitle('foo');
+        $article->save();
+
+        $comments = array();
+        for ($i=1; $i <= 10; $i++) {
+            $comments[] = $comment = new \Model\Comment();
+            $comment->setName('name'.$i);
+            $article->getComments()->add($comment);
+            $article->save();
+        }
+
+        $articleRaw = \Model\Article::collection()->findOne(array('_id' => $article->getId()));
+        $this->assertSame(10, count($articleRaw['comments']));
+    }
+
     public function testSaveInsertGridFSSaveFile()
     {
         $file = __DIR__.'/MondongoTest.php';
