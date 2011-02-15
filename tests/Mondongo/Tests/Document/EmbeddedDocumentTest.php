@@ -120,6 +120,14 @@ class EmbeddedDocumentTest extends TestCase
         $this->assertFalse($source->isFieldModified('url'));
     }
 
+    public function testIsFieldModifiedNull()
+    {
+        $source = new \Model\Source();
+        $source->setFieldModified('name', null);
+
+        $this->assertTrue($source->isFieldModified('name'));
+    }
+
     public function testGetFieldModified()
     {
         $source = new \Model\Source();
@@ -195,6 +203,77 @@ class EmbeddedDocumentTest extends TestCase
 
         $this->assertSame('Pablo', $comment->getName());
         $this->assertSame('Mondongo', $comment->getText());
+    }
+
+    public function testIsEmbeddedChanged()
+    {
+        $article = new \Model\Article();
+        $article->setEmbeddedChanged('source', new \Model\Source());
+
+        $this->assertFalse($article->isEmbeddedChanged('comments'));
+        $this->assertTrue($article->isEmbeddedChanged('source'));
+    }
+
+    public function testIsEmbeddedChangedNull()
+    {
+        $article = new \Model\Article();
+        $article->setEmbeddedChanged('source', null);
+
+        $this->assertTrue($article->isEmbeddedChanged('source'));
+    }
+
+    public function testGetEmbeddedChanged()
+    {
+        $article = new \Model\Article();
+        $article->setEmbeddedChanged('source', $source = new \Model\Source());
+        $article->setEmbeddedChanged('comments', $comments = array());
+
+        $this->assertSame($source, $article->getEmbeddedChanged('source'));
+        $this->assertSame($comments, $article->getEmbeddedChanged('comments'));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetEmbeddedChangedNotExists()
+    {
+        $article = new \Model\Article();
+        $article->getEmbeddedChanged('no');
+    }
+
+    public function testRemoveEmbeddedChanged()
+    {
+        $article = new \Model\Article();
+        $article->setEmbeddedChanged('source', $source = new \Model\Source());
+        $article->setEmbeddedChanged('comments', $comments = array());
+
+        $article->removeEmbeddedChanged('comments');
+
+        $this->assertTrue($article->isEmbeddedChanged('source'));
+        $this->assertFalse($article->isEmbeddedChanged('comments'));
+    }
+
+    public function testGetEmbeddedsChanged()
+    {
+        $article = new \Model\Article();
+        $article->setEmbeddedChanged('source', $source = new \Model\Source());
+        $article->setEmbeddedChanged('comments', $comments = array());
+
+        $this->assertSame(array(
+            'source'   => $source,
+            'comments' => $comments,
+        ), $article->getEmbeddedsChanged());
+    }
+
+    public function testClearEmbeddedsChanged()
+    {
+        $article = new \Model\Article();
+        $article->setEmbeddedChanged('source', $source = new \Model\Source());
+        $article->setEmbeddedChanged('comments', $comments = new \Mondongo\Group());
+
+        $article->clearEmbeddedsChanged();
+
+        $this->assertSame(array(), $article->getEmbeddedsChanged());
     }
 
     public function testGetDocumentData()

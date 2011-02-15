@@ -122,10 +122,10 @@ abstract class Document extends EmbeddedDocument
     {
         $query = array();
 
-        return $this->queryDocument($query, $this);
+        return $this->queryDocument($query, $this, null, $this->isNew());
     }
 
-    protected function queryDocument($query, $document, array $name = null)
+    protected function queryDocument($query, $document, $name, $isNew)
     {
         $data = $document->getDocumentData();
 
@@ -144,7 +144,7 @@ abstract class Document extends EmbeddedDocument
 
             foreach (array_keys($fieldsModified) as $field) {
                 // insert
-                if ($this->isNew()) {
+                if ($isNew) {
                     // base
                     if (null === $name) {
                         $query[$field] = $fields[$field];
@@ -187,16 +187,21 @@ abstract class Document extends EmbeddedDocument
 
                 // one
                 if ($data['embeddeds'][$embeddedName] instanceof EmbeddedDocument) {
-                    if (null === $embeddedChanged) {
+                    if (
+                        // added
+                        null === $embeddedChanged
+                        ||
+                        // same object
+                        spl_object_hash($embeddedChanged) == spl_object_hash($data['embeddeds'][$embeddedName])
+                    ) {
                         $element = $data['embeddeds'][$embeddedName];
-                    } else {
-                        $element = $embeddedChanged['object'];
-                        if (spl_object_hash($data['embeddeds'][$embeddedName]) == $embeddedChanged['oid']) {
-                            $element->fromArray($data['embeddeds'][$embeddedName]->toArray());
-                        }
+                        $query = $this->queryDocument($query, $element, $embeddedQueryName, $isNew);
+                        continue;
                     }
 
-                    $query = $this->queryDocument($query, $element, $embeddedQueryName);
+                    // changed object
+                    $embeddedQuery = array();
+                    $query['$set'][implode('.', $embeddedQueryName)] = $this->queryDocument($embeddedQuery, $data['embeddeds'][$embeddedName], null, true);
                     continue;
                 }
 
@@ -208,7 +213,7 @@ abstract class Document extends EmbeddedDocument
                 // insert
                 if ($this->isNew()) {
                     foreach ($elements as $key => $element) {
-                        $query = $this->queryDocument($query, $element, array_merge($embeddedQueryName, array($key)));
+                        $query = $this->queryDocument($query, $element, array_merge($embeddedQueryName, array($key)), $isNew);
                     }
                 // update
                 } else {
@@ -216,19 +221,19 @@ abstract class Document extends EmbeddedDocument
 
                     // insert
                     foreach ($elements as $key => $element) {
-                        if (!isset($originalElements[$key]) || spl_object_hash($element) != $originalElements[$key]['oid']) {
+                        if (!isset($originalElements[$key]) || spl_object_hash($element) != spl_object_hash($originalElements[$key])) {
                             $query['$pushAll'][implode('.', $embeddedQueryName)][] = $element->dataToMongo();
                         // update
                         } else {
-                            $query = $this->queryDocument($query, $element, array_merge($embeddedQueryName, array($key)));
+                            $query = $this->queryDocument($query, $element, array_merge($embeddedQueryName, array($key)), $isNew);
                         }
                     }
 
                     // delete
                     if (null !== $originalElements) {
                         foreach ($originalElements as $key => $element) {
-                            if (!isset($elements[$key]) || $element['oid'] != spl_object_hash($elements[$key])) {
-                                $query['$pullAll'][implode('.', $embeddedQueryName)][] = $element['object']->dataToMongo();
+                            if (!isset($elements[$key]) || spl_object_hash($element) != spl_object_hash($elements[$key])) {
+                                $query['$pullAll'][implode('.', $embeddedQueryName)][] = $element->dataToMongo();
                             }
                         }
                     }

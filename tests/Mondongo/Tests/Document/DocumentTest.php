@@ -363,4 +363,26 @@ class DocumentTest extends TestCase
             ),
         ), $document->getQueryForSave());
     }
+
+    public function testQueryForSaveChangeEmbeddedOne()
+    {
+        $article = new \Model\Article();
+        $source1 = new \Model\Source();
+        $source1->setName('foo');
+        $source1->setUrl('ups');
+        $article->setSource($source1);
+        $article->clearModified();
+
+        $source2 = new \Model\Source();
+        $source2->setName('bar');
+        $article->setSource($source2);
+
+        $this->assertSame(array(
+            '$set' => array(
+                'source' => array(
+                    'name' => 'bar',
+                ),
+            ),
+        ), $article->getQueryForSave());
+    }
 }

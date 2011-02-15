@@ -182,7 +182,7 @@ abstract class EmbeddedDocument
      *
      * @param string $name The embedded name.
      *
-     * @return bool If an embedded is modified.
+     * @return bool If an embedded is changed.
      */
     public function isEmbeddedChanged($name)
     {
@@ -190,13 +190,13 @@ abstract class EmbeddedDocument
     }
 
     /**
-     * Returns the old value of an embedded (internal).
+     * Returns the old embedded of an embedded (internal).
      *
      * @param string $name The embedded name.
      *
-     * @return mixed The old value of an embedded.
+     * @return mixed The old embedded of an embedded.
      *
-     * @throws \InvalidArgumentException If the embedded is not modified.
+     * @throws \InvalidArgumentException If the embedded is not changed.
      */
     public function getEmbeddedChanged($name)
     {
@@ -208,19 +208,16 @@ abstract class EmbeddedDocument
     }
 
     /**
-     * Set the old value of an embedded (internal).
+     * Set the old embedded of an embedded (internal).
      */
     public function setEmbeddedChanged($name, $value)
     {
-        if ($value instanceof EmbeddedDocument) {
-            $value = array('oid' => spl_object_hash($value), 'object' => clone $value);
-        } elseif ($value instanceof \Mondongo\Group) {
+        if (!array_key_exists($name, $this->data['embeddeds'])) {
+            throw new \InvalidArgumentException(sprintf('The embedded "%s" does not exist.', $name));
+        }
+
+        if ($value instanceof \Mondongo\Group) {
             $value = $value->getElements();
-            foreach ($value as $key => &$v) {
-                $value[$key] = array('oid' => spl_object_hash($v), 'object' => clone $v);
-            }
-        } elseif (null !== $value) {
-            throw new \InvalidArgumentException(sprintf('The embedded "%s" is not valid.', $name));
         }
 
         $this->embeddedsChanged[$name] = $value;
@@ -270,7 +267,7 @@ abstract class EmbeddedDocument
      */
     public function revertEmbeddedsChanged()
     {
-        foreach ($this->embeddedsChanged as $name => $embedded) {
+        foreach ($this->getEmbeddedsChanged() as $name => $embedded) {
             $this->data['embeddeds'][$name] = $embedded;
         }
         $this->clearEmbeddedsChanged();
