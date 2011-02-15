@@ -44,10 +44,16 @@ abstract class EmbeddedDocument
 
         foreach ($this->getEmbeddedsModified() as $name => $embeddedModified) {
             $embedded = $this->get($name);
+            // null
+            if (null === $embedded) {
+                return true;
+            }
+            // one
             if ($embedded instanceof EmbeddedDocument) {
                 if ($embedded->isModified()) {
                     return true;
                 }
+            // many
             } else {
                 foreach ($embedded as $e) {
                     if ($e->isModified()) {
@@ -121,15 +127,19 @@ abstract class EmbeddedDocument
     /**
      * Set the old value of a field (internal).
      */
-    protected function setFieldModified($name, $value)
+    public function setFieldModified($name, $value)
     {
+        if (!array_key_exists($name, $this->data['fields'])) {
+            throw new \InvalidArgumentException(sprintf('The field "%s" does not exist.', $name));
+        }
+
         $this->fieldsModified[$name] = $value;
     }
 
     /**
      * Remove the old value of a field (internal).
      */
-    protected function removeFieldModified($name)
+    public function removeFieldModified($name)
     {
         unset($this->fieldsModified[$name]);
     }

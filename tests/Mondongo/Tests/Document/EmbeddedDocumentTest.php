@@ -29,9 +29,7 @@ use Model\Source;
 
 class EmbeddedDocument extends EmbeddedDocumentBase
 {
-    protected $fieldsModified = array(
-        'foo' => 'bar',
-    );
+    protected $fieldsModified = array();
 
     protected $data = array(
         'fields' => array(
@@ -56,7 +54,12 @@ class EmbeddedDocumentTest extends TestCase
         $source = new \Model\Source();
         $article->setSource($source);
         $this->assertFalse($article->isModified());
+
         $source->setName('Mondongo');
+        $this->assertTrue($article->isModified());
+
+        $article->clearModified();
+        $article->setSource(null);
         $this->assertTrue($article->isModified());
     }
 
@@ -68,33 +71,6 @@ class EmbeddedDocumentTest extends TestCase
         $this->assertFalse($article->isModified());
         $comment->setName('Pablo');
         $this->assertTrue($article->isModified());
-    }
-
-    public function testGetFieldsModified()
-    {
-        $document = new EmbeddedDocument();
-        $this->assertSame(array('foo' => 'bar'), $document->getFieldsModified());
-    }
-
-    public function testClearFieldsModified()
-    {
-        $document = new EmbeddedDocument();
-        $document->clearFieldsModified();
-        $this->assertSame(array(), $document->getFieldsModified());
-    }
-
-    public function testRevertFieldsModified()
-    {
-        $comment = new Comment();
-        $comment->setName('Pablo');
-        $comment->setText('Mondongo');
-        $comment->clearFieldsModified();
-        $comment->setName('pablodip');
-        $comment->setText('Mondongus');
-        $comment->revertFieldsModified();
-
-        $this->assertSame('Pablo', $comment->getName());
-        $this->assertSame('Mondongo', $comment->getText());
     }
 
     public function testClearModified()
@@ -133,6 +109,92 @@ class EmbeddedDocumentTest extends TestCase
         $this->assertFalse($source->isModified());
         $this->assertFalse($comment1->isModified());
         $this->assertFalse($comment2->isModified());
+    }
+
+    public function testIsFieldModified()
+    {
+        $source = new \Model\Source();
+        $source->setFieldModified('name', 'foo');
+
+        $this->assertTrue($source->isFieldModified('name'));
+        $this->assertFalse($source->isFieldModified('url'));
+    }
+
+    public function testGetFieldModified()
+    {
+        $source = new \Model\Source();
+        $source->setName('foo');
+        $source->clearFieldsModified();
+        $source->setName('bar');
+
+        $this->assertSame('foo', $source->getFieldModified('name'));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetFieldModifiedNotExists()
+    {
+        $source = new \Model\Source();
+        $source->getFieldModified('name');
+    }
+
+    public function testSetFieldModified()
+    {
+        $source = new \Model\Source();
+        $source->setFieldModified('name', 'foo');
+        $this->assertSame('foo', $source->getFieldModified('name'));
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testSetFieldModifiedNotExist()
+    {
+        $source = new \Model\Source();
+        $source->setFieldModified('no', 'foo');
+    }
+
+    public function testRemoveFieldModified()
+    {
+        $source = new \Model\Source();
+        $source->setFieldModified('name', 'foo');
+        $source->removeFieldModified('name');
+        $this->assertFalse($source->isFieldModified('name'));
+    }
+
+    public function testGetFieldsModified()
+    {
+        $source = new \Model\Source();
+        $source->setName('foo');
+        $this->assertSame(array('name' => null), $source->getFieldsModified());
+
+        $source->clearModified();
+        $source->setName('bar');
+        $this->assertSame(array('name' => 'foo'), $source->getFieldsModified());
+    }
+
+    public function testClearFieldsModified()
+    {
+        $source = new \Model\Source();
+        $source->setName('foo');
+
+        $source->clearFieldsModified();
+        $this->assertSame(array(), $source->getFieldsModified());
+    }
+
+    public function testRevertFieldsModified()
+    {
+        $comment = new Comment();
+        $comment->setName('Pablo');
+        $comment->setText('Mondongo');
+        $comment->clearFieldsModified();
+        $comment->setName('pablodip');
+        $comment->setText('Mondongus');
+        $comment->revertFieldsModified();
+
+        $this->assertSame('Pablo', $comment->getName());
+        $this->assertSame('Mondongo', $comment->getText());
     }
 
     public function testGetDocumentData()
