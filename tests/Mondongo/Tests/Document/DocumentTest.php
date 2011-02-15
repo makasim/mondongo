@@ -123,11 +123,15 @@ class DocumentTest extends TestCase
     {
         $article = new Article();
         $article->setTitle('My Title');
-        $article->getSource()->setName('My Name');
+        $source = new \Model\Source();
+        $source->setName('My Name');
+        $article->setSource($source);
         $article->save();
 
         $article->setTitle('foo');
-        $article->getSource()->setName('bar');
+        $source = new \Model\Source();
+        $source->setName('bar');
+        $article->setSource($source);
         $article->refresh();
         $this->assertSame('My Title', $article->getTitle());
         $this->assertSame('My Name', $article->getSource()->getName());
@@ -137,13 +141,15 @@ class DocumentTest extends TestCase
     {
         $article = new Article();
         $article->setTitle('My Title');
-        $article->getSource()->setName('My Name');
+        $source = new \Model\Source();
+        $source->setName('My Name');
+        $article->setSource($source);
         $article->save();
 
         Article::collection()->update(array('_id' => $article->getId()), array('$unset' => array('source' => 1)));
 
         $article->refresh();
-        $this->assertEquals(new Source(), $article->getSource());
+        $this->assertNull($article->getSource());
     }
 
     /**
@@ -262,7 +268,6 @@ class DocumentTest extends TestCase
         $article->getComments()->add($comment2);
 
         $article->clearModified();
-        $article->getComments()->saveOriginalElements();
 
         $article->setTitle(123);
         $article->setContent(null);
@@ -273,12 +278,12 @@ class DocumentTest extends TestCase
 
         $this->assertSame(array(
             '$set' => array(
-                'title'         => '123',
+                'title'           => '123',
                 'source.name'     => '456',
                 'comments.0.text' => '789',
             ),
             '$unset' => array(
-                'content'           => 1,
+                'content'         => 1,
                 'source.url'      => 1,
                 'comments.1.name' => 1,
             ),
@@ -298,7 +303,6 @@ class DocumentTest extends TestCase
         $article->getComments()->setElements($comments);
 
         $article->clearModified();
-        $article->getComments()->saveOriginalElements();
 
         $article->getComments()->remove($comments[3]);
         $article->getComments()->remove($comments[5]);

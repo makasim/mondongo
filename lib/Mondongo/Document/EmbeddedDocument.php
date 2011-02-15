@@ -29,6 +29,8 @@ namespace Mondongo\Document;
  */
 abstract class EmbeddedDocument
 {
+    protected $embeddedsModified = array();
+
     /**
      * Returns if the document is modified.
      *
@@ -40,27 +42,96 @@ abstract class EmbeddedDocument
             return true;
         }
 
-        if (isset($this->data['embeddeds'])) {
-            foreach ($this->data['embeddeds'] as $name => $embed) {
-                if (null !== $embed) {
-                    // one
-                    if ($embed instanceof EmbeddedDocument) {
-                        if ($embed->isModified()) {
-                            return true;
-                        }
-                    // many
-                    } else {
-                        foreach ($embed as $e) {
-                            if ($e->isModified()) {
-                                return true;
-                            }
-                        }
+        foreach ($this->getEmbeddedsModified() as $name => $embeddedModified) {
+            $embedded = $this->get($name);
+            if ($embedded instanceof EmbeddedDocument) {
+                if ($embedded->isModified()) {
+                    return true;
+                }
+            } else {
+                foreach ($embedded as $e) {
+                    if ($e->isModified()) {
+                        return true;
                     }
                 }
             }
         }
 
         return false;
+    }
+
+    /**
+     * Clear modified.
+     *
+     * @return void
+     */
+    public function clearModified()
+    {
+        $this->clearFieldsModified();
+        $this->clearEmbeddedsModified();
+
+        if (isset($this->data['embeddeds'])) {
+            foreach ($this->data['embeddeds'] as $name => $embedded) {
+                if (null !== $embedded) {
+                    $this->setEmbeddedModified($name, $embedded);
+                }
+            }
+        }
+    }
+
+    /**
+     * Revert the fields and embeddeds modified.
+     */
+    public function revertModified()
+    {
+        $this->revertFieldsModified();
+        $this->revertEmbeddedsModified();
+    }
+
+    /**
+     * Returns if a field is modified.
+     *
+     * @param string $name The field name.
+     *
+     * @return bool If the field is modified.
+     */
+    public function isFieldModified($name)
+    {
+        return array_key_exists($name, $this->fieldsModified);
+    }
+
+    /**
+     * Returns the old value of a field modified.
+     *
+     * @param string $name The field name.
+     *
+     * @return mixed The old value of a field modified.
+     *
+     * @throws \InvalidArgumentException If the field is not modified.
+     */
+    public function getFieldModified($name)
+    {
+        if (!$this->isFieldModified($name)) {
+            throw new \InvalidArgumentException(sprintf('The field "%s" is not modified.', $name));
+        }
+
+        return $this->fieldsModified[$name];
+    }
+
+    /**
+     * Set the old value of a field (internal).
+     */
+    protected function setFieldModified($name, $value)
+    {
+        $this->fieldsModified[$name] = $value;
+    }
+
+    /**
+     * Remove the old value of a field (internal).
+     */
+    protected function removeFieldModified($name)
+    {
+        unset($this->fieldsModified[$name]);
     }
 
     /**
@@ -97,30 +168,102 @@ abstract class EmbeddedDocument
     }
 
     /**
-     * Clear modified.
+     * Returns if an embedded is modified.
      *
-     * @return void
+     * @param string $name The embedded name.
+     *
+     * @return bool If an embedded is modified.
      */
-    public function clearModified()
+    public function isEmbeddedModified($name)
     {
-        $this->clearFieldsModified();
+        return array_key_exists($name, $this->embeddedsModified);
+    }
 
+    /**
+     * Returns the old value of an embedded (internal).
+     *
+     * @param string $name The embedded name.
+     *
+     * @return mixed The old value of an embedded.
+     *
+     * @throws \InvalidArgumentException If the embedded is not modified.
+     */
+    public function getEmbeddedModified($name)
+    {
+        if (!$this->isEmbeddedModified($name)) {
+            throw new \InvalidArgumentException(sprintf('The embedded "%s" is not modified.', $name));
+        }
+
+        return $this->embeddedsModified[$name];
+    }
+
+    /**
+     * Set the old value of an embedded (internal).
+     */
+    public function setEmbeddedModified($name, $value)
+    {
+        if ($value instanceof EmbeddedDocument) {
+            $value = array('oid' => spl_object_hash($value), 'object' => clone $value);
+        } elseif ($value instanceof \Mondongo\Group) {
+            $value = $value->getElements();
+            foreach ($value as $key => &$v) {
+                $value[$key] = array('oid' => spl_object_hash($v), 'object' => clone $v);
+            }
+        } elseif (null !== $value) {
+            throw new \InvalidArgumentException(sprintf('The embedded "%s" is not valid.', $name));
+        }
+
+        $this->embeddedsModified[$name] = $value;
+    }
+
+    /**
+     * Remove the old value of an embedded (internal).
+     */
+    public function removeEmbeddedModified($name)
+    {
+        unset($this->embeddedsModified[$name]);
+    }
+
+    /**
+     * Returns the old values of the embeddeds.
+     *
+     * @return array The old values of the embeddeds.
+     */
+    public function getEmbeddedsModified()
+    {
+        return $this->embeddedsModified;
+    }
+
+    /**
+     * Clear the embeddeds modified.
+     */
+    public function clearEmbeddedsModified()
+    {
         if (isset($this->data['embeddeds'])) {
-            foreach ($this->data['embeddeds'] as $embed) {
-                if (null !== $embed) {
-                    // one
-                    if ($embed instanceof EmbeddedDocument) {
-                        $embed->clearModified();
-                    // many
+            foreach ($this->data['embeddeds'] as $name => $embedded) {
+                if (null !== $embedded) {
+                    if ($embedded instanceof EmbeddedDocument) {
+                        $embedded->clearModified();
                     } else {
-                        foreach ($embed as $e) {
+                        foreach ($embedded as $e) {
                             $e->clearModified();
                         }
-                        $embed->saveOriginalElements();
                     }
                 }
             }
         }
+        $this->embeddedsModified = array();
+    }
+
+    /**
+     * Revert the embeddeds modified.
+     */
+    public function revertEmbeddedsModified()
+    {
+        foreach ($this->embeddedsModified as $name => $embedded) {
+            $this->data['embeddeds'][$name] = $embedded;
+        }
+        $this->clearEmbeddedsModified();
     }
 
     /**

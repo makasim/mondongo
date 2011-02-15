@@ -76,25 +76,6 @@ class GroupTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($this->elements, $this->group->getElements());
     }
 
-    public function testOriginalElements()
-    {
-        $group = new Group();
-        $this->assertSame(array(), $group->getOriginalElements());
-        $group->setElements($this->elements);
-        $this->assertSame(array(), $group->getOriginalElements());
-        $group->saveOriginalElements();
-        $this->assertSame($this->elements, $group->getOriginalElements());
-        $group->remove('foobar');
-        $this->assertSame($this->elements, $group->getOriginalElements());
-    }
-
-    public function testSetOriginalElements()
-    {
-        $group = new Group();
-        $group->setOriginalElements($this->elements);
-        $this->assertSame($this->elements, $group->getOriginalElements());
-    }
-
     /**
      * @expectedException \InvalidArgumentException
      */

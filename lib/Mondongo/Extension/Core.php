@@ -140,7 +140,7 @@ class Core extends Extension
 
         $this->processDocumentFields();
         $this->processDocumentReferences();
-        $this->processEmbeddedDocuments();
+        $this->processDocumentEmbeddeds();
         if (!$this->configClass['is_embedded']) {
             $this->processDocumentRelations();
         }
@@ -675,6 +675,7 @@ EOF;
             \$embed = new \\{$embedded['class']}();
             \$embed->setDocumentData(\$data['$name']);
             \$this->$embeddedSetter(\$embed);
+            \$this->setEmbeddedModified('$name', \$embed);
         }
 
 EOF;
@@ -690,8 +691,8 @@ EOF;
                 \$element->setDocumentData(\$datum);
             }
             \$group = new \Mondongo\Group(\$elements);
-            \$group->saveOriginalElements();
             \$this->$embeddedSetter(\$group);
+            \$this->setEmbeddedModified('$name', \$group);
         }
 
 EOF;
@@ -776,10 +777,10 @@ EOF;
         if (\$value === \$this->data['fields']['$name']) {
             return;
         }
-        if (!array_key_exists('$name', \$this->fieldsModified)) {
-            \$this->fieldsModified['$name'] = \$this->data['fields']['$name'];
-        } elseif (\$value === \$this->fieldsModified['$name']) {
-            unset(\$this->fieldsModified['$name']);
+        if (!\$this->isFieldModified('$name')) {
+            \$this->setFieldModified('$name', \$this->data['fields']['$name']);
+        } elseif (\$value === \$this->getFieldModified('$name')) {
+            \$this->removeFieldModified('$name');
         }
 
         \$this->data['fields']['$name'] = \$value;
@@ -1039,7 +1040,7 @@ EOF
     /*
      * Document embeddeds.
      */
-    protected function processEmbeddedDocuments()
+    protected function processDocumentEmbeddeds()
     {
         /*
          * one
@@ -1047,8 +1048,19 @@ EOF
         foreach ($this->configClass['embeddeds_one'] as $name => $embedded) {
             // setter
             $setterCode = <<<EOF
-        if (!\$value instanceof \\{$embedded['class']}) {
-            throw new \InvalidArgumentException('The embed "$name" is not an instance of "{$embedded['class']}".');
+        if (null !== \$value) {
+            if (!\$value instanceof \\{$embedded['class']}) {
+                throw new \InvalidArgumentException('The embed "$name" is not an instance of "{$embedded['class']}".');
+            }
+            if (null !== \$this->data['embeddeds']['$name'] && spl_object_hash(\$value) === spl_object_hash(\$this->data['embeddeds']['$name'])) {
+                return;
+            }
+        } elseif (!\$this->isEmbeddedModified('$name') || null === \$this->getEmbeddedModified('$name')) {
+            return;
+        }
+
+        if (!\$this->isEmbeddedModified('$name')) {
+            \$this->setEmbeddedModified('$name', \$this->data['embeddeds']['$name']);
         }
 
         \$this->data['embeddeds']['$name'] = \$value;
@@ -1069,15 +1081,11 @@ EOF;
 
             // getter
             $getterCode = <<<EOF
-        if (null === \$this->data['embeddeds']['$name']) {
-            \$this->data['embeddeds']['$name'] = new \\{$embedded['class']}();
-        }
-
         return \$this->data['embeddeds']['$name'];
 EOF;
             $getterDocComment = <<<EOF
     /**
-     * Returns the "$name" embed..
+     * Returns the "$name" embed.
      *
      * @return {$embedded['class']} The "$name" embed.
      */
@@ -1108,8 +1116,8 @@ EOF;
                 throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embedded['class']}".');
             }
         }
-        if (null !== \$this->data['embeddeds']['$name']) {
-            \$value->setOriginalElements(\$this->data['embeddeds']['$name']->getElements());
+        if (!\$this->isEmbeddedModified('$name')) {
+            \$this->setEmbeddedModified('$name', \$this->data['embeddeds']['$name']);
         }
 
         \$this->data['embeddeds']['$name'] = \$value;
@@ -1133,6 +1141,8 @@ EOF;
         if (null === \$this->data['embeddeds']['$name']) {
             \$this->data['embeddeds']['$name'] = \$group = new \\Mondongo\Group();
             \$group->setChangeCallback(array(\$this, '$updateMethodName'));
+
+            \$this->setEmbeddedModified('$name', null);
         }
 
         return \$this->data['embeddeds']['$name'];
@@ -1395,7 +1405,7 @@ EOF
         // fields
         foreach ($this->fieldsToProcess() as $name => $field) {
             $code .= <<<EOF
-        if (isset(\$array['$name'])) {
+        if (array_key_exists('$name', \$array)) {
             \$this->set('$name', \$array['$name']);
         }
 
@@ -1405,7 +1415,7 @@ EOF;
         // references
         foreach ($this->configClass['references_one'] as $name => $reference) {
             $code .= <<<EOF
-        if (isset(\$array['$name'])) {
+        if (array_key_exists('$name', \$array)) {
             \$this->set('$name', \$array['$name']);
         }
 
@@ -1413,7 +1423,7 @@ EOF;
         }
         foreach ($this->configClass['references_many'] as $name => $reference) {
             $code .= <<<EOF
-        if (isset(\$array['$name'])) {
+        if (array_key_exists('$name', \$array)) {
             \$reference = \$array['$name'];
             if (is_array(\$reference)) {
                 \$reference = new \Mondongo\Group(\$reference);
@@ -1430,6 +1440,10 @@ EOF;
         if (isset(\$array['$name'])) {
             if (is_array(\$array['$name'])) {
                 \$embed = \$this->get('$name');
+                if (null === \$embed) {
+                    \$embed = new \\{$embedded['class']}();
+                    \$this->set('$name', \$embed);
+                }
                 \$embed->fromArray(\$array['$name']);
             } else {
                 \$this->set('$name', \$array['$name']);
@@ -1484,9 +1498,7 @@ EOF
         $fieldsCode = '';
         foreach ($this->configClass['fields'] as $name => $field) {
             $fieldsCode .= <<<EOF
-        if (null !== \$this->data['fields']['$name']) {
-            \$array['$name'] = \$this->data['fields']['$name'];
-        }
+         \$array['$name'] = \$this->data['fields']['$name'];
 
 EOF;
         }
@@ -1495,7 +1507,9 @@ EOF;
         $embeddedsCode = '';
         foreach ($this->configClass['embeddeds_one'] as $name => $embedded) {
             $embeddedsCode .= <<<EOF
-            if (null !== \$this->data['embeddeds']['$name']) {
+            if (null === \$this->data['embeddeds']['$name']) {
+                \$array['$name'] = null;
+            } else {
                 \$array['$name'] = \$this->data['embeddeds']['$name']->toArray();
             }
 
@@ -1503,7 +1517,10 @@ EOF;
         }
         foreach ($this->configClass['embeddeds_many'] as $name => $embedded) {
             $embeddedsCode .= <<<EOF
-            if (null !== \$this->data['embeddeds']['$name']) {
+            if (null === \$this->data['embeddeds']['$name']) {
+                \$array['$name'] = null;
+            } else {
+                \$array['$name'] = array();
                 foreach (\$this->data['embeddeds']['$name'] as \$embed) {
                     \$array['$name'][] = \$embed->toArray();
                 }

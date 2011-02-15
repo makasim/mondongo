@@ -31,8 +31,6 @@ class Group implements \Countable, \IteratorAggregate
 {
     protected $elements = array();
 
-    protected $originalElements = array();
-
     protected $changeCallback;
 
     /**
@@ -75,38 +73,6 @@ class Group implements \Countable, \IteratorAggregate
     public function getElements()
     {
         return $this->elements;
-    }
-
-    /**
-     * Set the original elements.
-     *
-     * @param array $originalElements The original elements.
-     *
-     * @return void
-     */
-    public function setOriginalElements(array $originalElements)
-    {
-        $this->originalElements = $originalElements;
-    }
-
-    /**
-     * Save the original elements.
-     *
-     * @return void
-     */
-    public function saveOriginalElements()
-    {
-        $this->originalElements = $this->elements;
-    }
-
-    /**
-     * Returns the original elements.
-     *
-     * @return array The original elements.
-     */
-    public function getOriginalElements()
-    {
-        return $this->originalElements;
     }
 
     /**

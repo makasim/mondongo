@@ -125,7 +125,7 @@ abstract class Document extends EmbeddedDocument
         return $this->queryDocument($query, $this);
     }
 
-    public function queryDocument($query, $document, array $name = null)
+    protected function queryDocument($query, $document, array $name = null)
     {
         $data = $document->getDocumentData();
 
@@ -175,42 +175,60 @@ abstract class Document extends EmbeddedDocument
         }
 
         // embeddeds
-        if (isset($data['embeddeds'])) {
-            foreach ($data['embeddeds'] as $embedName => $embed) {
-                if (null !== $embed) {
-                    $embedName = null !== $name ? array_merge($name, array($embedName)) : array($embedName);
+        if ($embeddedsModified = $document->getEmbeddedsModified()) {
+            foreach ($embeddedsModified as $embeddedName => $embeddedModified) {
+                $embeddedQueryName = null !== $name ? array_merge($name, array($embeddedName)) : array($embeddedName);
 
-                    // one
-                    if ($embed instanceof EmbeddedDocument) {
-                        $query = $this->queryDocument($query, $embed, $embedName);
-                    // many
+                // removed
+                if (null === $data['embeddeds'][$embeddedName]) {
+                    $query['$unset'][$embeddedQueryName] = 1;
+                    continue;
+                }
+
+                // one
+                if ($data['embeddeds'][$embeddedName] instanceof EmbeddedDocument) {
+                    if (null === $embeddedModified) {
+                        $element = $data['embeddeds'][$embeddedName];
                     } else {
-                        $elements = $embed->getElements();
+                        $element = $embeddedModified['object'];
+                        if (spl_object_hash($data['embeddeds'][$embeddedName]) == $embeddedModified['oid']) {
+                            $element->fromArray($data['embeddeds'][$embeddedName]->toArray());
+                        }
+                    }
 
-                        // insert
-                        if ($this->isNew()) {
-                            foreach ($elements as $key => $element) {
-                                $query = $this->queryDocument($query, $element, array_merge($embedName, array($key)));
-                            }
+                    $query = $this->queryDocument($query, $element, $embeddedQueryName);
+                    continue;
+                }
+
+                /*
+                 * many
+                 */
+                $elements = $data['embeddeds'][$embeddedName]->getElements();
+
+                // insert
+                if ($this->isNew()) {
+                    foreach ($elements as $key => $element) {
+                        $query = $this->queryDocument($query, $element, array_merge($embeddedQueryName, array($key)));
+                    }
+                // update
+                } else {
+                    $originalElements = $embeddedModified;
+
+                    // insert
+                    foreach ($elements as $key => $element) {
+                        if (!isset($originalElements[$key]) || spl_object_hash($element) != $originalElements[$key]['oid']) {
+                            $query['$pushAll'][implode('.', $embeddedQueryName)][] = $element->dataToMongo();
                         // update
                         } else {
-                            $originalElements = $embed->getOriginalElements();
+                            $query = $this->queryDocument($query, $element, array_merge($embeddedQueryName, array($key)));
+                        }
+                    }
 
-                            // insert
-                            foreach ($elements as $key => $element) {
-                                if (!isset($originalElements[$key]) || spl_object_hash($element) != spl_object_hash($originalElements[$key])) {
-                                    $query['$pushAll'][implode('.', $embedName)][] = $element->dataToMongo();
-                                // update
-                                } else {
-                                    $query = $this->queryDocument($query, $element, array_merge($embedName, array($key)));
-                                }
-                            }
-
-                            // delete
-                            foreach ($originalElements as $key => $element) {
-                                if (!isset($elements[$key]) || spl_object_hash($element) != spl_object_hash($elements[$key])) {
-                                    $query['$pullAll'][implode('.', $embedName)][] = $element->dataToMongo();
-                                }
+                    // delete
+                    if (null !== $originalElements) {
+                        foreach ($originalElements as $key => $element) {
+                            if (!isset($elements[$key]) || $element['oid'] != spl_object_hash($elements[$key])) {
+                                $query['$pullAll'][implode('.', $embeddedQueryName)][] = $element['object']->dataToMongo();
                             }
                         }
                     }

@@ -644,13 +644,20 @@ class CoreTest extends TestCase
     public function testEmbeddedDocumentsOne()
     {
         $article = new Article();
+        $this->assertNull($article->getSource());
 
-        $this->assertEquals(new Source(), $source = $article->getSource());
-        $this->assertSame($source, $article->getSource());
+        $article->setSource(null);
+        $this->assertFalse($article->isEmbeddedModified('source'));
 
         $source = new Source();
         $article->setSource($source);
         $this->assertSame($source, $article->getSource());
+        $this->assertTrue($article->isEmbeddedModified('source'));
+        $this->assertNull($article->getEmbeddedModified('source'));
+
+        $article->clearEmbeddedsModified();
+        $article->setSource($source);
+        $this->assertFalse($article->isEmbeddedModified('source'));
     }
 
     /**
@@ -710,7 +717,6 @@ class CoreTest extends TestCase
         $article->setComments($comments2);
 
         $this->assertSame(spl_object_hash($comments2), spl_object_hash($article->getComments()));
-        $this->assertSame($comments1->getElements(), $article->getComments()->getOriginalElements());
     }
 
     /**
@@ -1111,8 +1117,10 @@ class CoreTest extends TestCase
         $article->setTitle('Mondongo');
         $article->setContent('Content');
         $article->setIsActive(true);
-        $article->getSource()->setName('Mondongo');
-        $article->getSource()->setUrl('http://mondongo.es');
+        $source = new \Model\Source();
+        $source->setName('Mondongo');
+        $source->setUrl('http://mondongo.es');
+        $article->setSource($source);
         $article->getComments()->add($comment = new Comment());
         $comment->setName('Pablo');
         $comment->setText('Wow');
@@ -1122,6 +1130,7 @@ class CoreTest extends TestCase
 
         $this->assertSame(array(
             'title'     => 'Mondongo',
+            'slug'      => null,
             'content'   => 'Content',
             'is_active' => true,
             'source'    => array(
@@ -1142,6 +1151,7 @@ class CoreTest extends TestCase
 
         $this->assertSame(array(
             'title'     => 'Mondongo',
+            'slug'      => null,
             'content'   => 'Content',
             'is_active' => true,
         ), $article->toArray(false));
@@ -1197,7 +1207,6 @@ class CoreTest extends TestCase
         $this->assertSame('789', $elements[0]->getText());
         $this->assertSame('1.23', $elements[1]->getName());
         $this->assertSame('7.89', $elements[1]->getText());
-        $this->assertSame($elements, $comments->getOriginalElements());
     }
 
     public function testDocumentFieldsToMongoMethod()

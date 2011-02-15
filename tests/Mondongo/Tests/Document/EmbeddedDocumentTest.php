@@ -53,7 +53,8 @@ class EmbeddedDocumentTest extends TestCase
     public function testIsModifiedEmbeddedsOne()
     {
         $article = new Article();
-        $source = $article->getSource();
+        $source = new \Model\Source();
+        $article->setSource($source);
         $this->assertFalse($article->isModified());
         $source->setName('Mondongo');
         $this->assertTrue($article->isModified());
