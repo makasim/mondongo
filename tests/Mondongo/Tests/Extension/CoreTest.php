@@ -647,17 +647,17 @@ class CoreTest extends TestCase
         $this->assertNull($article->getSource());
 
         $article->setSource(null);
-        $this->assertFalse($article->isEmbeddedModified('source'));
+        $this->assertFalse($article->isEmbeddedChanged('source'));
 
         $source = new Source();
         $article->setSource($source);
         $this->assertSame($source, $article->getSource());
-        $this->assertTrue($article->isEmbeddedModified('source'));
-        $this->assertNull($article->getEmbeddedModified('source'));
+        $this->assertTrue($article->isEmbeddedChanged('source'));
+        $this->assertNull($article->getEmbeddedChanged('source'));
 
-        $article->clearEmbeddedsModified();
+        $article->clearEmbeddedsChanged();
         $article->setSource($source);
-        $this->assertFalse($article->isEmbeddedModified('source'));
+        $this->assertFalse($article->isEmbeddedChanged('source'));
     }
 
     /**

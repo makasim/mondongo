@@ -675,7 +675,6 @@ EOF;
             \$embed = new \\{$embedded['class']}();
             \$embed->setDocumentData(\$data['$name']);
             \$this->$embeddedSetter(\$embed);
-            \$this->setEmbeddedModified('$name', \$embed);
         }
 
 EOF;
@@ -692,7 +691,6 @@ EOF;
             }
             \$group = new \Mondongo\Group(\$elements);
             \$this->$embeddedSetter(\$group);
-            \$this->setEmbeddedModified('$name', \$group);
         }
 
 EOF;
@@ -1055,12 +1053,12 @@ EOF
             if (null !== \$this->data['embeddeds']['$name'] && spl_object_hash(\$value) === spl_object_hash(\$this->data['embeddeds']['$name'])) {
                 return;
             }
-        } elseif (!\$this->isEmbeddedModified('$name') || null === \$this->getEmbeddedModified('$name')) {
+        } elseif (!\$this->isEmbeddedChanged('$name') || null === \$this->getEmbeddedChanged('$name')) {
             return;
         }
 
-        if (!\$this->isEmbeddedModified('$name')) {
-            \$this->setEmbeddedModified('$name', \$this->data['embeddeds']['$name']);
+        if (!\$this->isEmbeddedChanged('$name')) {
+            \$this->setEmbeddedChanged('$name', \$this->data['embeddeds']['$name']);
         }
 
         \$this->data['embeddeds']['$name'] = \$value;
@@ -1116,8 +1114,8 @@ EOF;
                 throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embedded['class']}".');
             }
         }
-        if (!\$this->isEmbeddedModified('$name')) {
-            \$this->setEmbeddedModified('$name', \$this->data['embeddeds']['$name']);
+        if (!\$this->isEmbeddedChanged('$name')) {
+            \$this->setEmbeddedChanged('$name', \$this->data['embeddeds']['$name']);
         }
 
         \$this->data['embeddeds']['$name'] = \$value;
@@ -1142,7 +1140,7 @@ EOF;
             \$this->data['embeddeds']['$name'] = \$group = new \\Mondongo\Group();
             \$group->setChangeCallback(array(\$this, '$updateMethodName'));
 
-            \$this->setEmbeddedModified('$name', null);
+            \$this->setEmbeddedChanged('$name', null);
         }
 
         return \$this->data['embeddeds']['$name'];

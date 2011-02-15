@@ -175,8 +175,8 @@ abstract class Document extends EmbeddedDocument
         }
 
         // embeddeds
-        if ($embeddedsModified = $document->getEmbeddedsModified()) {
-            foreach ($embeddedsModified as $embeddedName => $embeddedModified) {
+        if ($embeddedsChanged = $document->getEmbeddedsChanged()) {
+            foreach ($embeddedsChanged as $embeddedName => $embeddedChanged) {
                 $embeddedQueryName = null !== $name ? array_merge($name, array($embeddedName)) : array($embeddedName);
 
                 // removed
@@ -187,11 +187,11 @@ abstract class Document extends EmbeddedDocument
 
                 // one
                 if ($data['embeddeds'][$embeddedName] instanceof EmbeddedDocument) {
-                    if (null === $embeddedModified) {
+                    if (null === $embeddedChanged) {
                         $element = $data['embeddeds'][$embeddedName];
                     } else {
-                        $element = $embeddedModified['object'];
-                        if (spl_object_hash($data['embeddeds'][$embeddedName]) == $embeddedModified['oid']) {
+                        $element = $embeddedChanged['object'];
+                        if (spl_object_hash($data['embeddeds'][$embeddedName]) == $embeddedChanged['oid']) {
                             $element->fromArray($data['embeddeds'][$embeddedName]->toArray());
                         }
                     }
@@ -212,7 +212,7 @@ abstract class Document extends EmbeddedDocument
                     }
                 // update
                 } else {
-                    $originalElements = $embeddedModified;
+                    $originalElements = $embeddedChanged;
 
                     // insert
                     foreach ($elements as $key => $element) {

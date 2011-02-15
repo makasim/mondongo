@@ -29,7 +29,7 @@ namespace Mondongo\Document;
  */
 abstract class EmbeddedDocument
 {
-    protected $embeddedsModified = array();
+    protected $embeddedsChanged = array();
 
     /**
      * Returns if the document is modified.
@@ -42,12 +42,12 @@ abstract class EmbeddedDocument
             return true;
         }
 
-        foreach ($this->getEmbeddedsModified() as $name => $embeddedModified) {
+        foreach ($this->getEmbeddedsChanged() as $name => $embeddedChanged) {
             $embedded = $this->get($name);
-            // null
             if (null === $embedded) {
                 return true;
             }
+
             // one
             if ($embedded instanceof EmbeddedDocument) {
                 if ($embedded->isModified()) {
@@ -74,24 +74,24 @@ abstract class EmbeddedDocument
     public function clearModified()
     {
         $this->clearFieldsModified();
-        $this->clearEmbeddedsModified();
+        $this->clearEmbeddedsChanged();
 
         if (isset($this->data['embeddeds'])) {
             foreach ($this->data['embeddeds'] as $name => $embedded) {
                 if (null !== $embedded) {
-                    $this->setEmbeddedModified($name, $embedded);
+                    $this->setEmbeddedChanged($name, $embedded);
                 }
             }
         }
     }
 
     /**
-     * Revert the fields and embeddeds modified.
+     * Revert the fields and embeddeds changed.
      */
     public function revertModified()
     {
         $this->revertFieldsModified();
-        $this->revertEmbeddedsModified();
+        $this->revertEmbeddedsChanged();
     }
 
     /**
@@ -178,15 +178,15 @@ abstract class EmbeddedDocument
     }
 
     /**
-     * Returns if an embedded is modified.
+     * Returns if an embedded is changed.
      *
      * @param string $name The embedded name.
      *
      * @return bool If an embedded is modified.
      */
-    public function isEmbeddedModified($name)
+    public function isEmbeddedChanged($name)
     {
-        return array_key_exists($name, $this->embeddedsModified);
+        return array_key_exists($name, $this->embeddedsChanged);
     }
 
     /**
@@ -198,19 +198,19 @@ abstract class EmbeddedDocument
      *
      * @throws \InvalidArgumentException If the embedded is not modified.
      */
-    public function getEmbeddedModified($name)
+    public function getEmbeddedChanged($name)
     {
-        if (!$this->isEmbeddedModified($name)) {
-            throw new \InvalidArgumentException(sprintf('The embedded "%s" is not modified.', $name));
+        if (!$this->isEmbeddedChanged($name)) {
+            throw new \InvalidArgumentException(sprintf('The embedded "%s" is not changed.', $name));
         }
 
-        return $this->embeddedsModified[$name];
+        return $this->embeddedsChanged[$name];
     }
 
     /**
      * Set the old value of an embedded (internal).
      */
-    public function setEmbeddedModified($name, $value)
+    public function setEmbeddedChanged($name, $value)
     {
         if ($value instanceof EmbeddedDocument) {
             $value = array('oid' => spl_object_hash($value), 'object' => clone $value);
@@ -223,31 +223,31 @@ abstract class EmbeddedDocument
             throw new \InvalidArgumentException(sprintf('The embedded "%s" is not valid.', $name));
         }
 
-        $this->embeddedsModified[$name] = $value;
+        $this->embeddedsChanged[$name] = $value;
     }
 
     /**
-     * Remove the old value of an embedded (internal).
+     * Remove the old embedded of an embedded (internal).
      */
-    public function removeEmbeddedModified($name)
+    public function removeEmbeddedChanged($name)
     {
-        unset($this->embeddedsModified[$name]);
+        unset($this->embeddedsChanged[$name]);
     }
 
     /**
-     * Returns the old values of the embeddeds.
+     * Returns the old embedded of the embeddeds.
      *
      * @return array The old values of the embeddeds.
      */
-    public function getEmbeddedsModified()
+    public function getEmbeddedsChanged()
     {
-        return $this->embeddedsModified;
+        return $this->embeddedsChanged;
     }
 
     /**
-     * Clear the embeddeds modified.
+     * Clear the embeddeds changed.
      */
-    public function clearEmbeddedsModified()
+    public function clearEmbeddedsChanged()
     {
         if (isset($this->data['embeddeds'])) {
             foreach ($this->data['embeddeds'] as $name => $embedded) {
@@ -262,18 +262,18 @@ abstract class EmbeddedDocument
                 }
             }
         }
-        $this->embeddedsModified = array();
+        $this->embeddedsChanged = array();
     }
 
     /**
-     * Revert the embeddeds modified.
+     * Revert the embeddeds changed.
      */
-    public function revertEmbeddedsModified()
+    public function revertEmbeddedsChanged()
     {
-        foreach ($this->embeddedsModified as $name => $embedded) {
+        foreach ($this->embeddedsChanged as $name => $embedded) {
             $this->data['embeddeds'][$name] = $embedded;
         }
-        $this->clearEmbeddedsModified();
+        $this->clearEmbeddedsChanged();
     }
 
     /**
