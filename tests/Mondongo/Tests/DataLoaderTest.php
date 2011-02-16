@@ -29,7 +29,9 @@ class DataLoaderTest extends TestCase
 {
     public function testConstructor()
     {
-        $dataLoader = new DataLoader($mondongo = new Mondongo(), $datum = array('foo' => 'bar'));
+        $mondongo = new Mondongo($this->metadata);
+        $datum = array('foo' => 'bar');
+        $dataLoader = new DataLoader($mondongo, $datum);
 
         $this->assertSame($mondongo, $dataLoader->getMondongo());
         $this->assertSame($datum, $dataLoader->getData());
@@ -37,15 +39,15 @@ class DataLoaderTest extends TestCase
 
     public function testSetGetMondongo()
     {
-        $dataLoader = new DataLoader(new Mondongo());
-        $dataLoader->setMondongo($mondongo = new Mondongo());
+        $dataLoader = new DataLoader(new Mondongo($this->metadata));
+        $dataLoader->setMondongo($mondongo = new Mondongo($this->metadata));
 
         $this->assertSame($mondongo, $dataLoader->getMondongo());
     }
 
     public function testSetGetData()
     {
-        $dataLoader = new DataLoader(new Mondongo());
+        $dataLoader = new DataLoader(new Mondongo($this->metadata));
         $dataLoader->setData($datum = array('foo' => 'bar', 'bar' => 'foo'));
 
         $this->assertSame($datum, $dataLoader->getData());

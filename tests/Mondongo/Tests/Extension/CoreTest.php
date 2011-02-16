@@ -67,11 +67,6 @@ class CoreTest extends TestCase
         $this->assertSame($this->mondongo->getRepository('Model\User'), User::repository());
     }
 
-    public function testDocumentBaseRepositoryMethodNotNamespaced()
-    {
-        $this->assertSame($this->mondongo->getRepository('Article'), \Article::repository());
-    }
-
     public function testEmbedNotRepository()
     {
         $this->assertFalse(class_exists('Model\Repository\EmbedNot'));
@@ -92,7 +87,7 @@ class CoreTest extends TestCase
 
     public function testMondongoCustom()
     {
-        $foobar = new Mondongo();
+        $foobar = new Mondongo($this->metadata);
         MondongoContainer::set('foobar', $foobar);
 
         $this->assertSame($foobar, \Model\CustomMondongo::mondongo());
@@ -1224,11 +1219,6 @@ class CoreTest extends TestCase
         $this->assertSame('Model\Article', $this->mondongo->getRepository('Model\Article')->getDocumentClass());
     }
 
-    public function testRepositoryDocumentClassPropertyNotNamespaced()
-    {
-        $this->assertSame('Article', $this->mondongo->getRepository('Article')->getDocumentClass());
-    }
-
     public function testRepositoryConnectionNameProperty()
     {
         $this->assertNull($this->mondongo->getRepository('Model\Article')->getConnectionName());
@@ -1237,7 +1227,7 @@ class CoreTest extends TestCase
 
     public function testRepositoryCollectionNameProperty()
     {
-        $this->assertSame('article', $this->mondongo->getRepository('\Model\Article')->getCollectionName());
+        $this->assertSame('article', $this->mondongo->getRepository('Model\Article')->getCollectionName());
         $this->assertSame('my_name', $this->mondongo->getRepository('Model\CollectionName')->getCollectionName());
     }
 

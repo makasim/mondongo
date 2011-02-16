@@ -32,11 +32,14 @@ class TestCase extends \PHPUnit_Framework_TestCase
     static protected $sConnection;
     static protected $sMondongo;
 
+    protected $metadataClass = 'Model\Info\Metadata';
     protected $server = 'mongodb://localhost';
     protected $dbName = 'mondongo_tests';
+    protected $dbNameGlobal = 'mondongo_tests_global';
     protected $connection;
     protected $mondongo;
     protected $unitOfWork;
+    protected $metadata;
     protected $mongo;
     protected $db;
 
@@ -50,13 +53,14 @@ class TestCase extends \PHPUnit_Framework_TestCase
         $this->connection = static::$sConnection;
 
         if (!static::$sMondongo) {
-            static::$sMondongo = new Mondongo(function($log) {});
+            static::$sMondongo = new Mondongo(new \Model\Info\Metadata(), function($log) {});
             static::$sMondongo->setConnection('default', $this->connection);
+            static::$sMondongo->setConnection('global', new Connection($this->server, $this->dbNameGlobal));
             static::$sMondongo->setDefaultConnectionName('default');
         }
         $this->mondongo = static::$sMondongo;
-
         $this->unitOfWork = $this->mondongo->getUnitOfWork();
+        $this->metadata = $this->mondongo->getMetadata();
 
         $this->mongo = $this->connection->getMongo();
         $this->db = $this->connection->getMongoDB();

@@ -29,18 +29,25 @@ class MondongoTest extends TestCase
 {
     public function testGetUnitOfWork()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
 
         $this->assertInstanceOf('Mondongo\UnitOfWork', $unitOfWork = $mondongo->getUnitOfWork());
         $this->assertSame($mondongo, $unitOfWork->getMondongo());
         $this->assertSame($unitOfWork, $mondongo->getUnitOfWork());
     }
 
+    public function testGetMetadata()
+    {
+        $mondongo = new Mondongo($this->metadata);
+
+        $this->assertSame($this->metadata, $mondongo->getMetadata());
+    }
+
     public function testLoggerCallable()
     {
         $loggerCallable = function() {};
 
-        $mondongo = new Mondongo($loggerCallable);
+        $mondongo = new Mondongo($this->metadata, $loggerCallable);
         $this->assertSame($loggerCallable, $mondongo->getLoggerCallable());
     }
 
@@ -53,7 +60,7 @@ class MondongoTest extends TestCase
         );
 
         // hasConnection, setConnection, getConnection
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $this->assertFalse($mondongo->hasConnection('local'));
         $mondongo->setConnection('local', $connections['local']);
         $this->assertTrue($mondongo->hasConnection('local'));
@@ -62,7 +69,7 @@ class MondongoTest extends TestCase
         $this->assertSame($connections['extra'], $mondongo->getConnection('extra'));
 
         // setConnections, getConnections
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->setConnection('extra', $connections['extra']);
         $mondongo->setConnections($setConnections = array(
           'local'  => $connections['local'],
@@ -71,7 +78,7 @@ class MondongoTest extends TestCase
         $this->assertEquals($setConnections, $mondongo->getConnections());
 
         // removeConnection
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->setConnections($connections);
         $mondongo->removeConnection('local');
         $this->assertSame(array(
@@ -80,13 +87,13 @@ class MondongoTest extends TestCase
         ), $mondongo->getConnections());
 
         // clearConnections
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->setConnections($connections);
         $mondongo->clearConnections();
         $this->assertSame(array(), $mondongo->getConnections());
 
         // defaultConnection
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->setConnections($connections);
         $mondongo->setDefaultConnectionName('global');
         $this->assertSame($connections['global'], $mondongo->getDefaultConnection());
@@ -97,7 +104,7 @@ class MondongoTest extends TestCase
      */
     public function testGetDefaultConnectionWithoutDefaultConnectionName()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->getDefaultConnection();
     }
 
@@ -106,20 +113,20 @@ class MondongoTest extends TestCase
      */
     public function testGetDefaultConnectionConnectionDoesNotExist()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->setConnection('global', new Connection('localhost', 'mondongo_tests'));
         $mondongo->getDefaultConnection();
     }
 
     public function testSetConnectionLoggerCallable()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $connection = new Connection('localhost', 'mondongo_tests');
         $mondongo->setConnection('default', $connection);
         $this->assertNull($connection->getLoggerCallable());
         $this->assertNull($connection->getLogDefault());
 
-        $mondongo = new Mondongo($loggerCallable = function() {});
+        $mondongo = new Mondongo($this->metadata, $loggerCallable = function() {});
         $connection = new Connection('localhost', 'mondongo_tests');
         $mondongo->setConnection('default', $connection);
         $this->assertSame($loggerCallable, $connection->getLoggerCallable());
@@ -128,7 +135,7 @@ class MondongoTest extends TestCase
 
     public function testDefaultConnectionName()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $this->assertNull($mondongo->getDefaultConnectionName());
         $mondongo->setDefaultConnectionName('mondongo_connection');
         $this->assertSame('mondongo_connection', $mondongo->getDefaultConnectionName());
@@ -139,7 +146,7 @@ class MondongoTest extends TestCase
      */
     public function testRemoveConnectionNotExists()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->removeConnection('no');
     }
 
@@ -148,7 +155,7 @@ class MondongoTest extends TestCase
      */
     public function testGetConnectionNotExists()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->getConnection('no');
     }
 
@@ -157,7 +164,7 @@ class MondongoTest extends TestCase
      */
     public function testGetDefaultConnectionNotExists()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->setDefaultConnectionName('local');
         $mondongo->getDefaultConnection();
     }
@@ -167,13 +174,13 @@ class MondongoTest extends TestCase
      */
     public function testgetDefaultConnectionThereIsNotConnections()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->getDefaultConnection();
     }
 
     public function testGetRepository()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
 
         $articleRepository = $mondongo->getRepository('Model\Article');
         $this->assertInstanceOf('Model\ArticleRepository', $articleRepository);
@@ -182,6 +189,35 @@ class MondongoTest extends TestCase
 
         $userRepository = $mondongo->getRepository('Model\User');
         $this->assertInstanceOf('Model\UserRepository', $userRepository);
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetRepositoryNotValidClassEmbeddedDocument()
+    {
+        $this->mondongo->getRepository('Model\Source');
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testGetRepositoryNotValidClassOtherClass()
+    {
+        $this->mondongo->getRepository('Article');
+    }
+
+    public function testGetAllRepositories()
+    {
+        $repositories = $this->mondongo->getAllRepositories();
+
+        $this->assertTrue(is_array($repositories));
+        $this->assertSame(count($this->metadata->getDocumentsClasses()), count($repositories));
+    }
+
+    public function testEnsureAllIndexes()
+    {
+        $this->mondongo->ensureAllIndexes();
     }
 
     public function testFind()

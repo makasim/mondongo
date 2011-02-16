@@ -32,19 +32,22 @@ class Mondongo
     const VERSION = '1.0.0-DEV';
 
     protected $unitOfWork;
-
+    protected $metadata;
     protected $loggerCallable;
-
     protected $connections = array();
-
     protected $defaultConnectionName;
 
     /**
      * Constructor.
+     *
+     * @param Mondongo\Metadata $metadata       The metadata.
+     * @param mixed             $loggerCallable The logger callable (optional, null by default).
      */
-    public function __construct($loggerCallable = null)
+    public function __construct(Metadata $metadata, $loggerCallable = null)
     {
         $this->unitOfWork = new UnitOfWork($this);
+
+        $this->metadata = $metadata;
         $this->loggerCallable = $loggerCallable;
     }
 
@@ -56,6 +59,16 @@ class Mondongo
     public function getUnitOfWork()
     {
         return $this->unitOfWork;
+    }
+
+    /**
+     * Returns the metadata.
+     *
+     * @return Mondongo\Metadata The metadata.
+     */
+    public function getMetadata()
+    {
+        return $this->metadata;
     }
 
     /**
@@ -220,20 +233,50 @@ class Mondongo
      * @param string $documentClass The document class.
      *
      * @return Mondongo\Repository The repository.
+     *
+     * @throws \InvalidArgumentException If the document class is not a valid document class.
+     * @throws \RuntimeException         If the repository class build does not exist.
      */
     public function getRepository($documentClass)
     {
         if (!isset($this->repositories[$documentClass])) {
-            $repositoryClass = $documentClass.'Repository';
+            if (!$this->metadata->isDocumentClass($documentClass)) {
+                throw new \InvalidArgumentException(sprintf('The class "%s" is not a valid document class.', $documentClass));
+            }
 
+            $repositoryClass = $documentClass.'Repository';
             if (!class_exists($repositoryClass)) {
-                throw new \Exception(sprintf('The class "%s" does not exists.', $repositoryClass));
+                throw new \RuntimeException(sprintf('The class "%s" does not exists.', $repositoryClass));
             }
 
             $this->repositories[$documentClass] = new $repositoryClass($this);
         }
 
         return $this->repositories[$documentClass];
+    }
+
+    /**
+     * Returns all repositories.
+     *
+     * @return array All repositories.
+     */
+    public function getAllRepositories()
+    {
+        foreach ($this->getMetadata()->getDocumentsClasses() as $class) {
+            $this->getRepository($class);
+        }
+
+        return $this->repositories;
+    }
+
+    /**
+     * Ensure the indexes of all repositories.
+     */
+    public function ensureAllIndexes()
+    {
+        foreach ($this->getAllRepositories() as $repository) {
+            $repository->ensureIndexes();
+        }
     }
 
     /**

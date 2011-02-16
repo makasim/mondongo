@@ -24,17 +24,19 @@ namespace Mondongo\Tests;
 use Mondongo\Container;
 use Mondongo\Mondongo;
 
-class ContainerTest extends \PHPUnit_Framework_TestCase
+class ContainerTest extends TestCase
 {
     public function setUp()
     {
+        parent::setUp();
+
         Container::clear();
     }
 
     public function testSetGetHasRemove()
     {
-        Container::set('foo', $foo = new Mondongo());
-        Container::set('bar', $bar = new Mondongo());
+        Container::set('foo', $foo = new Mondongo($this->metadata));
+        Container::set('bar', $bar = new Mondongo($this->metadata));
 
         $this->assertTrue(Container::has('foo'));
         $this->assertTrue(Container::has('bar'));
@@ -51,8 +53,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetDefaultName()
     {
-        Container::set('foo', $foo = new Mondongo());
-        Container::set('bar', $bar = new Mondongo());
+        Container::set('foo', $foo = new Mondongo($this->metadata));
+        Container::set('bar', $bar = new Mondongo($this->metadata));
 
         Container::setDefaultName('bar');
 
@@ -61,8 +63,8 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testGetWithLoader()
     {
-        $foo = new Mondongo();
-        $bar = new Mondongo();
+        $foo = new Mondongo($this->metadata);
+        $bar = new Mondongo($this->metadata);
 
         Container::setLoader('foo', function() use ($foo) { return $foo; });
         Container::setLoader('bar', function() use ($bar) { return $bar; });
@@ -76,7 +78,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testGetNotExist()
     {
-        Container::set('foo', new Mondongo());
+        Container::set('foo', new Mondongo($this->metadata));
 
         Container::get('bar');
     }
@@ -96,7 +98,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
      */
     public function testRemoveNotExist()
     {
-        Container::set('foo', new Mondongo());
+        Container::set('foo', new Mondongo($this->metadata));
 
         Container::remove('bar');
     }
@@ -152,7 +154,7 @@ class ContainerTest extends \PHPUnit_Framework_TestCase
 
     public function testClear()
     {
-        Container::set('foo', new Mondongo());
+        Container::set('foo', new Mondongo($this->metadata));
         Container::setDefaultName('foo');
         Container::setLoader('foo', function() { });
 

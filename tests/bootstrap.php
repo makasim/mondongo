@@ -199,7 +199,9 @@ $mondator = new Mondator();
 $mondator->setConfigClasses($configClasses);
 $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
-        'default_output' => __DIR__.'/Model',
+        'metadata_class'  => 'Model\Info\Metadata',
+        'metadata_output' => __DIR__.'/Model/Info',
+        'default_output'  => __DIR__.'/Model',
     )),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),
@@ -219,7 +221,9 @@ $mondator->setConfigClasses(array(
 ));
 $mondator->setExtensions(array(
     new Mondongo\Extension\Core(array(
-        'default_output' => __DIR__.'/model_no_namespaced',
+        'metadata_class'  => 'ModelMetadata',
+        'metadata_output' => __DIR__.'/model_no_namespaced/Info',
+        'default_output'  => __DIR__.'/model_no_namespaced',
     )),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),

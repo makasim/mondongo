@@ -100,8 +100,8 @@ class DataLoader
 
         // purge
         if ($purge) {
-            foreach ($this->mondongo->getConnections() as $connection) {
-                $connection->getMongoDB()->drop();
+            foreach ($this->mondongo->getAllRepositories() as $repository) {
+                $repository->getCollection()->drop();
             }
         }
 

@@ -42,6 +42,11 @@ class Core extends Extension
      */
     protected function setup()
     {
+        $this->addRequiredOptions(array(
+            'metadata_class',
+            'metadata_output',
+        ));
+
         $this->addOptions(array(
             'default_output'    => null,
             'default_behaviors' => array(),
@@ -161,6 +166,68 @@ class Core extends Extension
             $this->processRepositoryIsFileProperty();
             $this->processRepositoryEnsureIndexesMethod();
         }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function doPostGlobalProcess()
+    {
+        /*
+         * Metadata.
+         */
+        $output = new Output($this->getOption('metadata_output'), true);
+        $definition = new Definition($this->getOption('metadata_class'), $output);
+        $definition->setParentClass('\Mondongo\Metadata');
+        $this->definitions['metadata'] = $definition;
+
+        $output = new Output($this->getOption('metadata_output'), true);
+        $definition = new Definition($this->getOption('metadata_class').'Info', $output);
+        $this->definitions['metadata_info'] = $definition;
+
+        $classes = array();
+        foreach ($this->configClasses as $class => $configClass) {
+            $classes[$class] = $configClass['is_embedded'];
+
+            $info = array();
+            // general
+            $info['is_embedded'] = $configClass['is_embedded'];
+            if (!$info['is_embedded']) {
+                $info['mondongo'] = $configClass['mondongo'];
+                $info['connection'] = $configClass['connection'];
+                $info['collection'] = $configClass['collection'];
+            }
+            // fields
+            $info['fields'] = $configClass['fields'];
+            // references
+            $info['references_one'] = $configClass['references_one'];
+            $info['references_many'] = $configClass['references_many'];
+            // embeddeds
+            $info['embeddeds_one'] = $configClass['embeddeds_one'];
+            $info['embeddeds_many'] = $configClass['embeddeds_many'];
+            // relations
+            if (!$info['is_embedded']) {
+                $info['relations_one'] = $configClass['relations_one'];
+                $info['relations_many_one'] = $configClass['relations_many_one'];
+                $info['relations_many_many'] = $configClass['relations_many_many'];
+                $info['relations_many_through'] = $configClass['relations_many_through'];
+            }
+            // indexes
+            if (!$info['is_embedded']) {
+                $info['indexes'] = $configClass['indexes'];
+            }
+
+            $info = \Mondongo\Mondator\Dumper::exportArray($info, 12);
+
+            $method = new Method('public', 'get'.str_replace('\\', '', $class).'ClassInfo', '', <<<EOF
+        return $info;
+EOF
+            );
+            $this->definitions['metadata_info']->addMethod($method);
+        }
+
+        $property = new Property('protected', 'classes', $classes);
+        $this->definitions['metadata']->addProperty($property);
     }
 
     /*

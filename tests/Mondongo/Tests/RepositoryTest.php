@@ -35,9 +35,7 @@ use Model\Message;
 class Repository extends RepositoryBase
 {
     protected $documentClass = 'User';
-
     protected $connectionName = 'default';
-
     protected $collectionName = 'users';
 }
 
@@ -45,36 +43,35 @@ class RepositoryTest extends TestCase
 {
     public function testGetMondongo()
     {
-        $mondongo   = new Mondongo();
-        $repository = new Repository($mondongo);
+        $repository = new Repository($this->mondongo);
 
-        $this->assertSame($mondongo, $repository->getMondongo());
+        $this->assertSame($this->mondongo, $repository->getMondongo());
     }
 
     public function testGetDocumentClass()
     {
-        $repository = new Repository(new Mondongo());
+        $repository = new Repository($this->mondongo);
 
         $this->assertSame('User', $repository->getDocumentClass());
     }
 
     public function testGetConnectionName()
     {
-        $repository = new Repository(new Mondongo());
+        $repository = new Repository($this->mondongo);
 
         $this->assertSame('default', $repository->getConnectionName());
     }
 
     public function testGetCollectionName()
     {
-        $repository = new Repository(new Mondongo());
+        $repository = new Repository($this->mondongo);
 
         $this->assertSame('users', $repository->getCollectionName());
     }
 
     public function testGetConnection()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $mondongo->setConnections(array(
             'local'  => $local  = new Connection('localhost', 'mondongo_tests_local'),
             'global' => $global = new Connection('localhost', 'mondongo_tests_global'),
@@ -87,7 +84,7 @@ class RepositoryTest extends TestCase
 
     public function testCollection()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $connection = new Connection($this->server, $this->dbName);
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
@@ -102,7 +99,7 @@ class RepositoryTest extends TestCase
 
     public function testCollectionLoggable()
     {
-        $mondongo = new Mondongo($loggerCallable = function() {});
+        $mondongo = new Mondongo($this->metadata, $loggerCallable = function() {});
         $connection = new Connection($this->server, $this->dbName);
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
@@ -117,7 +114,7 @@ class RepositoryTest extends TestCase
 
     public function testCollectionGridFS()
     {
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $connection = new Connection($this->server, $this->dbName);
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
@@ -132,7 +129,7 @@ class RepositoryTest extends TestCase
 
     public function testCollectionGridFSLoggable()
     {
-        $mondongo = new Mondongo($loggerCallable = function() {});
+        $mondongo = new Mondongo($this->metadata, $loggerCallable = function() {});
         $connection = new Connection($this->server, $this->dbName);
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
@@ -159,7 +156,7 @@ class RepositoryTest extends TestCase
     {
         $file = __DIR__.'/MondongoTest.php';
 
-        $mondongo = new Mondongo();
+        $mondongo = new Mondongo($this->metadata);
         $connection = new Connection($this->server, $this->dbName);
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
