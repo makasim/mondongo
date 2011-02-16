@@ -678,13 +678,35 @@ class CoreTest extends TestCase
         $article = new Article();
 
         $group = $article->getComments();
+        $this->assertFalse($article->isEmbeddedChanged('comments'));
         $this->assertInstanceOf('Mondongo\Group', $group);
         $this->assertSame(array(), $group->getElements());
         $this->assertSame($group, $article->getComments());
 
-        $groups = new Group();
-        $article->setComments($group);
+        $group->add(new \Model\Comment());
+        $this->assertTrue($article->isEmbeddedChanged('comments'));
+        $this->assertNull($article->getEmbeddedChanged('comments'));
+
+        $article->setComments(null);
+        $this->assertFalse($article->isEmbeddedChanged('comments'));
         $this->assertSame($group, $article->getComments());
+        $this->assertSame(array(), $group->getElements());
+
+        $group2 = new Group();
+        $article->setComments($group2);
+        $this->assertSame($group2, $article->getComments());
+        $this->assertFalse($article->isEmbeddedChanged('comments'));
+
+        $group3 = new Group();
+        $group3->add(new \Model\Comment());
+        $article->setComments($group3);
+        $this->assertSame($group3, $article->getComments());
+        $this->assertTrue($article->isEmbeddedChanged('comments'));
+        $this->assertNull($article->getEmbeddedChanged('comments'));
+
+        $article->setComments($group3);
+        $this->assertTrue($article->isEmbeddedChanged('comments'));
+        $this->assertNull($article->getEmbeddedChanged('comments'));
     }
 
     public function testDocumentsEmbeddedsManySetArray()

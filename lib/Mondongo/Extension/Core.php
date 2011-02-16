@@ -1172,23 +1172,25 @@ EOF;
 
             // setter
             $setterCode = <<<EOF
+        if (null === \$value) {
+            \$this->get('$name')->setElements(array());
+            if (\$this->isEmbeddedChanged('$name') && null === \$this->getEmbeddedChanged('$name')) {
+                \$this->removeEmbeddedChanged('$name');
+            }
+            return;
+        }
         if (!\$value instanceof \Mondongo\Group && !is_array(\$value)) {
             throw new \InvalidArgumentException('The embed "$name" is not an instance of "Mondongo\Group" or an array.');
         }
         if (is_array(\$value)) {
             \$value = new \Mondongo\Group(\$value);
+        } elseif (null !== \$this->data['embeddeds']['$name'] && \$this->data['embeddeds']['$name'] === \$value) {
+            return;
         }
         \$value->setChangeCallback(array(\$this, '$updateMethodName'));
-        foreach (\$value as \$embedded) {
-            if (!\$embedded instanceof \\{$embedded['class']}) {
-                throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embedded['class']}".');
-            }
-        }
-        if (!\$this->isEmbeddedChanged('$name')) {
-            \$this->setEmbeddedChanged('$name', \$this->data['embeddeds']['$name']);
-        }
 
         \$this->data['embeddeds']['$name'] = \$value;
+        \$this->$updateMethodName();
 EOF;
             $setterDocComment = <<<EOF
     /**
@@ -1209,8 +1211,6 @@ EOF;
         if (null === \$this->data['embeddeds']['$name']) {
             \$this->data['embeddeds']['$name'] = \$group = new \\Mondongo\Group();
             \$group->setChangeCallback(array(\$this, '$updateMethodName'));
-
-            \$this->setEmbeddedChanged('$name', null);
         }
 
         return \$this->data['embeddeds']['$name'];
@@ -1229,11 +1229,18 @@ EOF;
 
             // update
             $method = new Method('public', $updateMethodName, '', <<<EOF
-        if (null !== \$this->data['embeddeds']['$name']) {
+        if (null !== \$this->data['embeddeds']['$name'] && count(\$this->data['embeddeds']['$name'])) {
             foreach (\$this->data['embeddeds']['$name'] as \$embedded) {
                 if (!\$embedded instanceof \\{$embedded['class']}) {
                     throw new \InvalidArgumentException('Some document of the "$name" embedded is not an instance of "{$embedded['class']}".');
                 }
+            }
+            if (!\$this->isEmbeddedChanged('$name')) {
+                \$this->setEmbeddedChanged('$name', null);
+            }
+        } else {
+            if (\$this->isEmbeddedChanged('$name') && null === \$this->getEmbeddedChanged('$name')) {
+                \$this->removeEmbeddedChanged('$name');
             }
         }
 EOF
