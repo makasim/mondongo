@@ -1120,7 +1120,10 @@ EOF
             if (null !== \$this->data['embeddeds']['$name'] && spl_object_hash(\$value) === spl_object_hash(\$this->data['embeddeds']['$name'])) {
                 return;
             }
-        } elseif (!\$this->isEmbeddedChanged('$name') || null === \$this->getEmbeddedChanged('$name')) {
+        } elseif (\$this->isEmbeddedChanged('$name') && null === \$this->getEmbeddedChanged('$name')) {
+            \$this->removeEmbeddedChanged('$name');
+            return;
+        } elseif (null === \$this->data['embeddeds']['$name']) {
             return;
         }
 
@@ -1586,8 +1589,8 @@ EOF;
                 \$array['$name'] = null;
             } else {
                 \$array['$name'] = array();
-                foreach (\$this->data['embeddeds']['$name'] as \$embed) {
-                    \$array['$name'][] = \$embed->toArray();
+                foreach (\$this->data['embeddeds']['$name'] as \$key => \$embed) {
+                    \$array['$name'][\$key] = \$embed->toArray();
                 }
             }
 

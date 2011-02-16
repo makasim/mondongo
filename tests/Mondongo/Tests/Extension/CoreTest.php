@@ -653,6 +653,15 @@ class CoreTest extends TestCase
         $article->clearEmbeddedsChanged();
         $article->setSource($source);
         $this->assertFalse($article->isEmbeddedChanged('source'));
+
+        $article->setSource(null);
+        $this->assertNull($article->getSource());
+        $this->assertTrue($article->isEmbeddedChanged('source'));
+
+        $article = new \Model\Article();
+        $article->setSource($source);
+        $article->setSource(null);
+        $this->assertFalse($article->isEmbeddedChanged('source'));
     }
 
     /**
@@ -1150,6 +1159,20 @@ class CoreTest extends TestCase
             'content'   => 'Content',
             'is_active' => true,
         ), $article->toArray(false));
+    }
+
+    public function testToArrayNullEmbeddeds()
+    {
+        $article = new \Model\Article();
+
+        $this->assertSame(array(
+            'title'     => null,
+            'slug'      => null,
+            'content'   => null,
+            'is_active' => null,
+            'source'    => null,
+            'comments'  => null,
+        ), $article->toArray());
     }
 
     public function testDocumentSetDocumentDataMethod()
