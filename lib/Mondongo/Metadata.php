@@ -52,7 +52,7 @@ abstract class Metadata
      *
      * @return array The classes of documents.
      */
-    public function getDocumentsClasses()
+    public function getDocumentClasses()
     {
         $classes = array();
         foreach ($this->classes as $class => $isEmbedded) {
@@ -69,7 +69,7 @@ abstract class Metadata
      *
      * @return array The classes of embeddeds documents.
      */
-    public function getEmbeddedDocumentsClasses()
+    public function getEmbeddedDocumentClasses()
     {
         $classes = array();
         foreach ($this->classes as $classs => $isEmbedded) {

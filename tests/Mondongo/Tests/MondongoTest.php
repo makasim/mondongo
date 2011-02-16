@@ -212,7 +212,7 @@ class MondongoTest extends TestCase
         $repositories = $this->mondongo->getAllRepositories();
 
         $this->assertTrue(is_array($repositories));
-        $this->assertSame(count($this->metadata->getDocumentsClasses()), count($repositories));
+        $this->assertSame(count($this->metadata->getDocumentClasses()), count($repositories));
     }
 
     public function testEnsureAllIndexes()

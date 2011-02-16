@@ -262,7 +262,7 @@ class Mondongo
      */
     public function getAllRepositories()
     {
-        foreach ($this->getMetadata()->getDocumentsClasses() as $class) {
+        foreach ($this->getMetadata()->getDocumentClasses() as $class) {
             $this->getRepository($class);
         }
 
