@@ -143,7 +143,7 @@ abstract class Metadata
         }
 
         if (null === $this->infoClass) {
-            $infoClass = __CLASS__.'Info';
+            $infoClass = get_class($this).'Info';
             $this->infoClass = new $infoClass();
         }
 

@@ -205,7 +205,6 @@ $mondator->setExtensions(array(
     )),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),
-    new Mondongo\Extension\DocumentDataMap(),
 ));
 $mondator->process();
 
@@ -227,7 +226,6 @@ $mondator->setExtensions(array(
     )),
     new Mondongo\Extension\DocumentArrayAccess(),
     new Mondongo\Extension\DocumentPropertyOverloading(),
-    new Mondongo\Extension\DocumentDataMap(),
 ));
 $mondator->process();
 

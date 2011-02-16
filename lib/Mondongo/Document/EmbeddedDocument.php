@@ -32,6 +32,16 @@ abstract class EmbeddedDocument
     protected $embeddedsChanged = array();
 
     /**
+     * Returns the metadata info of the class.
+     *
+     * @return array The metadata info of the class.
+     */
+    static public function metadata()
+    {
+        return static::mondongo()->getMetadata()->getClassInfo(get_class($this));
+    }
+
+    /**
      * Returns if the document is modified.
      *
      * @return bool Returns if the document is modified.

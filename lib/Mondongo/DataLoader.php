@@ -112,7 +112,7 @@ class DataLoader
 
         $maps = array();
         foreach ($data as $class => $datum) {
-            $maps[$class] = $class::getDataMap();
+            $maps[$class] = $class::metadata();
         }
 
         // process function

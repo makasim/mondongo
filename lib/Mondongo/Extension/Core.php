@@ -136,6 +136,7 @@ class Core extends Extension
             $this->processDocumentMondongoMethod();
             $this->processDocumentRepositoryMethod();
         }
+        $this->processDocumentMetadataMethod();
 
         $this->processDocumentDataProperty();
         $this->processDocumentFieldsModifiedsProperty();
@@ -633,6 +634,28 @@ EOF
      * Returns the repository of the document.
      *
      * @return Mondongo\Repository The repository of the document.
+     */
+EOF
+        );
+
+        $this->definitions['document_base']->addMethod($method);
+    }
+
+    /*
+     * Document "metadata" method.
+     */
+    public function processDocumentMetadataMethod()
+    {
+        $method = new Method('public', 'metadata', '', <<<EOF
+        return static::mondongo()->getMetadata()->getClassInfo('{$this->class}');
+EOF
+        );
+        $method->setIsStatic(true);
+        $method->setDocComment(<<<EOF
+    /**
+     * Returns the metadata info of the class.
+     *
+     * @return array The metadata info of the class.
      */
 EOF
         );
