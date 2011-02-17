@@ -98,37 +98,33 @@ class DataLoaderTest extends TestCase
         ));
         $dataLoader->load(true);
 
-        $articleRepository = $this->mondongo->getRepository('Model\Article');
-        $authorRepository  = $this->mondongo->getRepository('Model\Author');
-        $categoryRepository  = $this->mondongo->getRepository('Model\Category');
-
         // articles
-        $this->assertSame(2, $articleRepository->count());
+        $this->assertSame(2, \Model\Article::count());
 
-        $article = $articleRepository->findOne(array('query' => array('title' => 'Article 1')));
+        $article = \Model\Article::query(array('title' => 'Article 1'))->one();
         $this->assertNotNull($article);
         $this->assertSame('Contuent', $article->getContent());
         $this->assertSame('Francisco', $article->getAuthor()->getName());
         $this->assertSame(2, $article->getCategories()->count());
 
-        $article = $articleRepository->findOne(array('query' => array('title' => 'My Article 2')));
+        $article = \Model\Article::query(array('title' => 'My Article 2'))->one();
         $this->assertNotNull($article);
         $this->assertNull($article->getAuthorId());
 
         // authors
-        $this->assertSame(3, $authorRepository->count());
+        $this->assertSame(3, \Model\Author::count());
 
-        $author = $authorRepository->findOne(array('query' => array('name' => 'PabloDip')));
+        $author = \Model\Author::query(array('name' => 'PabloDip'))->one();
         $this->assertNotNull($author);
 
-        $author = $authorRepository->findOne(array('query' => array('name' => 'Francisco')));
+        $author = \Model\Author::query(array('name' => 'Francisco'))->one();
         $this->assertNotNull($author);
 
-        $author = $authorRepository->findOne(array('query' => array('name' => 'Pedro')));
+        $author = \Model\Author::query(array('name' => 'Pedro'))->one();
         $this->assertNotNull($author);
 
         // categories
-        $this->assertSame(4, $categoryRepository->count());
+        $this->assertSame(4, \Model\Category::count());
     }
 
     public function testLoadReferencingToSameClass()

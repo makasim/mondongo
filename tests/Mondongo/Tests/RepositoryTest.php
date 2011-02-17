@@ -48,6 +48,15 @@ class RepositoryTest extends TestCase
         $this->assertSame($this->mondongo, $repository->getMondongo());
     }
 
+    public function testGetIdentityMap()
+    {
+        $repository = new Repository($this->mondongo);
+
+        $identityMap = $repository->getIdentityMap();
+        $this->assertInstanceOf('\Mondongo\IdentityMap', $identityMap);
+        $this->assertSame($identityMap, $repository->getIdentityMap());
+    }
+
     public function testGetDocumentClass()
     {
         $repository = new Repository($this->mondongo);
@@ -89,7 +98,7 @@ class RepositoryTest extends TestCase
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
 
-        $collection = $mondongo->getRepository('Model\Article')->getCollection();
+        $collection = $mondongo->getRepository('Model\Article')->collection();
 
         $this->assertSame('MongoCollection', get_class($collection));
         $this->assertSame('article', $collection->getName());
@@ -104,7 +113,7 @@ class RepositoryTest extends TestCase
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
 
-        $collection = $mondongo->getRepository('Model\Article')->getCollection();
+        $collection = $mondongo->getRepository('Model\Article')->collection();
 
         $this->assertSame('Mondongo\Logger\LoggableMongoCollection', get_class($collection));
         $this->assertSame('article', $collection->getName());
@@ -119,7 +128,7 @@ class RepositoryTest extends TestCase
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
 
-        $collection = $mondongo->getRepository('Model\Image')->getCollection();
+        $collection = $mondongo->getRepository('Model\Image')->collection();
 
         $this->assertSame('MongoGridFS', get_class($collection));
         $this->assertSame('image.files', $collection->getName());
@@ -134,7 +143,7 @@ class RepositoryTest extends TestCase
         $mondongo->setConnection('default', $connection);
         $mondongo->setDefaultConnectionName('default');
 
-        $collection = $mondongo->getRepository('Model\Image')->getCollection();
+        $collection = $mondongo->getRepository('Model\Image')->collection();
 
         $this->assertSame('Mondongo\Logger\LoggableMongoGridFS', get_class($collection));
         $this->assertSame('image.files', $collection->getName());
@@ -142,147 +151,43 @@ class RepositoryTest extends TestCase
         $connection->getMongo()->close();
     }
 
+    public function testQuery()
+    {
+        $repository = \Model\Article::repository();
+
+        $query = $repository->query();
+        $this->assertInstanceOf('Mondongo\Query', $query);
+        $this->assertSame($repository, $query->getRepository());
+
+        $this->assertNotSame($query, $repository->query());
+
+        $criteria = array('is_active' => true);
+        $this->assertSame($criteria, $repository->query($criteria)->getCriteria());
+    }
+
     public function testFind()
     {
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals($articles, $repository->find());
+        $this->assertEquals($articles[2], $repository->find($articles[2]->getId()));
+        $this->assertEquals($articles[5], $repository->find($articles[5]->getId()));
 
-        $this->assertNull($repository->find(array('query' => array('_id' => new \MongoId('123')))));
+        $this->assertEquals($articles[2], $repository->find($articles[2]->getId()->__toString()));
+        $this->assertEquals($articles[5], $repository->find($articles[5]->getId()->__toString()));
+
+        $this->assertNull($repository->find(new \MongoId('123')));
     }
 
-    public function testFindGridFS()
-    {
-        $file = __DIR__.'/MondongoTest.php';
-
-        $mondongo = new Mondongo($this->metadata);
-        $connection = new Connection($this->server, $this->dbName);
-        $mondongo->setConnection('default', $connection);
-        $mondongo->setDefaultConnectionName('default');
-
-        $repository = $mondongo->getRepository('Model\Image');
-
-        $image = new Image();
-        $image->setFile($file);
-        $image->setName('Mondongo');
-        $image->setDescription('Foobar');
-        $repository->save($image);
-
-        $repository->getIdentityMap()->clear();
-
-        $image  = $repository->findOne();
-        $result = $connection->getMongoDB()->getGridFS('image')->findOne();
-
-        $this->assertEquals($result, $image->getFile());
-        $this->assertSame('Mondongo', $image->getName());
-        $this->assertSame('Foobar', $image->getDescription());
-
-        $connection->getMongo()->close();
-    }
-
-    public function testFindOptionQuery()
+    public function testFindIdentityMap()
     {
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals(array($articles[0], $articles[4]), $repository->find(array('query' => array(
-            '_id' => array('$in' => array($articles[0]->getId(), $articles[4]->getId()))
-        ))));
-    }
-
-    public function testFindOptionFields()
-    {
-        $repository = $this->mondongo->getRepository('Model\Article');
-        $articles   = $this->createArticles(10);
-
-        $repository->getIdentityMap()->clear();
-
-        $results = $repository->find(array(), array('fields' => array('content' => 1)));
-
-        $this->assertNull($results[0]->getTitle());
-        $this->assertNull($results[0]->getIsActive());
-        $this->assertNull($results[3]->getTitle());
-        $this->assertNull($results[3]->getIsActive());
-    }
-
-    public function testFindOptionSort()
-    {
-        $repository = $this->mondongo->getRepository('Model\Article');
-        $articles   = $this->createArticles(11);
-
-        $results = $repository->find(array(), array('sort' => array('title' => -1)));
-
-        $this->assertSame('Article 9', $results[0]->getTitle());
-        $this->assertSame('Article 8', $results[1]->getTitle());
-        $this->assertSame('Article 10', $results[8]->getTitle());
-        $this->assertSame('Article 1', $results[9]->getTitle());
-        $this->assertSame('Article 0', $results[10]->getTitle());
-    }
-
-    public function testFindOptionLimit()
-    {
-        $repository = $this->mondongo->getRepository('Model\Article');
-        $articles   = $this->createArticles(10);
-
-        $this->assertSame(4, count($repository->find(array(), array('limit' => 4))));
-        $this->assertSame(6, count($repository->find(array(), array('limit' => 6))));
-    }
-
-    public function testFindOptionSkip()
-    {
-        $repository = $this->mondongo->getRepository('Model\Article');
-        $articles   = $this->createArticles(10);
-
-        $this->assertEquals(array($articles[8], $articles[9]), $repository->find(array(), array('skip' => 8)));
-        $this->assertEquals(array($articles[6], $articles[7], $articles[8], $articles[9]), $repository->find(array(), array('skip' => 6)));
-    }
-
-    public function testFindOptionOne()
-    {
-        $repository = $this->mondongo->getRepository('Model\Article');
-        $articles   = $this->createArticles(10);
-
-        $this->assertEquals($articles[0], $repository->find(array('_id' => $articles[0]->getId()), array('one' => true)));
-        $this->assertEquals($articles[4], $repository->find(array('_id' => $articles[4]->getId()), array('one' => true)));
-    }
-
-    public function testFindOne()
-    {
-        $repository = $this->mondongo->getRepository('Model\Article');
-        $articles   = $this->createArticles(10);
-
-        $this->assertEquals($articles[0], $repository->findOne());
-        $this->assertEquals($articles[3], $repository->findOne(array('query' => array('_id' => $articles[3]->getId()))));
-
-        $this->assertNull($repository->findOne(array('query' => array('_id' => new \MongoId('123')))));
-    }
-
-    public function testFindOneById()
-    {
-        $repository = $this->mondongo->getRepository('Model\Article');
-        $articles   = $this->createArticles(10);
-
-        $this->assertEquals($articles[2], $repository->findOneById($articles[2]->getId()));
-        $this->assertEquals($articles[5], $repository->findOneById($articles[5]->getId()));
-
-        $this->assertEquals($articles[2], $repository->findOneById($articles[2]->getId()->__toString()));
-        $this->assertEquals($articles[5], $repository->findOneById($articles[5]->getId()->__toString()));
-
-        $this->assertNull($repository->findOneById(new \MongoId('123')));
-    }
-
-    public function testFindOneByIdIdentityMap()
-    {
-        $repository = $this->mondongo->getRepository('Model\Article');
-        $articles   = $this->createArticles(10);
-
-        $repository->getIdentityMap()->clear();
-
-        $this->assertEquals($articles[3], $article = $repository->findOneById($articles[3]->getId()));
+        $this->assertEquals($articles[3], $article = $repository->find($articles[3]->getId()));
         $this->assertNotSame($articles[3], $article);
 
-        $this->assertSame($article, $repository->findOneById($articles[3]->getId()));
+        $this->assertSame($article, $repository->find($articles[3]->getId()));
     }
 
     public function testCount()
@@ -595,19 +500,12 @@ class RepositoryTest extends TestCase
         ), $document->getEvents());
     }
 
-    public function testGetIdentityMap()
-    {
-        $repository = new Repository($this->mondongo);
-
-        $this->assertInstanceOf('\Mondongo\IdentityMap', $repository->getIdentityMap());
-    }
-
     public function testIdentityMapFindCreating()
     {
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertEquals($articles[1], $repository->find(array('_id' => $articles[1]->getId()), array('one' => true)));
+        $this->assertEquals($articles[1], $repository->query(array('_id' => $articles[1]->getId()))->one());
     }
 
     public function testIdentityMapFindQuering()
@@ -617,10 +515,10 @@ class RepositoryTest extends TestCase
 
         $repository->getIdentityMap()->clear();
 
-        $this->assertEquals($articles[3], $article = $repository->findOneById($articles[3]->getId()));
+        $this->assertEquals($articles[3], $article = $repository->find($articles[3]->getId()));
         $this->assertNotSame($articles[3], $article);
 
-        $this->assertSame($article, $repository->findOneById($articles[3]->getId()));
+        $this->assertSame($article, $repository->find($articles[3]->getId()));
     }
 
     public function testIdentityMapDelete()

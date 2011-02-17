@@ -101,7 +101,7 @@ class DataLoader
         // purge
         if ($purge) {
             foreach ($this->mondongo->getAllRepositories() as $repository) {
-                $repository->getCollection()->drop();
+                $repository->collection()->drop();
             }
         }
 

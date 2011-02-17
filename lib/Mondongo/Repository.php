@@ -110,6 +110,16 @@ abstract class Repository
     }
 
     /**
+     * Returns the identity map.
+     *
+     * @return \Mondongo\IdentityMap The identity map.
+     */
+    public function getIdentityMap()
+    {
+        return $this->identityMap;
+    }
+
+    /**
      * Returns the connection.
      *
      * @return Mondongo\Connection The connection.
@@ -132,7 +142,7 @@ abstract class Repository
      *
      * @return \MongoCollection The collection.
      */
-    public function getCollection()
+    public function collection()
     {
         if (!$this->collection) {
             // gridfs
@@ -148,120 +158,38 @@ abstract class Repository
     }
 
     /**
-     * Returns the identity map.
+     * Create a query for the repository document class.
      *
-     * @return \Mondongo\IdentityMap The identity map.
+     * @param array $criteria The criteria for the query (optional).
+     *
+     * @return Mondongo\Query The query.
      */
-    public function getIdentityMap()
+    public function query(array $criteria = array())
     {
-        return $this->identityMap;
+        $query = new Query($this);
+        $query->criteria($criteria);
+
+        return $query;
     }
 
     /**
-     * Find documents.
-     *
-     * Options:
-     *
-     *   * fields: the fields (array)
-     *   * sort:   the sort (array)
-     *   * limit:  the limit
-     *   * skip:   the skip
-     *   * one:    if returns one result (incompatible with limit)
-     *
-     * @param array $query   The query (optional, an empty array by default)
-     * @param array $options An array of options (optional).
-     *
-     * @return mixed The document/s found within the parameters.
-     */
-    public function find(array $query = array(), array $options = array())
-    {
-        // fields
-        if (!isset($options['fields'])) {
-            $options['fields'] = array();
-        }
-
-        // cursor
-        $cursor = $this->getCollection()->find($query, $options['fields']);
-
-        // sort
-        if (isset($options['sort'])) {
-            $cursor->sort($options['sort']);
-        }
-
-        // one
-        if (isset($options['one'])) {
-            $cursor->limit(1);
-        // limit
-        } elseif (isset($options['limit'])) {
-            $cursor->limit($options['limit']);
-        }
-
-        // skip
-        if (isset($options['skip'])) {
-            $cursor->skip($options['skip']);
-        }
-
-        // results
-        $results = array();
-        foreach ($cursor as $data) {
-            $id = $this->isFile ? $data->file['_id'] : $data['_id'];
-            if ($this->identityMap->hasById($id)) {
-                $results[] = $this->identityMap->getById($id);
-                continue;
-            }
-
-            $results[] = $document = new $this->documentClass();
-            if ($this->isFile) {
-                $file = $data;
-                $data = $file->file;
-                $data['file'] = $file;
-            }
-            $document->setDocumentData($data);
-
-            $this->identityMap->add($document);
-        }
-
-        if ($results) {
-            // one
-            if (isset($options['one'])) {
-                return array_shift($results);
-            }
-
-            return $results;
-        }
-
-        return null;
-    }
-
-    /**
-     * Find one document.
-     *
-     * @param array $query   The query (optional, an empty array by default)
-     * @param array $options An array of options (optional).
-     *
-     * @return mixed The document found within the parameters.
-     *
-     * @see ::find()
-     */
-    public function findOne(array $query = array(), array $options = array())
-    {
-        return $this->find($query, array_merge($options, array('one' => true)));
-    }
-
-    /**
-     * Find one document by mongo id.
+     * Find one document by id.
      *
      * @param \MongoId|string $id The document \MongoId or the identifier string.
      *
      * @return mixed The document or NULL if it does not exists.
      */
-    public function findOneById($id)
+    public function find($id)
     {
         if (is_string($id)) {
             $id = new \MongoId($id);
         }
 
-        return $this->find(array('_id' => $id), array('one' => true));
+        if ($this->identityMap->hasById($id)) {
+            return $this->identityMap->getById($id);
+        }
+
+        return $this->query(array('_id' => $id))->one();
     }
 
     /**
@@ -273,7 +201,7 @@ abstract class Repository
      */
     public function count(array $query = array())
     {
-        return $this->getCollection()->count($query);
+        return $this->collection()->count($query);
     }
 
     /**
@@ -285,7 +213,7 @@ abstract class Repository
      */
     public function remove(array $query = array())
     {
-        return $this->getCollection()->remove($query, array('safe' => true));
+        return $this->collection()->remove($query, array('safe' => true));
     }
 
     /**
@@ -355,20 +283,20 @@ abstract class Repository
 
                     // file
                     if (file_exists($file)) {
-                        $id = $this->getCollection()->storeFile($file, $data, array('safe' => true));
+                        $id = $this->collection()->storeFile($file, $data, array('safe' => true));
                     // bytes
                     } else {
-                        $id = $this->getCollection()->storeBytes($file, $data, array('safe' => true));
+                        $id = $this->collection()->storeBytes($file, $data, array('safe' => true));
                     }
 
-                    $result = $this->getCollection()->findOne(array('_id' => $id));
+                    $result = $this->collection()->findOne(array('_id' => $id));
 
                     $data = $result->file;
                     $data['file'] = $result;
                 }
             // normal
             } else {
-                $this->getCollection()->batchInsert($a, array('safe' => true));
+                $this->collection()->batchInsert($a, array('safe' => true));
             }
 
             foreach ($a as $oid => $data) {
@@ -400,7 +328,7 @@ abstract class Repository
 
                 $query = $document->getQueryForSave();
 
-                $this->getCollection()->update(array('_id' => $document->getId()), $query, array('safe' => true));
+                $this->collection()->update(array('_id' => $document->getId()), $query, array('safe' => true));
 
                 $document->clearModified();
 
@@ -437,7 +365,7 @@ abstract class Repository
             $document->preDelete();
         }
 
-        $this->getCollection()->remove(array('_id' => array('$in' => $ids)), array('safe' => true));
+        $this->collection()->remove(array('_id' => array('$in' => $ids)), array('safe' => true));
 
         foreach ($documents as $document) {
             $this->identityMap->remove($document);

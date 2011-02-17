@@ -949,10 +949,7 @@ EOF;
             // getter
             $getterCode = <<<EOF
         if (null === \$this->data['references']['$name'] && null !== \$this->$fieldGetter()) {
-            \$value = \\Mondongo\Container::get()
-                ->getRepository('{$reference['class']}')
-                ->findOneById(\$this->$fieldGetter())
-            ;
+            \$value = \\{$reference['class']}::find(\$this->$fieldGetter());
             if (!\$value) {
                 throw new \RuntimeException('The reference "$name" does not exists');
             }
@@ -1039,10 +1036,7 @@ EOF;
             \$group = new \Mondongo\Group();
 
             if (\$ids = \$this->$fieldGetter()) {
-                \$value = \\Mondongo\Container::get()
-                    ->getRepository('{$reference['class']}')
-                    ->find(array('_id' => array('\$in' => \$ids)))
-                ;
+                \$value = \\{$reference['class']}::query(array('_id' => array('\$in' => \$ids)))->all();
                 if (!\$value || count(\$value) != count(\$ids)) {
                     throw new \RuntimeException('The reference "$name" does not exists');
                 }
@@ -1291,10 +1285,7 @@ EOF
         foreach ($this->configClass['relations_one'] as $name => $relation) {
             $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::get()
-                ->getRepository('{$relation['class']}')
-                ->findOne(array('{$relation['field']}' => \$this->getId()))
-            ;
+            \$this->data['relations']['$name'] = \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()))->one();
         }
 
         return \$this->data['relations']['$name'];
@@ -1318,10 +1309,7 @@ EOF;
         foreach ($this->configClass['relations_many_one'] as $name => $relation) {
             $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::get()
-                ->getRepository('{$relation['class']}')
-                ->find(array('{$relation['field']}' => \$this->getId()))
-            ;
+            \$this->data['relations']['$name'] = \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()))->all();
         }
 
         return \$this->data['relations']['$name'];
@@ -1345,10 +1333,7 @@ EOF;
         foreach ($this->configClass['relations_many_many'] as $name => $relation) {
             $getterCode = <<<EOF
         if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \Mondongo\Container::get()
-                ->getRepository('{$relation['class']}')
-                ->find(array('{$relation['field']}' => \$this->getId()))
-            ;
+            \$this->data['relations']['$name'] = \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()))->all();
         }
 
         return \$this->data['relations']['$name'];
@@ -1379,9 +1364,7 @@ EOF;
                 \$ids[] = \$value['{$relation['foreign']}'];
             }
             if (\$ids) {
-                \$this->data['relations']['$name'] = \\{$relation['class']}::repository()
-                    ->find(array('_id' => array('\$in' => \$ids)))
-                ;
+                \$this->data['relations']['$name'] = \\{$relation['class']}::query(array('_id' => array('\$in' => \$ids)))->all();
             }
         }
 
@@ -1723,7 +1706,7 @@ EOF
             $options = \Mondongo\Mondator\Dumper::exportArray(array_merge(isset($index['options']) ? $index['options'] : array(), array('safe' => true)), 12);
 
             $code .= <<<EOF
-        \$this->getCollection()->ensureIndex($keys, $options);
+        \$this->collection()->ensureIndex($keys, $options);
 
 EOF;
         }

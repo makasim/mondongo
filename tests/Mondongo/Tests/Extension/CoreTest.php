@@ -165,7 +165,7 @@ class CoreTest extends TestCase
 
         $article->save();
 
-        $article = $this->mondongo->getRepository('Model\Article')->findOneById($article->getId());
+        $article = \Model\Article::find($article->getId());
         $this->assertEquals($author, $a = $article->getAuthor());
         $this->assertSame($a, $article->getAuthor());
     }
@@ -292,7 +292,7 @@ class CoreTest extends TestCase
 
         $article->save();
 
-        $article = $this->mondongo->getRepository('Model\Article')->findOneById($article->getId());
+        $article = \Model\Article::find($article->getId());
         $this->assertEquals($group, $g = $article->getCategories());
         $this->assertSame($g, $article->getCategories());
     }

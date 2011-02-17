@@ -38,7 +38,37 @@ abstract class Document extends EmbeddedDocument
      */
     static public function collection()
     {
-        return static::repository()->getCollection();
+        return static::repository()->collection();
+    }
+
+    /**
+     * Access to repository ->query() method.
+     *
+     * @see Mondongo\Repository::query()
+     */
+    static public function query(array $criteria = array())
+    {
+        return static::repository()->query($criteria);
+    }
+
+    /**
+     * Access to repository ->find() method.
+     *
+     * @see Mondongo\Repository::find()
+     */
+    static public function find($id)
+    {
+        return static::repository()->find($id);
+    }
+
+    /**
+     * Access to repository ->count() method.
+     *
+     * @see Mondongo\Repository::count()
+     */
+    static public function count(array $criteria = array())
+    {
+        return static::repository()->count($criteria);
     }
 
     /**

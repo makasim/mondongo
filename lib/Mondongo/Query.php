@@ -29,7 +29,8 @@ namespace Mondongo;
  */
 class Query implements \Countable, \IteratorAggregate
 {
-    protected $class;
+    protected $repository;
+
     protected $criteria = array();
     protected $fields = array();
     protected $sort;
@@ -39,21 +40,21 @@ class Query implements \Countable, \IteratorAggregate
     /**
      * Constructor.
      *
-     * @param string $class The class.
+     * @param string Mondongo\Repository $repository The repository of the class to query.
      */
-    public function __construct($class)
+    public function __construct(Repository $repository)
     {
-        $this->class = $class;
+        $this->repository = $repository;
     }
 
     /**
-     * Returns the class.
+     * Returns the repository.
      *
-     * @return string The class.
+     * @return Mondongo\Repository The repository.
      */
-    public function getClass()
+    public function getRepository()
     {
-        return $this->class;
+        return $this->repository;
     }
 
     /**
@@ -187,18 +188,24 @@ class Query implements \Countable, \IteratorAggregate
      */
     public function getIterator()
     {
-        $class = $this->class;
-        $identityMap = $class::repository()->getIdentityMap();
+        $documentClass = $this->repository->getDocumentClass();
+        $isFile = $this->repository->isFile();
+        $identityMap = $this->repository->getIdentityMap();
 
         $results = array();
         foreach ($this->createCursor() as $data) {
-            $id = $data['_id'];
+            $id = $isFile ? $data->file['_id'] : $data['_id'];
             if ($identityMap->hasById($id)) {
                 $results[] = $identityMap->getById($id);
                 continue;
             }
 
-            $results[] = $document = new $class();
+            $results[] = $document = new $documentClass();
+            if ($isFile) {
+                $file = $data;
+                $data = $file->file;
+                $data['file'] = $file;
+            }
             $document->setDocumentData($data);
 
             $identityMap->add($document);
@@ -248,8 +255,7 @@ class Query implements \Countable, \IteratorAggregate
      */
     public function createCursor()
     {
-        $class = $this->class;
-        $cursor = $class::collection()->find($this->criteria, $this->fields);
+        $cursor = $this->repository->collection()->find($this->criteria, $this->fields);
 
         if (null !== $this->sort) {
             $cursor->sort($this->sort);

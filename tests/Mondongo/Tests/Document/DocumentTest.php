@@ -39,7 +39,33 @@ class DocumentTest extends TestCase
 {
     public function testCollection()
     {
-        $this->assertSame(Article::repository()->getCollection(), Article::collection());
+        $this->assertSame(Article::repository()->collection(), Article::collection());
+    }
+
+    public function testRepository()
+    {
+        $this->assertSame($this->mondongo->getRepository('Model\Article'), \Model\Article::repository());
+    }
+
+    public function testQuery()
+    {
+        $this->assertEquals(\Model\Article::repository()->query(), \Model\Article::query());
+
+        $criteria = array('is_active' => true);
+        $this->assertEquals(\Model\Article::repository()->query($criteria), \Model\Article::query($criteria));
+    }
+
+    public function testFind()
+    {
+        $articles = $this->createArticles(10);
+
+        $this->assertEquals($articles[2], \Model\Article::find($articles[2]->getId()));
+        $this->assertEquals($articles[5], \Model\Article::find($articles[5]->getId()));
+
+        $this->assertEquals($articles[2], \Model\Article::find($articles[2]->getId()->__toString()));
+        $this->assertEquals($articles[5], \Model\Article::find($articles[5]->getId()->__toString()));
+
+        $this->assertNull(\Model\Article::find(new \MongoId('123')));
     }
 
     public function testId()
@@ -167,7 +193,7 @@ class DocumentTest extends TestCase
         $article = new Article();
         $article->setTitle('$document->save()');
         $article->save();
-        $this->assertEquals($article, Article::repository()->findOneById($article->getId()));
+        $this->assertEquals($article, Article::find($article->getId()));
     }
 
     public function testDelete()
@@ -176,7 +202,7 @@ class DocumentTest extends TestCase
         $article->setTitle('$document->delete()');
         $article->save();
         $article->delete();
-        $this->assertNull(Article::repository()->findOneById($article->getId()));
+        $this->assertNull(Article::find($article->getId()));
     }
 
     public function testQueryForSaveInsert()
