@@ -62,6 +62,10 @@ class TestCase extends \PHPUnit_Framework_TestCase
         $this->unitOfWork = $this->mondongo->getUnitOfWork();
         $this->metadata = $this->mondongo->getMetadata();
 
+        foreach ($this->mondongo->getAllRepositories() as $repository) {
+            $repository->getIdentityMap()->clear();
+        }
+
         $this->mongo = $this->connection->getMongo();
         $this->db = $this->connection->getMongoDB();
 
@@ -73,7 +77,7 @@ class TestCase extends \PHPUnit_Framework_TestCase
         Container::setDefaultName('default');
     }
 
-    protected function createArticles($nb)
+    protected function createArticles($nb, $clearIdentityMap = true)
     {
         $articles = array();
         for ($i = 0; $i < $nb; $i++) {
@@ -82,6 +86,22 @@ class TestCase extends \PHPUnit_Framework_TestCase
             $a->setContent('Content');
         }
         $this->mondongo->getRepository('Model\Article')->save($articles);
+
+        \Model\Article::repository()->getIdentityMap()->clear();
+
+        return $articles;
+    }
+
+    protected function createRawArticles($nb)
+    {
+        $articles = array();
+        for ($i=0; $i < $nb; $i++) {
+            $articles[] = array(
+                'title'   => 'Article'.$i,
+                'content' => 'Content'.$i,
+            );
+        }
+        \Model\Article::collection()->batchInsert($articles);
 
         return $articles;
     }

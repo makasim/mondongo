@@ -607,7 +607,7 @@ class RepositoryTest extends TestCase
         $repository = $this->mondongo->getRepository('Model\Article');
         $articles   = $this->createArticles(10);
 
-        $this->assertSame($articles[1], $repository->find(array('_id' => $articles[1]->getId()), array('one' => true)));
+        $this->assertEquals($articles[1], $repository->find(array('_id' => $articles[1]->getId()), array('one' => true)));
     }
 
     public function testIdentityMapFindQuering()
