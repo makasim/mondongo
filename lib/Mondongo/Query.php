@@ -36,6 +36,10 @@ class Query implements \Countable, \IteratorAggregate
     protected $sort;
     protected $limit;
     protected $skip;
+    protected $batchSize;
+    protected $hint;
+    protected $snapshot = false;
+    protected $timeout;
 
     /**
      * Constructor.
@@ -61,9 +65,17 @@ class Query implements \Countable, \IteratorAggregate
      * Set the criteria.
      *
      * @param array $criteria The criteria.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     *
+     * @throws \InvalidArgumentException If the criteria is not an array or null.
      */
-    public function criteria(array $criteria)
+    public function criteria($criteria)
     {
+        if (null !== $criteria && !is_array($criteria)) {
+            throw new \InvalidArgumentException(sprintf('The criteria "%s" is not valid.', $criteria));
+        }
+
         $this->criteria = $criteria;
 
         return $this;
@@ -83,9 +95,17 @@ class Query implements \Countable, \IteratorAggregate
      * Set the fields.
      *
      * @param array $fields The fields.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     *
+     * @throws \InvalidArgumentException If the fields are not an array or null.
      */
-    public function fields(array $fields)
+    public function fields($fields)
     {
+        if (null !== $fields && !is_array($fields)) {
+            throw new \InvalidArgumentException(sprintf('The fields "%s" are not valid.', $fields));
+        }
+
         $this->fields = $fields;
 
         return $this;
@@ -105,6 +125,10 @@ class Query implements \Countable, \IteratorAggregate
      * Set the sort.
      *
      * @param array|null $sort The sort.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     *
+     * @throws \InvalidArgumentException If the sort is not an array or null.
      */
     public function sort($sort)
     {
@@ -131,14 +155,21 @@ class Query implements \Countable, \IteratorAggregate
      * Set the limit.
      *
      * @param int|null $limit The limit.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     *
+     * @throws \InvalidArgumentException If the limit is not a valid integer or null.
      */
     public function limit($limit)
     {
-        if ($limit != (int) $limit) {
-            throw new \InvalidArgumentException(sprintf('The limit "%s" is not valid.', $limit));
+        if (null !== $limit) {
+            if (!is_numeric($limit) || $limit != (int) $limit) {
+                throw new \InvalidArgumentException(sprintf('The limit "%s" is not valid.', $limit));
+            }
+            $limit = (int) $limit;
         }
 
-        $this->limit = null === $limit ? null : (int) $limit;
+        $this->limit = $limit;
 
         return $this;
     }
@@ -157,14 +188,21 @@ class Query implements \Countable, \IteratorAggregate
      * Set the skip.
      *
      * @param int|null $skip The skip.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     *
+     * @throws \InvalidArgumentException If the skip is not a valid integer, or null.
      */
     public function skip($skip)
     {
-        if ($skip != (int) $skip) {
-            throw new \InvalidArgumentException(sprintf('The skip "%s" is not valid.', $skip));
+        if (null !== $skip) {
+            if (!is_numeric($skip) || $skip != (int) $skip) {
+                throw new \InvalidArgumentException(sprintf('The skip "%s" is not valid.', $skip));
+            }
+            $skip = (int) $skip;
         }
 
-        $this->skip = null === $skip ? null : (int) $skip;
+        $this->skip = $skip;
 
         return $this;
     }
@@ -177,6 +215,124 @@ class Query implements \Countable, \IteratorAggregate
     public function getSkip()
     {
         return $this->skip;
+    }
+
+    /**
+     * Set the batch size.
+     *
+     * @param int|null $batchSize The batch size.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     */
+    public function batchSize($batchSize)
+    {
+        if (null !== $batchSize) {
+            if (!is_numeric($batchSize) || $batchSize != (int) $batchSize) {
+                throw new \InvalidArgumentException(sprintf('The batchSize "%s" is not valid.', $batchSize));
+            }
+            $batchSize = (int) $batchSize;
+        }
+
+        $this->batchSize = $batchSize;
+
+        return $this;
+    }
+
+    /**
+     * Returns the batch size.
+     *
+     * @return int|null The batch size.
+     */
+    public function getBatchSize()
+    {
+        return $this->batchSize;
+    }
+
+    /**
+     * Set the hint.
+     *
+     * @param array|null The hint.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     */
+    public function hint($hint)
+    {
+        if (null !== $hint && !is_array($hint)) {
+            throw new \InvalidArgumentException(sprintf('The hint "%s" is not valid.', $hint));
+        }
+
+        $this->hint = $hint;
+
+        return $this;
+    }
+
+    /**
+     * Returns the hint.
+     *
+     * @return array|null The hint.
+     */
+    public function getHint()
+    {
+        return $this->hint;
+    }
+
+    /**
+     * Set if the snapshot mode is used.
+     *
+     * @param bool $snapshot If the snapshot mode is used.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     */
+    public function snapshot($snapshot)
+    {
+        if (!is_bool($snapshot)) {
+            throw new \InvalidArgumentException('The snapshot is not a boolean.');
+        }
+
+        $this->snapshot = $snapshot;
+
+        return $this;
+    }
+
+    /**
+     * Returns if the snapshot mode is used.
+     *
+     * @return bool If the snapshot mode is used.
+     */
+    public function getSnapshot()
+    {
+        return $this->snapshot;
+    }
+
+    /**
+     * Set the timeout.
+     *
+     * @param int|null $timeout The timeout of the cursor.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     */
+    public function timeout($timeout)
+    {
+        if (null !== $timeout) {
+            if (!is_numeric($timeout) || $timeout != (int) $timeout) {
+                throw new \InvalidArgumentException(sprintf('The limit "%s" is not valid.', $timeout));
+            }
+            $timeout = (int) $timeout;
+        }
+
+        $this->timeout = $timeout;
+
+        return $this;
+    }
+
+    /**
+     * Returns the timeout.
+     *
+     * @return int|null The timeout.
+     */
+    public function getTimeout()
+    {
+        return $this->timeout;
     }
 
     /**
@@ -267,6 +423,22 @@ class Query implements \Countable, \IteratorAggregate
 
         if (null !== $this->skip) {
             $cursor->skip($this->skip);
+        }
+
+        if (null !== $this->batchSize) {
+            $cursor->batchSize($this->batchSize);
+        }
+
+        if (null !== $this->hint) {
+            $cursor->hint($this->hint);
+        }
+
+        if ($this->snapshot) {
+            $cursor->snapshot();
+        }
+
+        if (null !== $this->timeout) {
+            $cursor->timeout($this->timeout);
         }
 
         return $cursor;

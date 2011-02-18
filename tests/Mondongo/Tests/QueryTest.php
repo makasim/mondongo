@@ -46,6 +46,16 @@ class QueryTest extends TestCase
         $this->assertSame($criteria, $query->getCriteria());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotArrayOrNull
+     */
+    public function testCriteriaNotArrayOrNull($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->criteria($value);
+    }
+
     public function testFields()
     {
         $query = new Query(\Model\Article::repository());
@@ -58,6 +68,16 @@ class QueryTest extends TestCase
         $fields = array('_id' => 1);
         $query->fields($fields);
         $this->assertSame($fields, $query->getFields());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotArrayOrNull
+     */
+    public function testFieldsNotArrayOrNull($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->fields($value);
     }
 
     public function testSort()
@@ -77,6 +97,16 @@ class QueryTest extends TestCase
         $this->assertNull($query->getSort());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotArrayOrNull
+     */
+    public function testSortNotArrayOrNull($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->sort($value);
+    }
+
     public function testLimit()
     {
         $query = new Query(\Model\Article::repository());
@@ -92,6 +122,16 @@ class QueryTest extends TestCase
         $this->assertNull($query->getLimit());
     }
 
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotValidIntOrNull
+     */
+    public function testLimitNotValidIntOrNull($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->limit($value);
+    }
+
     public function testSkip()
     {
         $query = new Query(\Model\Article::repository());
@@ -105,6 +145,115 @@ class QueryTest extends TestCase
 
         $query->skip(null);
         $this->assertNull($query->getSkip());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotValidIntOrNull
+     */
+    public function testSkipNotValidIntOrNull($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->skip($value);
+    }
+
+    public function testBatchSize()
+    {
+        $query = new Query(\Model\Article::repository());
+        $this->assertNull($query->getBatchSize());
+
+        $this->assertSame($query, $query->batchSize(15));
+        $this->assertSame(15, $query->getBatchSize());
+
+        $query->batchSize('40');
+        $this->assertSame(40, $query->getBatchSize());
+
+        $query->batchSize(null);
+        $this->assertNull($query->getBatchSize());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotValidIntOrNull
+     */
+    public function testBatchSizeNotValidIntOrNull($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->batchSize($value);
+    }
+
+    public function testHint()
+    {
+        $query = new Query(\Model\Article::repository());
+        $this->assertNull($query->getHint());
+
+        $hint = array('username' => 1);
+        $this->assertSame($query, $query->hint($hint));
+        $this->assertSame($hint, $query->getHint());
+
+        $hint = array('username' => 1, 'date' => 1);
+        $query->hint($hint);
+        $this->assertSame($hint, $query->getHint());
+
+        $query->hint(null);
+        $this->assertNull($query->getHint());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotArrayOrNull
+     */
+    public function testHintNotArrayOrNull($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->hint($value);
+    }
+
+    public function testSnapshot()
+    {
+        $query = new Query(\Model\Article::repository());
+        $this->assertFalse($query->getSnapshot());
+
+        $this->assertSame($query, $query->snapshot(true));
+        $this->assertTrue($query->getSnapshot());
+
+        $query->snapshot(false);
+        $this->assertFalse($query->getSnapshot());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotBoolean
+     */
+    public function testSnapshotNotBoolean($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->snapshot($value);
+    }
+
+    public function testTimeout()
+    {
+        $query = new Query(\Model\Article::repository());
+        $this->assertNull($query->getTimeout());
+
+        $this->assertSame($query, $query->timeout(15));
+        $this->assertSame(15, $query->getTimeout());
+
+        $query->timeout('40');
+        $this->assertSame(40, $query->getTimeout());
+
+        $query->timeout(null);
+        $this->assertNull($query->getTimeout());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotValidIntOrNull
+     */
+    public function testTimeoutNotValidIntOrNull($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->timeout($value);
     }
 
     public function testGetIterator()
@@ -196,5 +345,52 @@ class QueryTest extends TestCase
         foreach ($articles as $article) {
             $this->assertTrue(isset($results[$article['_id']->__toString()]));
         }
+    }
+
+    public function testCreateCursorPlaying()
+    {
+        $query = new Query(\Model\Article::repository());
+
+        $query
+            ->criteria(array('is_active' => true))
+            ->fields(array('title' => 1))
+            ->sort(array('date' => -1))
+            ->limit(10)
+            ->skip(25)
+            ->batchSize(5)
+            ->hint(array('username' => 1))
+            ->snapshot(true)
+            ->timeout(100)
+        ;
+
+        $cursor = $query->createCursor();
+        $this->assertInstanceOf('MongoCursor', $cursor);
+    }
+
+    public function providerNotArrayOrNull()
+    {
+        return array(
+            array(true),
+            array(1),
+            array('string'),
+        );
+    }
+
+    public function providerNotValidIntOrNull()
+    {
+        return array(
+            array(true),
+            array(array(1, 2)),
+            array(1.1),
+        );
+    }
+
+    public function providerNotBoolean()
+    {
+        return array(
+            array(1),
+            array('true'),
+            array(array(true)),
+        );
     }
 }
