@@ -329,36 +329,6 @@ class QueryTest extends TestCase
         $this->query->snapshot($value);
     }
 
-    public function testTailable()
-    {
-        $query = $this->query;
-        $this->assertFalse($query->getTailable());
-
-        $this->assertSame($query, $query->tailable(true));
-        $this->assertTrue($query->getTailable());
-
-        $query->tailable(false);
-        $this->assertFalse($query->getTailable());
-    }
-
-    /**
-     * @expectedException \LogicException
-     */
-    public function testTailableIterating()
-    {
-        $this->query->rewind();
-        $this->query->tailable(true);
-    }
-
-    /**
-     * @expectedException \InvalidArgumentException
-     * @dataProvider      providerNotBoolean
-     */
-    public function testTailableNotBoolean($value)
-    {
-        $this->query->tailable($value);
-    }
-
     public function testTimeout()
     {
         $query = $this->query;
@@ -502,7 +472,6 @@ class QueryTest extends TestCase
             ->batchSize(5)
             ->hint(array('username' => 1))
             ->snapshot(true)
-            ->tailable(true)
             ->timeout(100)
         ;
 
