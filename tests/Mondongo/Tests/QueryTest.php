@@ -25,18 +25,27 @@ use Mondongo\Query;
 
 class QueryTest extends TestCase
 {
+    protected $repository;
+    protected $query;
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this->repository = \Model\Article::repository();
+        $this->query = new Query($this->repository);
+    }
+
     public function testConstructGetRepository()
     {
-        $repository = \Model\Article::repository();
-        $query = new Query($repository);
-        $this->assertSame($repository, $query->getRepository());
+        $this->assertSame($this->repository, $this->query->getRepository());
     }
 
     public function testGetCursor()
     {
         $this->createArticles(1);
 
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertNull($query->getCursor());
         foreach ($query as $article) {
             $this->assertInstanceOf('MongoCursor', $query->getCursor());
@@ -47,7 +56,7 @@ class QueryTest extends TestCase
 
     public function testCriteria()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertSame(array(), $query->getCriteria());
 
         $criteria = array('is_active' => true);
@@ -65,13 +74,12 @@ class QueryTest extends TestCase
      */
     public function testCriteriaNotArrayOrNull($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->criteria($value);
+        $this->query->criteria($value);
     }
 
     public function testFields()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertSame(array(), $query->getFields());
 
         $fields = array('title' => 1, 'content' => 1);
@@ -89,13 +97,12 @@ class QueryTest extends TestCase
      */
     public function testFieldsNotArrayOrNull($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->fields($value);
+        $this->query->fields($value);
     }
 
     public function testSort()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertNull($query->getSort());
 
         $sort = array('is_active' => 1);
@@ -116,13 +123,12 @@ class QueryTest extends TestCase
      */
     public function testSortNotArrayOrNull($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->sort($value);
+        $this->query->sort($value);
     }
 
     public function testLimit()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertNull($query->getLimit());
 
         $this->assertSame($query, $query->limit(10));
@@ -141,13 +147,12 @@ class QueryTest extends TestCase
      */
     public function testLimitNotValidIntOrNull($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->limit($value);
+        $this->query->limit($value);
     }
 
     public function testSkip()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertNull($query->getSkip());
 
         $this->assertSame($query, $query->skip(15));
@@ -166,13 +171,12 @@ class QueryTest extends TestCase
      */
     public function testSkipNotValidIntOrNull($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->skip($value);
+        $this->query->skip($value);
     }
 
     public function testBatchSize()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertNull($query->getBatchSize());
 
         $this->assertSame($query, $query->batchSize(15));
@@ -191,13 +195,12 @@ class QueryTest extends TestCase
      */
     public function testBatchSizeNotValidIntOrNull($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->batchSize($value);
+        $this->query->batchSize($value);
     }
 
     public function testHint()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertNull($query->getHint());
 
         $hint = array('username' => 1);
@@ -218,13 +221,12 @@ class QueryTest extends TestCase
      */
     public function testHintNotArrayOrNull($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->hint($value);
+        $this->query->hint($value);
     }
 
     public function testSnapshot()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertFalse($query->getSnapshot());
 
         $this->assertSame($query, $query->snapshot(true));
@@ -240,13 +242,12 @@ class QueryTest extends TestCase
      */
     public function testSnapshotNotBoolean($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->snapshot($value);
+        $this->query->snapshot($value);
     }
 
     public function testTailable()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertFalse($query->getTailable());
 
         $this->assertSame($query, $query->tailable(true));
@@ -262,13 +263,12 @@ class QueryTest extends TestCase
      */
     public function testTailableNotBoolean($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->tailable($value);
+        $this->query->tailable($value);
     }
 
     public function testTimeout()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertNull($query->getTimeout());
 
         $this->assertSame($query, $query->timeout(15));
@@ -287,13 +287,12 @@ class QueryTest extends TestCase
      */
     public function testTimeoutNotValidIntOrNull($value)
     {
-        $query = new Query(\Model\Article::repository());
-        $query->timeout($value);
+        $this->query->timeout($value);
     }
 
     public function testIterator()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $articles = $this->createArticles(10);
 
         $results = iterator_to_array($query);
@@ -327,7 +326,7 @@ class QueryTest extends TestCase
 
     public function testAll()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $articles = $this->createArticles(10);
 
         $results = $query->all();
@@ -338,7 +337,7 @@ class QueryTest extends TestCase
 
     public function testOne()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $articles = $this->createArticles(10);
 
         $this->assertEquals($articles[0], $query->one());
@@ -346,13 +345,13 @@ class QueryTest extends TestCase
 
     public function testOneWithoutResults()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $this->assertNull($query->one());
     }
 
     public function testOneNotChangeQueryLimit()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
         $query->limit(10);
         $query->one();
         $this->assertSame(10, $query->getLimit());
@@ -360,7 +359,7 @@ class QueryTest extends TestCase
 
     public function testCount()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
 
         $articles = $this->createRawArticles(20);
         $this->assertSame(20, $query->count());
@@ -368,7 +367,7 @@ class QueryTest extends TestCase
 
     public function testCountableInterface()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
 
         $articles = $this->createRawArticles(5);
         $this->assertSame(5, count($query));
@@ -376,7 +375,7 @@ class QueryTest extends TestCase
 
     public function testCreateCursor()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
 
         $cursor = $query->createCursor();
         $this->assertInstanceOf('MongoCursor', $cursor);
@@ -390,7 +389,7 @@ class QueryTest extends TestCase
 
     public function testCreateCursorPlaying()
     {
-        $query = new Query(\Model\Article::repository());
+        $query = $this->query;
 
         $query
             ->criteria(array('is_active' => true))
