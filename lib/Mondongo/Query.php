@@ -74,6 +74,17 @@ class Query implements \Countable, \Iterator
     }
 
     /**
+     * Reset the cursor.
+     *
+     * You have to use this method if you don't end to iterate the query and you want
+     * continue working with the query.
+     */
+    public function resetCursor()
+    {
+        $this->cursor = null;
+    }
+
+    /**
      * Set the criteria.
      *
      * @param array $criteria The criteria.
@@ -84,6 +95,8 @@ class Query implements \Countable, \Iterator
      */
     public function criteria($criteria)
     {
+        $this->checkCursor();
+
         if (null !== $criteria && !is_array($criteria)) {
             throw new \InvalidArgumentException(sprintf('The criteria "%s" is not valid.', $criteria));
         }
@@ -114,6 +127,8 @@ class Query implements \Countable, \Iterator
      */
     public function fields($fields)
     {
+        $this->checkCursor();
+
         if (null !== $fields && !is_array($fields)) {
             throw new \InvalidArgumentException(sprintf('The fields "%s" are not valid.', $fields));
         }
@@ -144,6 +159,8 @@ class Query implements \Countable, \Iterator
      */
     public function sort($sort)
     {
+        $this->checkCursor();
+
         if (null !== $sort && !is_array($sort)) {
             throw new \InvalidArgumentException(sprintf('The sort "%s" is not valid.', $sort));
         }
@@ -174,6 +191,8 @@ class Query implements \Countable, \Iterator
      */
     public function limit($limit)
     {
+        $this->checkCursor();
+
         if (null !== $limit) {
             if (!is_numeric($limit) || $limit != (int) $limit) {
                 throw new \InvalidArgumentException(sprintf('The limit "%s" is not valid.', $limit));
@@ -207,6 +226,8 @@ class Query implements \Countable, \Iterator
      */
     public function skip($skip)
     {
+        $this->checkCursor();
+
         if (null !== $skip) {
             if (!is_numeric($skip) || $skip != (int) $skip) {
                 throw new \InvalidArgumentException(sprintf('The skip "%s" is not valid.', $skip));
@@ -238,6 +259,8 @@ class Query implements \Countable, \Iterator
      */
     public function batchSize($batchSize)
     {
+        $this->checkCursor();
+
         if (null !== $batchSize) {
             if (!is_numeric($batchSize) || $batchSize != (int) $batchSize) {
                 throw new \InvalidArgumentException(sprintf('The batchSize "%s" is not valid.', $batchSize));
@@ -269,6 +292,8 @@ class Query implements \Countable, \Iterator
      */
     public function hint($hint)
     {
+        $this->checkCursor();
+
         if (null !== $hint && !is_array($hint)) {
             throw new \InvalidArgumentException(sprintf('The hint "%s" is not valid.', $hint));
         }
@@ -297,6 +322,8 @@ class Query implements \Countable, \Iterator
      */
     public function snapshot($snapshot)
     {
+        $this->checkCursor();
+
         if (!is_bool($snapshot)) {
             throw new \InvalidArgumentException('The snapshot is not a boolean.');
         }
@@ -325,6 +352,8 @@ class Query implements \Countable, \Iterator
      */
     public function tailable($tailable)
     {
+        $this->checkCursor();
+
         if (!is_bool($tailable)) {
             throw new \InvalidArgumentException('The tailable is not a boolean.');
         }
@@ -353,6 +382,8 @@ class Query implements \Countable, \Iterator
      */
     public function timeout($timeout)
     {
+        $this->checkCursor();
+
         if (null !== $timeout) {
             if (!is_numeric($timeout) || $timeout != (int) $timeout) {
                 throw new \InvalidArgumentException(sprintf('The limit "%s" is not valid.', $timeout));
@@ -505,5 +536,12 @@ class Query implements \Countable, \Iterator
         }
 
         return $cursor;
+    }
+
+    protected function checkCursor()
+    {
+        if (null !== $this->cursor) {
+            throw new \LogicException('There is cursor, that is that you have not ended to iterate. If you want to continue working with the query you have to clean the cursor explicitly with the ->resetCursor() method.');
+        }
     }
 }

@@ -51,7 +51,19 @@ class QueryTest extends TestCase
             $this->assertInstanceOf('MongoCursor', $query->getCursor());
         }
         $this->assertNull($query->getCursor());
+    }
 
+    public function testResetCursor()
+    {
+        $this->createArticles(1);
+
+        $query = $this->query;
+        foreach ($query as $article) {
+            break;
+        }
+        $this->assertInstanceOf('MongoCursor', $query->getCursor());
+        $query->resetCursor();
+        $this->assertNull($query->getCursor());
     }
 
     public function testCriteria()
@@ -66,6 +78,15 @@ class QueryTest extends TestCase
         $criteria = array('title' => 'foo', 'content' => 'bar');
         $query->criteria($criteria);
         $this->assertSame($criteria, $query->getCriteria());
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testCriteriaIterating()
+    {
+        $this->query->rewind();
+        $this->query->criteria(null);
     }
 
     /**
@@ -89,6 +110,15 @@ class QueryTest extends TestCase
         $fields = array('_id' => 1);
         $query->fields($fields);
         $this->assertSame($fields, $query->getFields());
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testFieldsIterating()
+    {
+        $this->query->rewind();
+        $this->query->fields(null);
     }
 
     /**
@@ -118,6 +148,15 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @expectedException \LogicException
+     */
+    public function testSortIterating()
+    {
+        $this->query->rewind();
+        $this->query->sort(null);
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @dataProvider      providerNotArrayOrNull
      */
@@ -139,6 +178,15 @@ class QueryTest extends TestCase
 
         $query->limit(null);
         $this->assertNull($query->getLimit());
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testLimitIterating()
+    {
+        $this->query->rewind();
+        $this->query->limit(null);
     }
 
     /**
@@ -166,6 +214,15 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @expectedException \LogicException
+     */
+    public function testSkipIterating()
+    {
+        $this->query->rewind();
+        $this->query->skip(null);
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @dataProvider      providerNotValidIntOrNull
      */
@@ -187,6 +244,15 @@ class QueryTest extends TestCase
 
         $query->batchSize(null);
         $this->assertNull($query->getBatchSize());
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testBatchSizeIterating()
+    {
+        $this->query->rewind();
+        $this->query->batchSize(null);
     }
 
     /**
@@ -216,6 +282,15 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @expectedException \LogicException
+     */
+    public function testHintIterating()
+    {
+        $this->query->rewind();
+        $this->query->hint(null);
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @dataProvider      providerNotArrayOrNull
      */
@@ -234,6 +309,15 @@ class QueryTest extends TestCase
 
         $query->snapshot(false);
         $this->assertFalse($query->getSnapshot());
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testSnapshotIterating()
+    {
+        $this->query->rewind();
+        $this->query->snapshot(true);
     }
 
     /**
@@ -258,6 +342,15 @@ class QueryTest extends TestCase
     }
 
     /**
+     * @expectedException \LogicException
+     */
+    public function testTailableIterating()
+    {
+        $this->query->rewind();
+        $this->query->tailable(true);
+    }
+
+    /**
      * @expectedException \InvalidArgumentException
      * @dataProvider      providerNotBoolean
      */
@@ -279,6 +372,15 @@ class QueryTest extends TestCase
 
         $query->timeout(null);
         $this->assertNull($query->getTimeout());
+    }
+
+    /**
+     * @expectedException \LogicException
+     */
+    public function testTimeoutIterating()
+    {
+        $this->query->rewind();
+        $this->query->timeout(null);
     }
 
     /**
