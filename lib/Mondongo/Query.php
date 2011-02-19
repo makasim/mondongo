@@ -541,7 +541,7 @@ class Query implements \Countable, \Iterator
     protected function checkCursor()
     {
         if (null !== $this->cursor) {
-            throw new \LogicException('There is cursor, that is that you have not ended to iterate. If you want to continue working with the query you have to clean the cursor explicitly with the ->resetCursor() method.');
+            throw new \LogicException('There is cursor, that is that you have not ended to iterate. If you want to continue working with the query you have to reset the cursor explicitly with the ->resetCursor() method.');
         }
     }
 }
