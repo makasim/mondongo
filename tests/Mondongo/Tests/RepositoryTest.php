@@ -179,6 +179,24 @@ class RepositoryTest extends TestCase
         $this->assertNull($repository->find(new \MongoId('123')));
     }
 
+    public function testFindMultiple()
+    {
+        $articles = $this->createArticles(10);
+
+        $repository = \Model\Article::repository();
+
+        $results = $repository->find(array($articles[2]->getId(), $articles[5]->getId()));
+        $this->assertEquals(array($articles[2], $articles[5]), array_values($results));
+
+        $results = $repository->find(array(
+            $articles[2]->getId()->__toString(),
+            $articles[5]->getId()->__toString(),
+        ));
+        $this->assertEquals(array($articles[2], $articles[5]), array_values($results));
+
+        $this->assertSame(array(), $repository->find(array(new \MongoId('123'), new \MongoId('321'))));
+    }
+
     public function testFindIdentityMap()
     {
         $repository = $this->mondongo->getRepository('Model\Article');

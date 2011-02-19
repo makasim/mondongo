@@ -173,23 +173,51 @@ abstract class Repository
     }
 
     /**
-     * Find one document by id.
+     * Find one or several documents by id.
      *
-     * @param \MongoId|string $id The document \MongoId or the identifier string.
+     * @param mixed $id The document/s id/s, as \MongoId or string.
      *
-     * @return mixed The document or NULL if it does not exists.
+     * @return mixed The document/s or null if it does not exists.
      */
-    public function find($id)
+    public function find($ids)
     {
-        if (is_string($id)) {
-            $id = new \MongoId($id);
+        $one = !is_array($ids);
+
+        if ($one) {
+            $ids = array($ids);
         }
 
-        if ($this->identityMap->hasById($id)) {
-            return $this->identityMap->getById($id);
+        foreach ($ids as &$id) {
+            if (is_string($id)) {
+                $id = new \MongoId($id);
+            } else if (!$id instanceof \MongoId) {
+                throw new \InvalidArgumentException(sprintf('The identifier "%s" is not valid.', $id));
+            }
+        }
+        unset($id);
+
+        if ($one) {
+            $id = $ids[0];
+
+            if ($this->identityMap->hasById($id)) {
+                return $this->identityMap->getById($id);
+            }
+
+            return $this->query(array('_id' => $id))->one();
         }
 
-        return $this->query(array('_id' => $id))->one();
+        $documents = array();
+        foreach ($ids as $id) {
+            if ($this->identityMap->hasById($id)) {
+                $documents[$id->__toString()] = $this->identityMap->getById($id);
+            }
+        }
+
+        if (count($documents) == count($ids)) {
+            return $documents;
+        }
+
+        return $this->query(array('_id' => array('$in' => $ids)))->all();
     }
 
     /**
