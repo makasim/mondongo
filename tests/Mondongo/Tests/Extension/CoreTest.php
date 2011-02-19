@@ -113,11 +113,6 @@ class CoreTest extends TestCase
                 'source'   => null,
                 'comments' => null,
             ),
-            'relations' => array(
-                'summary'     => null,
-                'news'        => null,
-                'votes_users' => null,
-            ),
         ), $article->getDocumentData());
     }
 
@@ -817,20 +812,13 @@ class CoreTest extends TestCase
         $author->setName('Pablo');
         $author->save();
 
-        $articles = array();
-        for ($i = 1; $i <= 10; $i++) {
-            $article = new Article();
-            if ($i % 2) {
-                $articles[] = $article;
-                $article->setAuthorId($author->getId());
-            }
-            $article->setTitle('Article '.$i);
-            $article->save();
-        }
+        $query = \Model\Article::query(array('author_id' => $author->getId()));
+        $articles1 = $author->getArticles();
+        $this->assertEquals($query, $articles1);
 
-        $this->assertEquals($articles, $results = array_values($author->getArticles()));
-
-        $this->assertSame($results, array_values($author->getArticles()));
+        $articles2 = $author->getArticles();
+        $this->assertEquals($query, $articles2);
+        $this->assertNotSame($articles1, $articles2);
     }
 
     public function testDocumentRelationsManyMany()
@@ -839,20 +827,13 @@ class CoreTest extends TestCase
         $category->setName('Mondongo');
         $category->save();
 
-        $articles = array();
-        for ($i = 1; $i <= 10; $i++) {
-            $article = new Article();
-            if ($i % 2) {
-                $articles[] = $article;
-                $article->setCategoryIds(array($category->getId()));
-            }
-            $article->setTitle('Article '.$i);
-            $article->save();
-        }
+        $query = \Model\Article::query(array('category_ids' => $category->getId()));
+        $articles1 = $category->getArticles();
+        $this->assertEquals($query, $articles1);
 
-        $this->assertEquals($articles, $results = array_values($category->getArticles()));
-
-        $this->assertSame($results, array_values($category->getArticles()));
+        $articles2 = $category->getArticles();
+        $this->assertEquals($query, $articles2);
+        $this->assertNotSame($articles1, $articles2);
     }
 
     public function testDocuemntRelationsManyThrough()
@@ -883,8 +864,12 @@ class CoreTest extends TestCase
 
         $this->mondongo->flush();
 
-        $this->assertSame($articlesVotes[5], array_values($articles[5]->getVotesUsers()));
-        $this->assertSame($articlesVotes[8], array_values($articles[8]->getVotesUsers()));
+        $ids = array();
+        foreach ($articlesVotes[5] as $articleVote) {
+            $ids[] = $articleVote->getId();
+        }
+        $query = \Model\ArticleVote::query(array('_id' => array('$in' => $ids)));
+        $this->assertEquals($query->getCriteria(), $articles[5]->getVotesUsers()->getCriteria());
     }
 
     public function testDocumentSetMethodFields()
@@ -1016,16 +1001,10 @@ class CoreTest extends TestCase
         $summary->setText('foo');
         $summary->save();
 
-        $news = new Group();
-        for ($i = 1; $i <= 1; $i++) {
-            $news->add($n = new News());
-            $n->setTitle('News '.$i);
-            $n->setArticle($article);
-            $n->save();
-        }
-
         $this->assertSame($summary, $article->get('summary'));
-        $this->assertSame($news->getElements(), array_values($article->get('news')));
+
+        $query = \Model\News::query(array('article_id' => $article->getId()));
+        $this->assertEquals($query, $article->getNews());
     }
 
     /**

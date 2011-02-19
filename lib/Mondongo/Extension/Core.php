@@ -691,18 +691,6 @@ EOF
             $data['embeddeds'][$name] = null;
         }
 
-        // relations
-        if (!$this->configClass['is_embedded']) {
-            foreach (array_merge(
-                $this->configClass['relations_one'],
-                $this->configClass['relations_many_one'],
-                $this->configClass['relations_many_many'],
-                $this->configClass['relations_many_through']
-            ) as $name => $relation) {
-                $data['relations'][$name] = null;
-            }
-        }
-
         $property = new Property('protected', 'data', $data);
 
         $this->definitions['document_base']->addProperty($property);
@@ -1284,11 +1272,7 @@ EOF
          */
         foreach ($this->configClass['relations_one'] as $name => $relation) {
             $getterCode = <<<EOF
-        if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()))->one();
-        }
-
-        return \$this->data['relations']['$name'];
+        return \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()))->one();
 EOF;
             $getterDocComment = <<<EOF
     /**
@@ -1308,17 +1292,13 @@ EOF;
          */
         foreach ($this->configClass['relations_many_one'] as $name => $relation) {
             $getterCode = <<<EOF
-        if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()))->all();
-        }
-
-        return \$this->data['relations']['$name'];
+        return \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()));
 EOF;
             $getterDocComment = <<<EOF
     /**
      * Returns the "$name" relation.
      *
-     * @return array The "$name" relation.
+     * @return Mondongo\Query The "$name" relation.
      */
 EOF;
 
@@ -1332,17 +1312,13 @@ EOF;
          */
         foreach ($this->configClass['relations_many_many'] as $name => $relation) {
             $getterCode = <<<EOF
-        if (null === \$this->data['relations']['$name']) {
-            \$this->data['relations']['$name'] = \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()))->all();
-        }
-
-        return \$this->data['relations']['$name'];
+        return \\{$relation['class']}::query(array('{$relation['field']}' => \$this->getId()));
 EOF;
             $getterDocComment = <<<EOF
     /**
      * Returns the "$name" relation.
      *
-     * @return array The "$name" relation.
+     * @return Mondongo\Query The "$name" relation.
      */
 EOF;
 
@@ -1356,25 +1332,20 @@ EOF;
          */
         foreach ($this->configClass['relations_many_through'] as $name => $relation) {
             $getterCode = <<<EOF
-        if (null === \$this->data['relations']['$name']) {
             \$ids = array();
             foreach (\\{$relation['through']}::collection()
                 ->find(array('{$relation['local']}' => \$this->getId()), array('{$relation['foreign']}' => 1))
             as \$value) {
                 \$ids[] = \$value['{$relation['foreign']}'];
             }
-            if (\$ids) {
-                \$this->data['relations']['$name'] = \\{$relation['class']}::query(array('_id' => array('\$in' => \$ids)))->all();
-            }
-        }
 
-        return \$this->data['relations']['$name'];
+            return \\{$relation['class']}::query(array('_id' => array('\$in' => \$ids)));
 EOF;
             $getterDocComment = <<<EOF
     /**
      * Returns the "$name" relation.
      *
-     * @return array The "$name" relation.
+     * @return Model\Query The "$name" relation.
      */
 EOF;
 
