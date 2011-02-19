@@ -30,7 +30,11 @@ namespace Mondongo;
 class Query implements \Countable, \Iterator
 {
     protected $repository;
+    protected $documentClass;
+    protected $isFile;
+
     protected $cursor;
+    protected $identityMapDocuments;
 
     protected $criteria = array();
     protected $fields = array();
@@ -51,6 +55,8 @@ class Query implements \Countable, \Iterator
     public function __construct(Repository $repository)
     {
         $this->repository = $repository;
+        $this->documentClass = $repository->getDocumentClass();
+        $this->isFile = $repository->isFile();
     }
 
     /**
@@ -73,6 +79,14 @@ class Query implements \Countable, \Iterator
         return $this->cursor;
     }
 
+    protected function startCursor()
+    {
+        $this->cursor = $this->createCursor();
+        $this->identityMapDocuments =& $this->repository->getIdentityMap()->allByReference();
+
+        return $this->cursor;
+    }
+
     /**
      * Reset the cursor.
      *
@@ -82,6 +96,7 @@ class Query implements \Countable, \Iterator
     public function resetCursor()
     {
         $this->cursor = null;
+        unset($this->identityMapDocuments);
     }
 
     /**
@@ -411,31 +426,26 @@ class Query implements \Countable, \Iterator
      */
     public function rewind()
     {
-        $this->cursor = $this->createCursor();
-        $this->cursor->rewind();
+        $this->startCursor()->rewind();
     }
 
     public function current()
     {
-        $documentClass = $this->repository->getDocumentClass();
-        $isFile = $this->repository->isFile();
-        $identityMap = $this->repository->getIdentityMap();
-
         $data = $this->cursor->current();
 
-        $id = $isFile ? $data->file['_id'] : $data['_id'];
-        if ($identityMap->hasById($id)) {
-            $document = $identityMap->getById($id);
+        $id = $this->isFile ? $data->file['_id']->__toString() : $data['_id']->__toString();
+        if (isset($this->identityMapDocuments[$id])) {
+            $document = $this->identityMapDocuments[$id];
         } else {
-            $document = new $documentClass();
-            if ($isFile) {
+            $document = new $this->documentClass();
+            if ($this->isFile) {
                 $file = $data;
                 $data = $file->file;
                 $data['file'] = $file;
             }
             $document->setDocumentData($data);
 
-            $identityMap->add($document);
+            $this->identityMapDocuments[$id] = $document;
         }
 
         return $document;
@@ -454,7 +464,7 @@ class Query implements \Countable, \Iterator
     public function valid()
     {
         if (!$valid = $this->cursor->valid()) {
-            $this->cursor = null;
+            $this->resetCursor();
         }
 
         return $valid;
@@ -467,7 +477,26 @@ class Query implements \Countable, \Iterator
      */
     public function all()
     {
-        return iterator_to_array($this);
+        $documents = array();
+        foreach ($this->startCursor() as $id => $data) {
+            if (isset($this->identityMapDocuments[$id])) {
+                $document = $this->identityMapDocuments[$id];
+            } else {
+                $document = new $this->documentClass();
+                if ($this->isFile) {
+                    $file = $data;
+                    $data = $file->file;
+                    $data['file'] = $file;
+                }
+                $document->setDocumentData($data);
+
+                $this->identityMapDocuments[$id] = $document;
+            }
+            $documents[$id] = $document;
+        }
+        $this->resetCursor();
+
+        return $documents;
     }
 
     /**

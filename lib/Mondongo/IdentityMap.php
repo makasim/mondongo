@@ -89,6 +89,11 @@ class IdentityMap
         return $this->documents;
     }
 
+    public function &allByReference()
+    {
+        return $this->documents;
+    }
+
     /**
      * Remove a document by id.
      *
