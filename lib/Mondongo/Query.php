@@ -30,7 +30,7 @@ namespace Mondongo;
 class Query implements \Countable, \Iterator
 {
     protected $repository;
-    protected $currentCursor;
+    protected $cursor;
 
     protected $criteria = array();
     protected $fields = array();
@@ -61,6 +61,16 @@ class Query implements \Countable, \Iterator
     public function getRepository()
     {
         return $this->repository;
+    }
+
+    /**
+     * Returns the current cursor when the query is executed iterating.
+     *
+     * @return \MongoCursor|null The cursor or null if there is not cursor.
+     */
+    public function getCursor()
+    {
+        return $this->cursor;
     }
 
     /**
@@ -370,8 +380,8 @@ class Query implements \Countable, \Iterator
      */
     public function rewind()
     {
-        $this->currentCursor = $this->createCursor();
-        $this->currentCursor->rewind();
+        $this->cursor = $this->createCursor();
+        $this->cursor->rewind();
     }
 
     public function current()
@@ -380,7 +390,7 @@ class Query implements \Countable, \Iterator
         $isFile = $this->repository->isFile();
         $identityMap = $this->repository->getIdentityMap();
 
-        $data = $this->currentCursor->current();
+        $data = $this->cursor->current();
 
         $id = $isFile ? $data->file['_id'] : $data['_id'];
         if ($identityMap->hasById($id)) {
@@ -402,17 +412,21 @@ class Query implements \Countable, \Iterator
 
     public function key()
     {
-        return $this->currentCursor->key();
+        return $this->cursor->key();
     }
 
     public function next()
     {
-        $this->currentCursor->next();
+        $this->cursor->next();
     }
 
     public function valid()
     {
-        return $this->currentCursor->valid();
+        if (!$valid = $this->cursor->valid()) {
+            $this->cursor = null;
+        }
+
+        return $valid;
     }
 
     /**

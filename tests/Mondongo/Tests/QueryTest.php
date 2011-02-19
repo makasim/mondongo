@@ -25,11 +25,24 @@ use Mondongo\Query;
 
 class QueryTest extends TestCase
 {
-    public function testConstruct()
+    public function testConstructGetRepository()
     {
         $repository = \Model\Article::repository();
         $query = new Query($repository);
         $this->assertSame($repository, $query->getRepository());
+    }
+
+    public function testGetCursor()
+    {
+        $this->createArticles(1);
+
+        $query = new Query(\Model\Article::repository());
+        $this->assertNull($query->getCursor());
+        foreach ($query as $article) {
+            $this->assertInstanceOf('MongoCursor', $query->getCursor());
+        }
+        $this->assertNull($query->getCursor());
+
     }
 
     public function testCriteria()
