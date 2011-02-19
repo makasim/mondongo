@@ -40,6 +40,7 @@ class Query implements \Countable, \Iterator
     protected $batchSize;
     protected $hint;
     protected $snapshot = false;
+    protected $tailable = false;
     protected $timeout;
 
     /**
@@ -306,6 +307,34 @@ class Query implements \Countable, \Iterator
     }
 
     /**
+     * Set if the query is tailable.
+     *
+     * @param bool $tailable If the query is tailable.
+     *
+     * @return Mondongo\Query The query instance (fluent interface).
+     */
+    public function tailable($tailable)
+    {
+        if (!is_bool($tailable)) {
+            throw new \InvalidArgumentException('The tailable is not a boolean.');
+        }
+
+        $this->tailable = $tailable;
+
+        return $this;
+    }
+
+    /**
+     * Returns if the query is tailable.
+     *
+     * @return bool If the query is tailable.
+     */
+    public function getTailable()
+    {
+        return $this->tailable;
+    }
+
+    /**
      * Set the timeout.
      *
      * @param int|null $timeout The timeout of the cursor.
@@ -451,6 +480,10 @@ class Query implements \Countable, \Iterator
 
         if ($this->snapshot) {
             $cursor->snapshot();
+        }
+
+        if ($this->tailable) {
+            $cursor->tailable();
         }
 
         if (null !== $this->timeout) {

@@ -231,6 +231,28 @@ class QueryTest extends TestCase
         $query->snapshot($value);
     }
 
+    public function testTailable()
+    {
+        $query = new Query(\Model\Article::repository());
+        $this->assertFalse($query->getTailable());
+
+        $this->assertSame($query, $query->tailable(true));
+        $this->assertTrue($query->getTailable());
+
+        $query->tailable(false);
+        $this->assertFalse($query->getTailable());
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     * @dataProvider      providerNotBoolean
+     */
+    public function testTailableNotBoolean($value)
+    {
+        $query = new Query(\Model\Article::repository());
+        $query->tailable($value);
+    }
+
     public function testTimeout()
     {
         $query = new Query(\Model\Article::repository());
@@ -366,6 +388,7 @@ class QueryTest extends TestCase
             ->batchSize(5)
             ->hint(array('username' => 1))
             ->snapshot(true)
+            ->tailable(true)
             ->timeout(100)
         ;
 
