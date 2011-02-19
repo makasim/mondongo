@@ -256,15 +256,18 @@ class QueryTest extends TestCase
         $query->timeout($value);
     }
 
-    public function testGetIterator()
+    public function testIterator()
     {
         $query = new Query(\Model\Article::repository());
         $articles = $this->createArticles(10);
 
-        $this->assertEquals($articles, iterator_to_array($query));
+        $results = iterator_to_array($query);
+        foreach ($articles as $article) {
+            $this->assertTrue(in_array($article, $results));
+        }
     }
 
-    public function testGetIteratorGridFS()
+    public function testIteratorGridFS()
     {
         $file = __DIR__.'/MondongoTest.php';
 
@@ -292,7 +295,10 @@ class QueryTest extends TestCase
         $query = new Query(\Model\Article::repository());
         $articles = $this->createArticles(10);
 
-        $this->assertEquals($articles, $query->all());
+        $results = $query->all();
+        foreach ($articles as $article) {
+            $this->assertTrue(in_array($article, $results));
+        }
     }
 
     public function testOne()

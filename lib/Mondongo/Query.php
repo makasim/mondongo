@@ -27,9 +27,10 @@ namespace Mondongo;
  * @package Mondongo
  * @author  Pablo Díez Pascual <pablodip@gmail.com>
  */
-class Query implements \Countable, \IteratorAggregate
+class Query implements \Countable, \Iterator
 {
     protected $repository;
+    protected $currentCursor;
 
     protected $criteria = array();
     protected $fields = array();
@@ -335,28 +336,28 @@ class Query implements \Countable, \IteratorAggregate
         return $this->timeout;
     }
 
-    /**
-     * Returns an \ArrayIterator with results (implements \IteratorAggregate interface).
-     *
-     * The query is executed here.
-     *
-     * @return \ArrayIterator An array iterator with the results.
+    /*
+     * Iterator interface.
      */
-    public function getIterator()
+    public function rewind()
+    {
+        $this->currentCursor = $this->createCursor();
+        $this->currentCursor->rewind();
+    }
+
+    public function current()
     {
         $documentClass = $this->repository->getDocumentClass();
         $isFile = $this->repository->isFile();
         $identityMap = $this->repository->getIdentityMap();
 
-        $results = array();
-        foreach ($this->createCursor() as $data) {
-            $id = $isFile ? $data->file['_id'] : $data['_id'];
-            if ($identityMap->hasById($id)) {
-                $results[] = $identityMap->getById($id);
-                continue;
-            }
+        $data = $this->currentCursor->current();
 
-            $results[] = $document = new $documentClass();
+        $id = $isFile ? $data->file['_id'] : $data['_id'];
+        if ($identityMap->hasById($id)) {
+            $document = $identityMap->getById($id);
+        } else {
+            $document = new $documentClass();
             if ($isFile) {
                 $file = $data;
                 $data = $file->file;
@@ -367,7 +368,22 @@ class Query implements \Countable, \IteratorAggregate
             $identityMap->add($document);
         }
 
-        return new \ArrayIterator($results);
+        return $document;
+    }
+
+    public function key()
+    {
+        return $this->currentCursor->key();
+    }
+
+    public function next()
+    {
+        $this->currentCursor->next();
+    }
+
+    public function valid()
+    {
+        return $this->currentCursor->valid();
     }
 
     /**

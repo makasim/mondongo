@@ -828,9 +828,9 @@ class CoreTest extends TestCase
             $article->save();
         }
 
-        $this->assertEquals($articles, $results = $author->getArticles());
+        $this->assertEquals($articles, $results = array_values($author->getArticles()));
 
-        $this->assertSame($results, $author->getArticles());
+        $this->assertSame($results, array_values($author->getArticles()));
     }
 
     public function testDocumentRelationsManyMany()
@@ -850,9 +850,9 @@ class CoreTest extends TestCase
             $article->save();
         }
 
-        $this->assertEquals($articles, $results = $category->getArticles());
+        $this->assertEquals($articles, $results = array_values($category->getArticles()));
 
-        $this->assertSame($results, $category->getArticles());
+        $this->assertSame($results, array_values($category->getArticles()));
     }
 
     public function testDocuemntRelationsManyThrough()
@@ -883,8 +883,8 @@ class CoreTest extends TestCase
 
         $this->mondongo->flush();
 
-        $this->assertSame($articlesVotes[5], $articles[5]->getVotesUsers());
-        $this->assertSame($articlesVotes[8], $articles[8]->getVotesUsers());
+        $this->assertSame($articlesVotes[5], array_values($articles[5]->getVotesUsers()));
+        $this->assertSame($articlesVotes[8], array_values($articles[8]->getVotesUsers()));
     }
 
     public function testDocumentSetMethodFields()
@@ -1025,7 +1025,7 @@ class CoreTest extends TestCase
         }
 
         $this->assertSame($summary, $article->get('summary'));
-        $this->assertSame($news->getElements(), $article->get('news'));
+        $this->assertSame($news->getElements(), array_values($article->get('news')));
     }
 
     /**
