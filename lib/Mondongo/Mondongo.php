@@ -36,6 +36,7 @@ class Mondongo
     protected $loggerCallable;
     protected $connections = array();
     protected $defaultConnectionName;
+    protected $repositories = array();
 
     /**
      * Constructor.
