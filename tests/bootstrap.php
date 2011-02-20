@@ -1,14 +1,14 @@
 <?php
 
 // autoloader
-require(__DIR__.'/../lib/vendor/symfony/src/Symfony/Component/ClassLoader/UniversalClassLoader.php');
+require(__DIR__.'/../src/vendor/symfony/src/Symfony/Component/ClassLoader/UniversalClassLoader.php');
 
 use Symfony\Component\ClassLoader\UniversalClassLoader;
 
 $loader = new UniversalClassLoader();
 $loader->registerNamespaces(array(
     'Mondongo\\Tests' => __DIR__,
-    'Mondongo'        => __DIR__.'/../lib',
+    'Mondongo'        => __DIR__.'/../src',
     'Model'           => __DIR__,
 ));
 $loader->register();
