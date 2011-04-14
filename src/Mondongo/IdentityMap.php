@@ -34,13 +34,13 @@ class IdentityMap
     /**
      * Returns if exists a document by id.
      *
-     * @param \MongoId $id The id.
+     * @param \MongoId|int|string $id The id.
      *
      * @return boolean If exists or no the document.
      */
-    public function hasById(\MongoId $id)
+    public function hasById($id)
     {
-        return isset($this->documents[$id->__toString()]);
+        return isset($this->documents[(string) $id]);
     }
 
     /**
@@ -64,19 +64,19 @@ class IdentityMap
      */
     public function add(\Mondongo\Document\Document $document)
     {
-        $this->documents[$document->getId()->__toString()] = $document;
+        $this->documents[(string) $document->getId()] = $document;
     }
 
     /**
      * Returns a document by id
      *
-     * @param \MongoId $id The id.
+     * @param \MongoId|int|string $id The id.
      *
      * @return \Mondongo\Document\Document The document.
      */
-    public function getById(\MongoId $id)
+    public function getById($id)
     {
-        return $this->documents[$id->__toString()];
+        return $this->documents[(string) $id];
     }
 
     /**
@@ -97,13 +97,13 @@ class IdentityMap
     /**
      * Remove a document by id.
      *
-     * @param \MongoId $id The id.
+     * @param \MongoId|int|string $id The id.
      *
      * @return void
      */
-    public function removeById(\MongoId $id)
+    public function removeById($id)
     {
-        unset($this->documents[$id->__toString()]);
+        unset($this->documents[(string) $id]);
     }
 
     /**

@@ -74,11 +74,11 @@ abstract class Document extends EmbeddedDocument
     /**
      * Set the document \MongoId.
      *
-     * @param \MongoId $id The \MongoId object.
+     * @param \MongoId|int|string $id The \MongoId object.
      *
      * @return void
      */
-    public function setId(\MongoId $id)
+    public function setId($id)
     {
         $this->id = $id;
     }
@@ -86,7 +86,7 @@ abstract class Document extends EmbeddedDocument
     /**
      * Returns the \MongoId of document.
      *
-     * @return \MongoId|null The \MongoId of document if exists, null otherwise.
+     * @return \MongoId|int|string|null The \MongoId of document if exists, null otherwise.
      */
     public function getId()
     {
