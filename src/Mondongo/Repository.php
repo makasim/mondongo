@@ -187,14 +187,14 @@ abstract class Repository
             $ids = array($ids);
         }
 
-        foreach ($ids as &$id) {
-            if (is_string($id)) {
-                $id = new \MongoId($id);
-            } else if (!$id instanceof \MongoId) {
-                throw new \InvalidArgumentException(sprintf('The identifier "%s" is not valid.', $id));
-            }
-        }
-        unset($id);
+//        foreach ($ids as &$id) {
+//            if (is_string($id)) {
+//                $id = new \MongoId($id);
+//            } else if (!$id instanceof \MongoId) {
+//                throw new \InvalidArgumentException(sprintf('The identifier "%s" is not valid.', $id));
+//            }
+//        }
+//        unset($id);
 
         if ($one) {
             $id = $ids[0];
