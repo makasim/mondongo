@@ -191,13 +191,15 @@ class LoggableMongoCursor extends \MongoCursor
             if (isset($info['query']['$snapshot'])) {
                 $log['snapshot'] = 1;
             }
-            $log['explain'] = array(
-                'nscanned'        => $explain['nscanned'],
-                'nscannedObjects' => $explain['nscannedObjects'],
-                'n'               => $explain['n'],
-                'indexBounds'     => $explain['indexBounds'],
-            );
-            $log['time'] = $explain['millis'];
+            
+            // it raises php notices every time. I dont know what to do with it
+//            $log['explain'] = array(
+//                'nscanned'        => $explain['nscanned'],
+//                'nscannedObjects' => $explain['nscannedObjects'],
+//                'n'               => $explain['n'],
+//                'indexBounds'     => $explain['indexBounds'],
+//            );
+//            $log['time'] = $explain['millis'];
 
             $this->log($log);
         }
